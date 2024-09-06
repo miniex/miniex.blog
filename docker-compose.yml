@@ -1,0 +1,26 @@
+services:
+  miniex-blog:
+    build:
+       context: .
+       dockerfile: Dockerfile
+    container_name: "miniex_blog"
+    working_dir: /app
+
+    restart: always
+
+    ports:
+      - "1280:80"
+      - "12443:443"
+
+    volumes:
+      - /opt/daminstudio/miniex-blog/data:/app/data
+
+    networks:
+      - reverse_proxy 
+
+    command: ./blog
+
+networks:
+  reverse_proxy:
+    name: "n0000-reverse_proxy"
+    external: true

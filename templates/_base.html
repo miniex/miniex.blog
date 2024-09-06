@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- each page -->
+    {% block head %}{% endblock %}
+    <!-- favicon -->
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/assets/favicon/sakura-flower-152-238032.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/favicon/sakura-flower-152-238032.png">
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/assets/favicon/sakura-flower-152-238032.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/assets/favicon/sakura-flower-152-238032.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/assets/favicon/sakura-flower-152-238032.png">
+    <link rel="apple-touch-icon-precomposed" href="/assets/favicon/sakura-flower-152-238032.png">
+    <link rel="icon" href="/assets/favicon/sakura-flower-152-238032.png" sizes="32x32">
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
+</head>
+
+<body class="flex flex-col min-h-screen bg-base-200">
+    <header class="bg-base-300 text-base-content shadow-sm">
+        <div class="navbar container mx-auto">
+            <div class="flex-1">
+                <a href="/" class="btn btn-ghost text-xl">
+                    <span class="font-bold">miniex</span>
+                </a>
+            </div>
+            <div class="flex-none">
+                <ul class="grid grid-flow-col gap-1">
+                    <li><a href="/blog" class="btn btn-ghost">Blog</a></li>
+                    <li><a href="/review" class="btn btn-ghost">Review</a></li>
+                    <li><a href="/diary" class="btn btn-ghost">Diary</a></li>
+                    <li><a href="https://miniex.info" class="btn btn-ghost">About Me</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <main class="container mx-auto flex-grow py-8 flex flex-col items-center">
+        {% block main %}{% endblock %}
+    </main>
+    <footer class="bg-base-300 text-base-content">
+        <div class="footer footer-center p-10">
+            <nav>
+                <ul class="grid grid-flow-col gap-4">
+                    <li><a href="/blog" class="link link-hover">Blog</a></li>
+                    <li><a href="/review" class="link link-hover">Review</a></li>
+                    <li><a href="/diary" class="link link-hover">Diary</a></li>
+                    <li><a href="https://miniex.info" class="link link-hover">About Me</a></li>
+                </ul>
+            </nav>
+            <nav>
+                <div class="grid grid-flow-col gap-4">
+                    <a href="https://github.com/miniex" class="btn btn-ghost btn-square">
+                        <i class="ph ph-github-logo text-3xl"></i>
+                    </a>
+                </div>
+            </nav>
+            <aside>
+                <p>Copyright © 2024 - All rights reserved by Han Damin</p>
+            </aside>
+        </div>
+    </footer>
+</body>
+
+</html>
