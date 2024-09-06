@@ -1,0 +1,25 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<title>miniex Error</title>
+{% endblock %}
+
+{% block main %}
+<div class="flex-1 hero bg-base-200">
+    <div class="hero-content text-center">
+        <div class="max-w-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto text-error" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <h1 class="text-5xl font-bold mt-6">404</h1>
+            <p class="text-2xl mt-2">Page Not Found</p>
+            <p class="py-6">
+                Sorry, we couldn't find the page you're looking for. Please check the address or return to the homepage.
+            </p>
+            <a href="/" class="btn btn-primary">Return to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

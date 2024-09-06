@@ -1,0 +1,26 @@
+{% extends "_base.html" %}
+
+{% block head %}
+    {% if let Some(post) = post %}
+        <title>{{ post.metadata.title }}</title>
+    {% else %}
+        <title>Post Not Found</title>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    {% if let Some(post) = post %}
+        <h1>{{ post.metadata.title }}</h1>
+        <p>Date: {{ post.metadata.date }}</p>
+        <p>Author: {{ post.metadata.author }}</p>
+        <p>Type: {{ post.post_type }}</p>
+        <p>Tags: {{ post.metadata.tags|join(", ") }}</p>
+        <article>
+            {{ post.content|safe }}
+        </article>
+    {% else %}
+        <h1>Post Not Found</h1>
+        <p>Sorry, the requested post could not be found.</p>
+        <p><a href="/blog">Return to blog listing</a></p>
+    {% endif %}
+{% endblock %}

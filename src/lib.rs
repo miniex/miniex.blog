@@ -1,3 +1,4 @@
+pub mod post;
 pub mod templates;
 
 #[derive(Default)]

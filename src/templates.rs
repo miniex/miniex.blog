@@ -1,4 +1,4 @@
-use crate::Blog;
+use crate::{post::Post, Blog};
 use askama::Template;
 
 #[derive(Template)]
@@ -12,3 +12,13 @@ pub struct IndexTemplate {
 pub struct BlogTemplate {
     pub blog: Blog,
 }
+
+#[derive(Template)]
+#[template(path = "post.html")]
+pub struct PostTemplate {
+    pub post: Option<Post>,
+}
+
+#[derive(Template)]
+#[template(path = "error.html")]
+pub struct ErrorTemplate {}
