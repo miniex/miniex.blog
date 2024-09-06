@@ -1,7 +1,7 @@
 {
     "scripts": {
         "dev": "bunx tailwindcss -i ./assets/styles/tailwind.input.css -o ./assets/styles/tailwind.output.css --watch --content \"./assets/**/*.css,!./assets/styles/tailwind.output.css,./templates/**/*.html\"",
-        "deploy": "bunx tailwindcss -i ./assets/styles/tailwind.input.css -o ./assets/styles/tailwind.output.css --minify"
+        "build": "bunx tailwindcss -i ./assets/styles/tailwind.input.css -o ./assets/styles/tailwind.output.css --minify"
     },
     "devDependencies": {
         "@tailwindcss/typography": "^0.5.15",

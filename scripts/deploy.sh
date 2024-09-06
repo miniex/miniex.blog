@@ -1,1 +1,3 @@
-bun deploy &
+./scripts/build.sh
+
+./target/release/blog
