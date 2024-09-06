@@ -29,9 +29,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = add_live_reload(app);
 
     let address = if cfg!(debug_assertions) {
-        "127.0.0.1:3000"
+        "0.0.0.0:3000"
     } else {
-        "127.0.0.1:80"
+        "0.0.0.0:80"
     };
 
     info!("Starting server on {}", address);
@@ -97,7 +97,7 @@ async fn handle_error() -> ErrorTemplate {
 
 async fn load_posts(state: AppState) {
     let matter = Matter::<YAML>::new();
-    let content_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contents");
+    let content_dir = PathBuf::from("contents");
     for entry in std::fs::read_dir(content_dir)
         .expect("Failed to read contents directory")
         .flatten()

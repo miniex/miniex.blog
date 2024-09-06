@@ -4,21 +4,25 @@ services:
        context: .
        dockerfile: Dockerfile
     container_name: "miniex_blog"
-    working_dir: /app
 
     restart: always
 
     ports:
       - "1280:80"
-      - "12443:443"
 
     volumes:
-      - /opt/daminstudio/miniex-blog/data:/app/data
+      - ./assets:/app/assets
+      - ./templates:/app/templates
+      - ./contents:/app/contents
+
+    environment:
+      - RUST_LOG=info
+      - RUST_BACKTRACE=1
+
+    command: ["./blog"]
 
     networks:
       - reverse_proxy 
-
-    command: ./blog
 
 networks:
   reverse_proxy:
