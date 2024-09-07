@@ -8,6 +8,9 @@ COMPOSE_FILE="docker-compose.yml"
 eval $(ssh-agent -s)
 ssh-add ~/.ssh/gitlab
 
+# Add GitLab host key to known_hosts
+ssh-keyscan gitlab.daminstudio.com >> ~/.ssh/known_hosts
+
 cd $REPO_PATH
 git pull origin main
 

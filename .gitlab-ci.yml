@@ -19,4 +19,4 @@ deploy:
   script:
     - scp -P 2023 scripts/deploy.sh $SERVER_USER@$SERVER_IP:/tmp/deploy.sh
     - ssh -p 2023 $SERVER_USER@$SERVER_IP 'bash /tmp/deploy.sh'
-    - ssh -p 2023 $SERVER_USER@$SERVER_IP 'rm -f /tmp/deploy.sh
+    - ssh -p 2023 $SERVER_USER@$SERVER_IP 'rm -f /tmp/deploy.sh'
