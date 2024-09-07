@@ -37,13 +37,7 @@ archive_to_github:
     - git config --global user.email "handamin0130@gmail.com"
     - git config --global user.name "miniex"
   script:
-    - git clone $CI_REPOSITORY_URL repo
+    - git clone --mirror $CI_REPOSITORY_URL repo
     - cd repo
-    - git checkout -b temp_branch
-    - git rm -r --cached .
-    - git add .
-    - git reset -- contents/
-    - git commit -m "Selective files for GitHub archive"
-    - git push --force git@github.com:miniex/miniex.blog.git temp_branch:main
-    - cd ..
-    - rm -rf repo
+    - git push --mirror git@github.com:miniex/miniex.blog.git
+ 
