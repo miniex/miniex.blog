@@ -25,3 +25,6 @@ gray_matter = "=0.2.8"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 notify = "6.1.1"
+
+anyhow = "1.0"
+async-recursion = "1.0"
