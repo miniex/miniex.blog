@@ -9,7 +9,20 @@ export default {
         "./templates/**/*.html"
     ],
     theme: {
-        extend: {},
+        extend: {
+            typography: {
+                DEFAULT: {
+                    css: {
+                        "img": {
+                            maxWidth: "50%",
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                            borderRadius: "25px",
+                        },
+                    },
+                },
+            },
+        },
     },
     plugins: [typography, daisyui],
     daisyui: {

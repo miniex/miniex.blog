@@ -882,6 +882,10 @@ html {
 .prose :where(img):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
   margin-top: 2em;
   margin-bottom: 2em;
+  max-width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 25px;
 }
 
 .prose :where(picture):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
@@ -3252,6 +3256,10 @@ html:has(.drawer-toggle:checked) {
   margin-top: 2rem;
 }
 
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
 .block {
   display: block;
 }
@@ -3284,6 +3292,11 @@ html:has(.drawer-toggle:checked) {
   height: 100%;
 }
 
+.h-fit {
+  height: -moz-fit-content;
+  height: fit-content;
+}
+
 .min-h-screen {
   min-height: 100vh;
 }
@@ -3304,6 +3317,10 @@ html:has(.drawer-toggle:checked) {
   width: 20rem;
 }
 
+.\!max-w-none {
+  max-width: none !important;
+}
+
 .max-w-4xl {
   max-width: 56rem;
 }
@@ -3312,16 +3329,16 @@ html:has(.drawer-toggle:checked) {
   max-width: 28rem;
 }
 
-.max-w-none {
-  max-width: none;
-}
-
 .flex-1 {
   flex: 1 1 0%;
 }
 
 .flex-none {
   flex: none;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
 }
 
 .flex-grow {
@@ -3428,6 +3445,11 @@ html:has(.drawer-toggle:checked) {
 .bg-primary {
   --tw-bg-opacity: 1;
   background-color: var(--fallback-p,oklch(var(--p)/var(--tw-bg-opacity)));
+}
+
+.bg-secondary {
+  --tw-bg-opacity: 1;
+  background-color: var(--fallback-s,oklch(var(--s)/var(--tw-bg-opacity)));
 }
 
 .stroke-current {
@@ -3568,6 +3590,11 @@ html:has(.drawer-toggle:checked) {
 .text-primary-content {
   --tw-text-opacity: 1;
   color: var(--fallback-pc,oklch(var(--pc)/var(--tw-text-opacity)));
+}
+
+.text-secondary-content {
+  --tw-text-opacity: 1;
+  color: var(--fallback-sc,oklch(var(--sc)/var(--tw-text-opacity)));
 }
 
 .shadow {
@@ -3806,6 +3833,10 @@ html:has(.drawer-toggle:checked) {
   .sm\:prose :where(img):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
     margin-top: 2em;
     margin-bottom: 2em;
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 25px;
   }
 
   .sm\:prose :where(picture):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
@@ -4662,6 +4693,11 @@ html:has(.drawer-toggle:checked) {
   .xl\:prose-xl :where(.xl\:prose-xl > :last-child):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
     margin-bottom: 0;
   }
+}
+
+.hover\:px-6:hover {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .group:hover .group-hover\:-translate-y-1 {

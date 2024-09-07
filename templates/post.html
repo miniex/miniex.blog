@@ -24,8 +24,12 @@
                             <span class="badge badge-outline ml-1">{{ tag }}</span>
                         {% endfor %}
                     </div>
+                    <span class="font-bold">Published: {{ post.metadata.created_at|date }}</span>
+                    {% if let Some(series) = post.metadata.series %}
+                        <span class="font-bold">Series: {{ series }}</span>
+                    {% endif %}
                     <div class="divider"></div>
-                    <article class="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none">
+                    <article class="prose prose-sm sm:prose lg:prose-lg xl:prose-xl !max-w-none">
                         {{ post.content|safe }}
                     </article>
                 </div>
