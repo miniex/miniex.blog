@@ -1,6 +1,25 @@
 stages:
-  - deploy
   - archive
+  - deploy
+
+archive_to_github:
+  stage: archive
+  only:
+    - main
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+    - eval $(ssh-agent -s)
+    - echo "$GITHUB_SSH_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - git config --global user.email "handamin0130@gmail.com"
+    - git config --global user.name "miniex"
+  script:
+    - git clone --mirror $CI_REPOSITORY_URL repo
+    - cd repo
+    - git push --mirror git@github.com:miniex/miniex.blog.git
 
 deploy_to_dms-ax:
   stage: deploy
@@ -21,23 +40,3 @@ deploy_to_dms-ax:
     - scp -P 2023 scripts/deploy.sh $SERVER_USER@$SERVER_IP:/tmp/deploy.sh
     - ssh -p 2023 $SERVER_USER@$SERVER_IP 'bash /tmp/deploy.sh'
     - ssh -p 2023 $SERVER_USER@$SERVER_IP 'rm -f /tmp/deploy.sh'
-
-archive_to_github:
-  stage: archive
-  only:
-    - main
-  before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
-    - eval $(ssh-agent -s)
-    - echo "$GITHUB_SSH_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan github.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - git config --global user.email "handamin0130@gmail.com"
-    - git config --global user.name "miniex"
-  script:
-    - git clone --mirror $CI_REPOSITORY_URL repo
-    - cd repo
-    - git push --mirror git@github.com:miniex/miniex.blog.git
- 
