@@ -15,6 +15,18 @@ pub struct BlogTemplate {
 }
 
 #[derive(Template)]
+#[template(path = "review.html")]
+pub struct ReviewTemplate {
+    pub blog: Blog,
+}
+
+#[derive(Template)]
+#[template(path = "diary.html")]
+pub struct DiaryTemplate {
+    pub blog: Blog,
+}
+
+#[derive(Template)]
 #[template(path = "post.html")]
 pub struct PostTemplate {
     pub post: Option<Post>,

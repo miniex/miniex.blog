@@ -5,7 +5,9 @@ use axum::{
 };
 use blog::{
     post::{get_recent_posts, load_posts},
-    templates::{BlogTemplate, ErrorTemplate, IndexTemplate, PostTemplate},
+    templates::{
+        BlogTemplate, DiaryTemplate, ErrorTemplate, IndexTemplate, PostTemplate, ReviewTemplate,
+    },
     AppState, Blog,
 };
 use std::sync::Arc;
@@ -42,6 +44,8 @@ fn create_router(state: AppState) -> Router {
     Router::new()
         .route("/", get(handle_index))
         .route("/blog", get(handle_blog))
+        .route("/review", get(handle_review))
+        .route("/diary", get(handle_diary))
         .route("/post/:id", get(handle_post))
         .nest_service("/assets", ServeDir::new("assets"))
         .nest_service("/favicon.ico", ServeFile::new("assets/favicon/favicon.ico"))
@@ -80,6 +84,18 @@ async fn handle_index(State(state): State<AppState>) -> IndexTemplate {
 async fn handle_blog() -> BlogTemplate {
     BlogTemplate {
         blog: Blog::new().set_title("miniex::blog"),
+    }
+}
+
+async fn handle_review() -> ReviewTemplate {
+    ReviewTemplate {
+        blog: Blog::new().set_title("miniex::review"),
+    }
+}
+
+async fn handle_diary() -> DiaryTemplate {
+    DiaryTemplate {
+        blog: Blog::new().set_title("miniex::diary"),
     }
 }
 
