@@ -21,7 +21,7 @@ pub struct Post {
     pub slug: String,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum PostType {
     Blog,
@@ -96,6 +96,24 @@ pub fn get_recent_posts(posts: &[Post]) -> Vec<Post> {
 
     recent_posts.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
     recent_posts
+}
+
+/// get posts by category
+pub fn get_posts_by_category(
+    posts: &[Post],
+    post_type: PostType,
+    category: Option<&str>,
+) -> Vec<Post> {
+    posts
+        .iter()
+        .filter(|post| {
+            post.post_type == post_type
+                && category
+                    .map(|c| post.metadata.tags.contains(&c.to_string()))
+                    .unwrap_or(true)
+        })
+        .cloned()
+        .collect()
 }
 
 // load posts from mdx files

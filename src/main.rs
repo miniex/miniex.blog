@@ -1,15 +1,16 @@
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     routing::get,
     Router,
 };
 use blog::{
-    post::{get_recent_posts, load_posts},
+    post::{get_posts_by_category, get_recent_posts, load_posts, PostType},
     templates::{
         BlogTemplate, DiaryTemplate, ErrorTemplate, IndexTemplate, PostTemplate, ReviewTemplate,
     },
     AppState, Blog,
 };
+use serde::Deserialize;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tower_http::services::{ServeDir, ServeFile};
@@ -81,9 +82,61 @@ async fn handle_index(State(state): State<AppState>) -> IndexTemplate {
     }
 }
 
-async fn handle_blog() -> BlogTemplate {
+#[derive(Deserialize)]
+struct BlogQuery {
+    category: Option<String>,
+    page: Option<u32>,
+}
+
+async fn handle_blog(
+    State(state): State<AppState>,
+    Query(query): Query<BlogQuery>,
+) -> BlogTemplate {
+    let posts = state.read().await;
+    let category = query.category.as_deref();
+    let page = query.page.unwrap_or(1);
+    let posts_per_page = 10;
+
+    let filtered_posts = get_posts_by_category(&posts, PostType::Blog, category);
+    let total_posts = filtered_posts.len();
+    let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
+
+    let start = (page - 1) * posts_per_page;
+    let current_posts = filtered_posts
+        .into_iter()
+        .skip(start as usize)
+        .take(posts_per_page as usize)
+        .collect();
+
+    let categories = posts
+        .iter()
+        .filter(|p| matches!(p.post_type, PostType::Blog))
+        .flat_map(|p| p.metadata.tags.clone())
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .collect();
+
+    let page_numbers = if total_pages <= 5 {
+        (1..=total_pages).collect()
+    } else {
+        let start = std::cmp::max(1, std::cmp::min(page - 2, total_pages - 4));
+        let end = std::cmp::min(start + 4, total_pages);
+        (start..=end).collect()
+    };
+
     BlogTemplate {
         blog: Blog::new().set_title("miniex::blog"),
+        posts: current_posts,
+        categories,
+        current_page: page,
+        total_pages,
+        prev_page: if page > 1 { Some(page - 1) } else { None },
+        next_page: if page < total_pages {
+            Some(page + 1)
+        } else {
+            None
+        },
+        page_numbers,
     }
 }
 

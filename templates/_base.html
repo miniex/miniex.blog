@@ -31,10 +31,16 @@
             </div>
             <div class="flex-none hidden md:block">
                 <ul class="grid grid-flow-col gap-1">
-                    <li><a href="/blog" class="btn btn-ghost">Blog</a></li>
-                    <li><a href="/review" class="btn btn-ghost">Review</a></li>
-                    <li><a href="/diary" class="btn btn-ghost">Diary</a></li>
-                    <li><a href="https://miniex.info" class="btn btn-ghost">About Me</a></li>
+                    <li class="dropdown dropdown-hover">
+                        <label tabindex="0" class="btn btn-ghost">Posts</label>
+                        <ul tabindex="0" class="dropdown-content z-[1] menu shadow bg-base-100 rounded-box w-52">
+                            <li><a href="/blog">Blog</a></li>
+                            <li><a href="/review">Review</a></li>
+                            <li><a href="/diary">Diary</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/series" class="btn btn-ghost">Series</a></li>
+                    <li><a href="/about" class="btn btn-ghost">About Me</a></li>
                 </ul>
             </div>
             <div class="flex-none md:hidden">
@@ -49,30 +55,39 @@
         </div>
     </header>
     <main class="container mx-auto flex-grow py-8 flex flex-col items-center">
+        {% block main %}{% endblock %}
         <div class="drawer drawer-end">
             <input id="drawer" type="checkbox" class="drawer-toggle" />
             <div class="drawer-side">
                 <label for="drawer" class="drawer-overlay"></label>
                 <div class="px-4 py-10 w-80 h-full bg-base-200 text-base-content">
                     <ul class="menu">
-                        <li><a href="/blog">Blog</a></li>
-                        <li><a href="/review">Review</a></li>
-                        <li><a href="/diary">Diary</a></li>
-                        <li><a href="https://miniex.info">About Me</a></li>
+                        <li>
+                            <details>
+                                <summary>Posts</summary>
+                                <ul>
+                                    <li><a href="/posts/blog">Blog</a></li>
+                                    <li><a href="/posts/review">Review</a></li>
+                                    <li><a href="/posts/diary">Diary</a></li>
+                                </ul>
+                            </details>
+                        </li>
+                        <li><a href="/series">Series</a></li>
+                        <li><a href="/about">About Me</a></li>
                     </ul>
                 </div>
             </div>
         </div>
-        {% block main %}{% endblock %}
     </main>
     <footer class="bg-base-300 text-base-content">
         <div class="footer footer-center p-10">
             <nav>
                 <ul class="grid grid-flow-col gap-4">
-                    <li><a href="/blog" class="link link-hover">Blog</a></li>
-                    <li><a href="/review" class="link link-hover">Review</a></li>
-                    <li><a href="/diary" class="link link-hover">Diary</a></li>
-                    <li><a href="https://miniex.info" class="link link-hover">About Me</a></li>
+                    <li><a href="/posts/blog" class="link link-hover">Blog</a></li>
+                    <li><a href="/posts/review" class="link link-hover">Review</a></li>
+                    <li><a href="/posts/diary" class="link link-hover">Diary</a></li>
+                    <li><a href="/series" class="link link-hover">Series</a></li>
+                    <li><a href="/about" class="link link-hover">About Me</a></li>
                 </ul>
             </nav>
             <nav>

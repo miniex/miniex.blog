@@ -27,3 +27,7 @@ pub fn lower<T: std::fmt::Display>(s: T) -> ::askama::Result<String> {
 pub fn replace<T: std::fmt::Display>(s: T, from: &str, to: &str) -> ::askama::Result<String> {
     Ok(s.to_string().replace(from, to))
 }
+
+pub fn to_ref(s: &u32) -> ::askama::Result<&u32> {
+    Ok(s)
+}
