@@ -1,10 +1,11 @@
-use crate::{post::Post, Blog};
+use crate::{filters, post::Post, Blog};
 use askama::Template;
 
 #[derive(Template)]
 #[template(path = "index.html")]
 pub struct IndexTemplate {
     pub blog: Blog,
+    pub recent_posts: Vec<Post>,
 }
 
 #[derive(Template)]

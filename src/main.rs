@@ -4,7 +4,7 @@ use axum::{
     Router,
 };
 use blog::{
-    post::load_posts,
+    post::{get_recent_posts, load_posts},
     templates::{BlogTemplate, ErrorTemplate, IndexTemplate, PostTemplate},
     AppState, Blog,
 };
@@ -67,9 +67,13 @@ fn add_live_reload(app: Router) -> Router {
     app.layer(livereload)
 }
 
-async fn handle_index() -> IndexTemplate {
+async fn handle_index(State(state): State<AppState>) -> IndexTemplate {
+    let posts = state.read().await;
+    let recent_posts = get_recent_posts(&posts);
+
     IndexTemplate {
         blog: Blog::new().set_title("miniex"),
+        recent_posts,
     }
 }
 

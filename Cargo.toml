@@ -21,6 +21,9 @@ tower-http = { version = "=0.5.2", features = ["fs", "trace"] }
 tower-livereload = "=0.9.3"
 
 gray_matter = "=0.2.8"
+pulldown-cmark = "=0.12.0"
+
+chrono = { version = "=0.4.38", features = ["serde"] }
 
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

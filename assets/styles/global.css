@@ -1,0 +1,20 @@
+@font-face {
+    font-family: "GangwonEdu_OTFBoldA";
+    src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    font-family: "GangwonEdu_OTFBoldA";
+}
+
+body {
+    margin: 0 auto;
+}
+
+main {
+    line-height: 1.6;
+    max-width: 1200px;
+    padding: 20px;
+}

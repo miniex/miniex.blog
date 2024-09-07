@@ -1,8 +1,15 @@
+mod de;
+
 use crate::AppState;
 use anyhow::{Context, Result};
+use chrono::{DateTime, Duration, Utc};
 use gray_matter::{engine::YAML, Matter};
+use pulldown_cmark::{html, Options, Parser};
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::{
+    cmp::Ordering,
+    path::{Path, PathBuf},
+};
 use tokio::fs;
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -33,12 +40,55 @@ impl std::fmt::Display for PostType {
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PostMetadata {
     pub title: String,
-    pub date: String,
+    pub description: String,
     pub author: String,
     pub tags: Vec<String>,
+    #[serde(with = "de::date_format")]
+    pub created_at: DateTime<Utc>,
+    #[serde(with = "de::date_format")]
+    pub updated_at: DateTime<Utc>,
 }
 
-//
+impl Ord for Post {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.metadata.created_at.cmp(&other.metadata.created_at)
+    }
+}
+
+impl PartialOrd for Post {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Post {
+    fn eq(&self, other: &Self) -> bool {
+        self.metadata.created_at == other.metadata.created_at
+    }
+}
+
+impl Eq for Post {}
+
+impl Post {
+    pub fn is_recent(&self) -> bool {
+        let now = Utc::now();
+        now.signed_duration_since(self.metadata.created_at) <= Duration::days(30)
+    }
+}
+
+/// get recent posts
+pub fn get_recent_posts(posts: &[Post]) -> Vec<Post> {
+    let mut recent_posts: Vec<Post> = posts
+        .iter()
+        .filter(|post| post.is_recent())
+        .cloned()
+        .collect();
+
+    recent_posts.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
+    recent_posts
+}
+
+// load posts from mdx files
 pub async fn load_posts(state: AppState) -> Result<()> {
     let matter = Matter::<YAML>::new();
     let content_dir = PathBuf::from("contents");
@@ -108,9 +158,19 @@ async fn process_mdx_file(
         .data
         .ok_or_else(|| anyhow::anyhow!("No front matter found"))?
         .deserialize()?;
+
+    // Parse the markdown
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    let parser = Parser::new_ext(parsed.content.as_str(), options);
+
+    // Write to String buffer
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+
     Ok(Post {
         post_type,
         metadata,
-        content: parsed.content,
+        content: html_output,
     })
 }
