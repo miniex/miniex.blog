@@ -6,6 +6,7 @@ use chrono::{DateTime, Duration, Utc};
 use gray_matter::{engine::YAML, Matter};
 use pulldown_cmark::{html, Options, Parser};
 use serde::{Deserialize, Serialize};
+use slug::slugify;
 use std::{
     cmp::Ordering,
     path::{Path, PathBuf},
@@ -17,6 +18,7 @@ pub struct Post {
     pub post_type: PostType,
     pub metadata: PostMetadata,
     pub content: String,
+    pub slug: String,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -77,6 +79,10 @@ impl Post {
     pub fn is_recent(&self) -> bool {
         let now = Utc::now();
         now.signed_duration_since(self.metadata.created_at) <= Duration::days(30)
+    }
+
+    pub fn generate_slug(&mut self) {
+        self.slug = slugify(&self.metadata.title);
     }
 }
 
@@ -172,9 +178,14 @@ async fn process_mdx_file(
     let mut html_output = String::new();
     html::push_html(&mut html_output, parser);
 
-    Ok(Post {
+    let mut post = Post {
         post_type,
         metadata,
         content: html_output,
-    })
+        slug: String::new(),
+    };
+
+    post.generate_slug();
+
+    Ok(post)
 }

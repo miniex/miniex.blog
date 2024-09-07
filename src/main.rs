@@ -101,10 +101,7 @@ async fn handle_diary() -> DiaryTemplate {
 
 async fn handle_post(Path(id): Path<String>, State(state): State<AppState>) -> PostTemplate {
     let posts = state.read().await;
-    let post = posts
-        .iter()
-        .find(|p| p.metadata.title.to_lowercase().replace(" ", "-") == id)
-        .cloned();
+    let post = posts.iter().find(|p| p.slug == id).cloned();
     PostTemplate { post }
 }
 

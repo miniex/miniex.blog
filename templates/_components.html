@@ -1,5 +1,5 @@
 {% macro post_card(post) %}
-<a href="/post/{{ post.metadata.title|lower|replace(" ", " -") }}" class="group">
+<a href="/post/{{ post.slug }}" class="group">
     <div
         class="bg-base-100 rounded-lg shadow-md overflow-hidden transition-all duration-300 ease-in-out transform group-hover:shadow-xl group-hover:-translate-y-1">
         <div class="p-6">
