@@ -1,14 +1,14 @@
 services:
-  miniex-blog:
+  m0000-blog:
     build:
        context: .
        dockerfile: Dockerfile
-    container_name: "miniex_blog"
+    container_name: "m0000-blog"
 
     restart: always
 
     ports:
-      - "1280:80"
+      - "1380:80"
 
     volumes:
       - ./assets:/app/assets

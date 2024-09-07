@@ -1,0 +1,22 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  only:
+    - main
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+
+    - echo "$SSH_KEY" | tr -d '\r' | ssh-add - > /dev/null
+
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    
+    - ssh-keyscan -p 2023 $SERVER_IP >> ~/.ssh/known_hosts 2>&1
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - scp -P 2023 scripts/deploy.sh $SERVER_USER@$SERVER_IP:/tmp/deploy.sh
+    - ssh -p 2023 $SERVER_USER@$SERVER_IP 'bash /tmp/deploy.sh'
+    - ssh -p 2023 $SERVER_USER@$SERVER_IP 'rm -f /tmp/deploy.sh
