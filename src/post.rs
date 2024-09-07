@@ -47,6 +47,10 @@ pub struct PostMetadata {
     pub created_at: DateTime<Utc>,
     #[serde(with = "de::date_format")]
     pub updated_at: DateTime<Utc>,
+    // -- series (optional) --
+    pub series: Option<String>,
+    pub prev_post: Option<String>,
+    pub next_post: Option<String>,
 }
 
 impl Ord for Post {

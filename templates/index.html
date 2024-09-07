@@ -1,7 +1,10 @@
 {% extends "_base.html" %}
+{% import "_components.html" as components %}
+
 {% block head %}
 <title>{{blog.title}}</title>
 {% endblock %}
+
 {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
     <!-- Profile Section -->
@@ -19,23 +22,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             {% if recent_posts.len() > 0 %}
                 {% for post in recent_posts %}
-                    <a href="/post/{{ post.metadata.title|lower|replace(" ", "-") }}" class="group">
-                        <div class="bg-base-100 rounded-lg shadow-md overflow-hidden transition-all duration-300 ease-in-out transform group-hover:shadow-xl group-hover:-translate-y-1">
-                            <div class="p-6">
-                                <div class="flex justify-between items-start mb-4">
-                                    <span class="bg-primary text-primary-content text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide">{{ post.post_type }}</span>
-                                    <p class="text-xs text-base-content/70">{{ post.metadata.created_at|date }}</p>
-                                </div>
-                                <h3 class="text-xl font-bold mb-2 text-base-content group-hover:text-primary transition-colors duration-300">{{ post.metadata.title }}</h3>
-                                <p class="text-sm text-base-content/80 mb-4">{{ post.metadata.description|truncate(100) }}</p>
-                                <div class="flex justify-end mt-4">
-                                    <span class="inline-block bg-primary text-primary-content text-sm font-semibold px-4 py-2 rounded transition-all duration-300 group-hover:bg-primary-focus group-hover:px-6">
-                                        Read More
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
+                    {% call components::post_card(post=post) %}
                 {% endfor %}
             {% else %}
                 <p class="text-center col-span-2">No recent posts available.</p>
