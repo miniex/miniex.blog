@@ -27,12 +27,12 @@ RUN bunx tailwindcss -i ./assets/styles/tailwind.input.css -o ./assets/styles/ta
 RUN cargo build --release
 
 # Runtime stage
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update && apt-get install -y \
-    libssl1.1 \
+    libssl3 \
     ca-certificates \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
