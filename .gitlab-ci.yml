@@ -14,7 +14,7 @@ archive_to_github:
     - chmod 700 ~/.ssh
     - ssh-keyscan github.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - git config --global user.email "handamin0130@gmail.com"
+    - git config --global user.email "miniex@daminstudio.net"
     - git config --global user.name "miniex"
   script:
     - git clone --mirror $CI_REPOSITORY_URL repo

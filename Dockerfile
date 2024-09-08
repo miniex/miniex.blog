@@ -1,5 +1,5 @@
 # Build stage
-FROM rust:1.70-slim-bullseye as builder
+FROM rust:latest as builder
 WORKDIR /usr/src/app
 
 # Install Node.js, Bun, and other necessary tools
