@@ -2,12 +2,13 @@
 FROM rust:1.70-slim-bullseye as builder
 WORKDIR /usr/src/app
 
-# Install Node.js and Bun
-RUN apt-get update && apt-get install -y curl && \
+# Install Node.js, Bun, and other necessary tools
+RUN apt-get update && apt-get install -y curl unzip && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
     curl -fsSL https://bun.sh/install | bash && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/root/.bun/bin:${PATH}"
 
