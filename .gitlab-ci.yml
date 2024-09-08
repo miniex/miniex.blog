@@ -1,6 +1,6 @@
 stages:
-  - archive
   - deploy
+  - archive
 
 archive_to_github:
   stage: archive
