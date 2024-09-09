@@ -19,7 +19,7 @@ archive_to_github:
   script:
     - git clone --mirror $CI_REPOSITORY_URL repo
     - cd repo
-    - git push --mirror git@github.com:miniex/miniex.blog.git
+    - git push -f --mirror git@github.com:miniex/miniex.blog.git
 
 deploy_to_dms-ax:
   stage: deploy
