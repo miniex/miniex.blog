@@ -1,2 +1,2 @@
 assets/styles/tailwind.output.css linguist-vendored
-contents/**/*.mdx linguist-vendored
+contents/*/.mdx linguist-documentation
