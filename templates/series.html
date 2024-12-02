@@ -1,0 +1,42 @@
+{% extends "_base.html" %}
+
+{% block head %}
+<title>{{ blog.title }}</title>
+{% endblock %}
+
+{% block main %}
+<div class="container mx-auto px-4 max-w-4xl">
+    <h1 class="text-4xl font-bold text-center my-8">Series</h1>
+    
+    <!-- Series List -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% if series.len() > 0 %}
+            {% for s in series %}
+                <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="card-body p-4">
+                        <h2 class="card-title text-base">{{ s.name }}</h2>
+                        
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            {% for author in s.authors %}
+                                <span class="badge badge-outline badge-sm">{{ author }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="text-xs text-gray-500 mt-1">
+                            Last updated: {{ s.updated_at|date }}
+                        </div>
+                        
+                        <div class="card-actions justify-end mt-2">
+                            <a href="/series/{{ s.name }}" class="btn btn-primary btn-sm">View Series</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-8 col-span-full">
+                <p class="text-lg">No series available.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

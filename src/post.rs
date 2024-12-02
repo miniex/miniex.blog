@@ -29,6 +29,14 @@ pub enum PostType {
     Diary,
 }
 
+#[derive(Deserialize, Serialize, Clone)]
+pub struct Series {
+    pub name: String,
+    pub authors: Vec<String>,
+    #[serde(with = "de::date_format")]
+    pub updated_at: DateTime<Utc>,
+}
+
 impl std::fmt::Display for PostType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -94,7 +102,7 @@ pub fn get_recent_posts(posts: &[Post]) -> Vec<Post> {
         .cloned()
         .collect();
 
-    recent_posts.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
+    recent_posts.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
     recent_posts
 }
 
@@ -123,6 +131,79 @@ pub async fn load_posts(state: AppState) -> Result<()> {
     process_content_directory(&content_dir, &matter, &state).await?;
 
     Ok(())
+}
+
+/// get all series information from posts, sorted by name
+pub fn get_series(posts: &[Post]) -> Vec<Series> {
+    let mut series_map: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
+    let mut latest_updates: std::collections::HashMap<String, DateTime<Utc>> = std::collections::HashMap::new();
+
+    // Collect authors and latest update times for each series
+    for post in posts.iter() {
+        if let Some(series_name) = &post.metadata.series {
+            // Update authors
+            series_map
+                .entry(series_name.clone())
+                .or_default()
+                .push(post.metadata.author.clone());
+
+            // Update latest update time
+            latest_updates
+                .entry(series_name.clone())
+                .and_modify(|e| *e = (*e).max(post.metadata.updated_at))
+                .or_insert(post.metadata.updated_at);
+        }
+    }
+
+    // Convert to Vec<Series>
+    let mut series: Vec<Series> = series_map
+        .into_iter()
+        .map(|(name, authors)| {
+            let unique_authors: Vec<String> = authors.into_iter().collect::<std::collections::HashSet<_>>().into_iter().collect();
+            Series {
+                name: name.clone(),
+                authors: unique_authors,
+                updated_at: latest_updates.get(&name).cloned().unwrap_or_default(),
+            }
+        })
+        .collect();
+
+    // Sort by name
+    series.sort_by(|a, b| a.name.cmp(&b.name));
+    series
+}
+
+/// get all series names from posts, sorted alphabetically
+pub fn get_series_names(posts: &[Post]) -> Vec<String> {
+    let mut series_names: Vec<String> = posts
+        .iter()
+        .filter_map(|post| post.metadata.series.clone())
+        .collect::<std::collections::HashSet<String>>()
+        .into_iter()
+        .collect();
+    
+    // Sort alphabetically
+    series_names.sort();
+    series_names
+}
+
+/// get posts by series name
+pub fn get_posts_by_series(posts: &[Post], series_name: &str) -> Vec<Post> {
+    let mut series_posts: Vec<Post> = posts
+        .iter()
+        .filter(|post| {
+            post.metadata
+                .series
+                .as_ref()
+                .map(|s| s == series_name)
+                .unwrap_or(false)
+        })
+        .cloned()
+        .collect();
+
+    // Sort by creation date to maintain chronological order
+    series_posts.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
+    series_posts
 }
 
 #[async_recursion::async_recursion]

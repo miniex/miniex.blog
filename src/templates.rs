@@ -1,5 +1,6 @@
-use crate::{filters, post::Post, Blog};
+use crate::{filters, post::{Post, Series}, Blog};
 use askama::Template;
+use chrono::{DateTime, Utc};
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -31,6 +32,23 @@ pub struct ReviewTemplate {
 #[template(path = "diary.html")]
 pub struct DiaryTemplate {
     pub blog: Blog,
+}
+
+#[derive(Template)]
+#[template(path = "series.html")]
+pub struct SeriesTemplate {
+    pub blog: Blog,
+    pub series: Vec<Series>
+}
+
+#[derive(Template)]
+#[template(path = "series_detail.html")]
+pub struct SeriesDetailTemplate {
+    pub blog: Blog, 
+    pub series_name: String,
+    pub posts: Vec<Post>,
+    pub authors: Vec<String>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Template)]

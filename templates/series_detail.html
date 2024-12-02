@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+{% import "_components.html" as components %}
+
+{% block head %}
+<title>{{ blog.title }}</title>
+{% endblock %}
+
+{% block main %}
+<div class="container mx-auto px-4 max-w-4xl">
+    <!-- Series Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-center my-8">{{ series_name }}</h1>
+        <div class="flex justify-center gap-2 mb-4">
+            {% for author in authors %}
+                <span class="badge badge-outline">{{ author }}</span>
+            {% endfor %}
+        </div>
+        <div class="text-center text-sm text-gray-500">
+            Last updated: {{ updated_at|date }}
+        </div>
+    </div>
+
+    <!-- Posts Timeline -->
+    <div class="grid grid-cols-1 gap-8 relative">
+        {% if posts.len() > 0 %}
+            {% for post in posts %}
+                <div class="relative">
+                    <!-- Timeline Connector -->
+                        <div class="absolute left-1/2 top-full h-8 w-px bg-base-300 -translate-x-1/2"></div>
+                    
+                    <!-- Post Card -->
+                    {% call components::post_card(post=post) %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center">No posts available in this series.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

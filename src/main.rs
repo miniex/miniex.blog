@@ -4,9 +4,9 @@ use axum::{
     Router,
 };
 use blog::{
-    post::{get_posts_by_category, get_recent_posts, load_posts, PostType},
+    post::{get_posts_by_category, get_posts_by_series, get_recent_posts, get_series, load_posts, PostType},
     templates::{
-        BlogTemplate, DiaryTemplate, ErrorTemplate, IndexTemplate, PostTemplate, ReviewTemplate,
+        BlogTemplate, DiaryTemplate, ErrorTemplate, IndexTemplate, PostTemplate, ReviewTemplate, SeriesDetailTemplate, SeriesTemplate
     },
     AppState, Blog,
 };
@@ -47,6 +47,8 @@ fn create_router(state: AppState) -> Router {
         .route("/blog", get(handle_blog))
         .route("/review", get(handle_review))
         .route("/diary", get(handle_diary))
+        .route("/series", get(handle_series))
+        .route("/series/:name", get(handle_series_detail))
         .route("/post/:id", get(handle_post))
         .nest_service("/assets", ServeDir::new("assets"))
         .nest_service("/favicon.ico", ServeFile::new("assets/favicon/favicon.ico"))
@@ -149,6 +151,40 @@ async fn handle_review() -> ReviewTemplate {
 async fn handle_diary() -> DiaryTemplate {
     DiaryTemplate {
         blog: Blog::new().set_title("miniex::diary"),
+    }
+}
+
+async fn handle_series(
+    State(state): State<AppState>,
+) ->SeriesTemplate {
+    let posts = state.read().await;
+    let series = get_series(&posts);
+
+    SeriesTemplate {
+        blog: Blog::new().set_title("miniex::series"),
+        series
+    }
+    
+}
+
+async fn handle_series_detail(
+    Path(series_name): Path<String>,
+    State(state): State<AppState>,
+) -> SeriesDetailTemplate {
+    let posts = state.read().await;
+    let series_posts = get_posts_by_series(&posts, &series_name);
+    
+    let series = get_series(&posts)
+        .into_iter()
+        .find(|s| s.name == series_name)
+        .expect("Series should exist");
+
+    SeriesDetailTemplate {
+        blog: Blog::new().set_title(&format!("miniex::series::{}", series_name)),
+        series_name,
+        posts: series_posts,
+        authors: series.authors,
+        updated_at: series.updated_at,
     }
 }
 
