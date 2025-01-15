@@ -85,7 +85,7 @@ series: 머신러닝 스터디
 <br/>
 <br/>
 
-# 2. 하이퍼파라미터 튜닝(Hyperparameter Tuning)
+## 2. 하이퍼파라미터 튜닝(Hyperparameter Tuning)
 
 하이퍼파라미터는 <strong>학습률(learning rate), 배치 크기(batch size), 은닉층의 크기</strong> 등 <strong>모델 구조나 학습 방식에 영향을 주는 모든 파라미터</strong>를 통칭한다. 올바른 하이퍼파라미터 값을 찾는 것은 모델 성능에 지대한 영향을 미친다.
 
@@ -94,7 +94,7 @@ series: 머신러닝 스터디
 
 <br />
 
-## 2.1 검색 전략
+### 2.1 검색 전략
 
 1. **Grid Search**
     - 미리 정한 후보들의 모든 조합을 시도
@@ -127,7 +127,7 @@ print(study.best_params)
 ```
 <br />
 
-# 3. 전이 학습(Transfer Learning)
+## 3. 전이 학습(Transfer Learning)
 
 전이 학습은 <strong>이미 학습된 모델</strong>(예: ImageNet으로 학습된 ResNet, BERT 등)을 활용해, 새로운 작업에 빠르게 적응시키는 기법이다.
 
@@ -151,9 +151,9 @@ model.fc = nn.Linear(num_features, 10)  # 예: 클래스 10개
 
 <br />
 
-# 4. 모델 해석(Explainability)과 시각화
+## 4. 모델 해석(Explainability)과 시각화
 
-![Grad-CAM 시각화 예시](/assets/imgs/ml-s-ljh-3-3.jpg)
+![Grad-CAM 시각화 예시](/assets/imgs/ml-s-ljh-3-3.png)
 > 출처: [Grad-CAM 논문 (arXiv)](https://en.wikipedia.org/wiki/Transfer_learning)
 
 복잡한 모델이 예측 결과를 도출하는 과정을 파악하고, <strong>왜 이런 예측이 나왔는지</strong>를 설명하는 것은 점점 더 중요해지고 있다.
@@ -171,6 +171,6 @@ model.fc = nn.Linear(num_features, 10)  # 예: 클래스 10개
     - 예측의 원인을 직관적으로 해석할 수 있도록 돕는 기법
 <br />
 
-# 마치며
+## 마치며
 
 이번 글에서는 오버피팅/언더피팅, 하이퍼파라미터 튜닝, 전이 학습 등 딥러닝 프로젝트의 실질적인 문제 해결과 성능 향상에 관해 보다 구체적으로 다뤄보았다.
