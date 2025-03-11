@@ -7,13 +7,13 @@
 <div class="container mx-auto px-4 max-w-4xl">
     <!-- Profile Section - Horizontal on mobile, vertical on larger screens -->
     <section class="py-6 sm:py-8 md:py-12">
-        <!-- Mobile layout (horizontal) -->
+        <!-- Mobile layout (horizontal) - Safari fix -->
         <div class="flex flex-row items-center gap-4 sm:hidden">
-            <picture class="flex-shrink-0">
+            <picture class="flex-shrink-0 w-24">
                 <img class="rounded-full w-24 h-24 object-cover border-4 border-primary/20 shadow-md" src="https://avatars.githubusercontent.com/u/176331224?v=4" alt="Profile Picture" />
             </picture>
-            <div class="flex flex-col">
-                <h1 class="text-xl font-bold">Han Damin - miniex</h1>
+            <div class="flex flex-col min-w-0"> <!-- Added min-w-0 to fix text overflow -->
+                <h1 class="text-xl font-bold truncate">Han Damin - miniex</h1>
                 <p class="text-sm text-base-content/80">Rust + Javascript + App + Server</p>
                 
                 <!-- Social links for mobile -->
@@ -44,7 +44,7 @@
                 <a href="https://github.com/miniex" class="btn btn-circle btn-md btn-ghost">
                     <i class="ph ph-github-logo text-2xl"></i>
                 </a>
-                <a href="mailto:contact@miniex.info" class="btn btn-circle btn-md btn-ghost">
+                <a href="mailto:miniex@daminstudio.net" class="btn btn-circle btn-md btn-ghost">
                     <i class="ph ph-envelope text-2xl"></i>
                 </a>
                 <a href="https://miniex.info" class="btn btn-circle btn-md btn-ghost">
