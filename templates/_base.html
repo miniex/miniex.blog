@@ -31,10 +31,10 @@
 </head>
 
 <body class="flex flex-col min-h-screen bg-base-200">
-    <header class="bg-base-300 text-base-content shadow-sm">
-        <div class="navbar container mx-auto">
+    <header class="bg-base-300 text-base-content shadow-sm sticky top-0 z-30">
+        <div class="navbar container mx-auto px-4">
             <div class="flex-1">
-                <a href="/" class="btn btn-ghost text-xl">
+                <a href="/" class="btn btn-ghost text-base sm:text-xl">
                     <span class="font-bold">miniex</span>
                 </a>
             </div>
@@ -63,14 +63,14 @@
             </div>
         </div>
     </header>
-    <main class="container mx-auto flex-grow py-8 flex flex-col items-center">
+    <main class="container mx-auto flex-grow py-4 sm:py-6 md:py-8 px-2 sm:px-4">
         {% block main %}{% endblock %}
         <div class="drawer drawer-end">
             <input id="drawer" type="checkbox" class="drawer-toggle" />
-            <div class="drawer-side">
+            <div class="drawer-side z-40">
                 <label for="drawer" class="drawer-overlay"></label>
-                <div class="px-4 py-10 w-80 h-full bg-base-200 text-base-content">
-                    <ul class="menu">
+                <div class="px-4 py-6 w-64 sm:w-80 h-full bg-base-200 text-base-content">
+                    <ul class="menu text-base">
                         <li>
                             <details>
                                 <summary>Posts</summary>
@@ -82,32 +82,38 @@
                             </details>
                         </li>
                         <li><a href="/series">Series</a></li>
-                        <li><a href="/about">About Me</a></li>
+                        <li><a href="https://miniex.info">About Me</a></li>
                     </ul>
                 </div>
             </div>
         </div>
     </main>
     <footer class="bg-base-300 text-base-content">
-        <div class="footer footer-center p-10">
+        <div class="footer footer-center p-6 sm:p-8 md:p-10">
             <nav>
-                <ul class="grid grid-flow-col gap-4">
+                <ul class="grid grid-flow-col gap-2 sm:gap-4 text-sm sm:text-base">
                     <li><a href="/blog" class="link link-hover">Blog</a></li>
                     <li><a href="/review" class="link link-hover">Review</a></li>
                     <li><a href="/diary" class="link link-hover">Diary</a></li>
                     <li><a href="/series" class="link link-hover">Series</a></li>
-                    <li><a href="/about" class="link link-hover">About Me</a></li>
+                    <li><a href="https://miniex.info" class="link link-hover">About Me</a></li>
                 </ul>
             </nav>
             <nav>
-                <div class="grid grid-flow-col gap-4">
-                    <a href="https://github.com/miniex" class="btn btn-ghost btn-square">
-                        <i class="ph ph-github-logo text-3xl"></i>
+                <div class="grid grid-flow-col gap-2 sm:gap-4">
+                    <a href="https://github.com/miniex" class="btn btn-ghost btn-circle btn-sm sm:btn-md">
+                        <i class="ph ph-github-logo text-xl sm:text-2xl"></i>
+                    </a>
+                    <a href="mailto:miniex@daminstudio.net" class="btn btn-ghost btn-circle btn-sm sm:btn-md">
+                        <i class="ph ph-envelope text-xl sm:text-2xl"></i>
+                    </a>
+                    <a href="https://miniex.info" class="btn btn-ghost btn-circle btn-sm sm:btn-md">
+                        <i class="ph ph-globe text-xl sm:text-2xl"></i>
                     </a>
                 </div>
             </nav>
             <aside>
-                <p>Copyright © 2024 - All rights reserved by Han Damin</p>
+                <p class="text-sm sm:text-base">Copyright © 2024 - All rights reserved by Han Damin</p>
             </aside>
         </div>
     </footer>

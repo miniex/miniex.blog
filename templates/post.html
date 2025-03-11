@@ -1,52 +1,52 @@
 {% extends "_base.html" %}
-
 {% block head %}
     {% if let Some(post) = post %}
         <title>{{ post.metadata.title }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% else %}
         <title>Post Not Found</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% endif %}
 {% endblock %}
-
 {% block main %}
     {% if let Some(post) = post %}
-        <div class="container mx-auto px-4">
+        <div class="container mx-auto px-4 py-6">
             <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h1 class="text-4xl font-bold">{{ post.metadata.title }}</h1>
-                    <p class="text-lg mb-4">{{ post.metadata.description }}</p>
-                    <div class="flex flex-wrap gap-4 mb-6">
-                        <div class="badge badge-secondary">Author: {{ post.metadata.author }}</div>
+                <div class="card-body p-4 sm:p-6 md:p-8">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold">{{ post.metadata.title }}</h1>
+                    <p class="text-base sm:text-lg mb-4">{{ post.metadata.description }}</p>
+                    <div class="flex flex-wrap gap-2 sm:gap-4 mb-4 sm:mb-6">
+                        <div class="badge badge-secondary text-xs sm:text-sm">Author: {{ post.metadata.author }}</div>
                     </div>
-                    <div>
-                        <span class="font-bold">Tags:</span> 
+                    <div class="mb-2">
+                        <span class="font-bold text-sm sm:text-base">Tags:</span> 
                         {% for tag in post.metadata.tags %}
-                            <span class="badge badge-outline ml-1">{{ tag }}</span>
+                            <span class="badge badge-outline text-xs sm:text-sm ml-1">{{ tag }}</span>
                         {% endfor %}
                     </div>
-                    <span class="font-bold">Published: {{ post.metadata.created_at|date }}</span>
+                    <span class="font-bold text-sm sm:text-base">Published: {{ post.metadata.created_at|date }}</span>
                     {% if let Some(series) = post.metadata.series %}
-                        <span class="font-bold">Series: {{ series }}</span>
+                        <span class="font-bold text-sm sm:text-base mt-1 block">Series: {{ series }}</span>
                     {% endif %}
-                    <div class="divider"></div>
-                    <article class="prose prose-sm sm:prose lg:prose-lg xl:prose-xl !max-w-none">
+                    <div class="divider my-4 sm:my-6"></div>
+                    <article class="prose prose-sm sm:prose lg:prose-lg !max-w-none">
                         {{ post.content|safe }}
                     </article>
                 </div>
             </div>
         </div>
     {% else %}
-        <div class="flex-1 hero bg-base-200">
-            <div class="hero-content text-center">
+        <div class="flex-1 hero bg-base-200 min-h-screen">
+            <div class="hero-content text-center px-4">
                 <div class="max-w-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto text-error" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto text-error" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
                         <line x1="12" y1="9" x2="12" y2="13"></line>
                         <line x1="12" y1="17" x2="12.01" y2="17"></line>
                     </svg>
-                    <h1 class="text-5xl font-bold mt-6">404</h1>
-                    <p class="text-2xl mt-2">Page Not Found</p>
-                    <p class="py-6">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mt-4 sm:mt-6">404</h1>
+                    <p class="text-xl sm:text-2xl mt-2">Page Not Found</p>
+                    <p class="py-4 sm:py-6">
                         Sorry, we couldn't find the page you're looking for. Please check the address or return to the homepage.
                     </p>
                     <a href="/" class="btn btn-primary">Return to Home</a>

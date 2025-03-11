@@ -1,25 +1,65 @@
 {% extends "_base.html" %}
 {% import "_components.html" as components %}
-
 {% block head %}
 <title>{{ blog.title }}</title>
 {% endblock %}
-
 {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
-    <!-- Profile Section -->
-    <section class="flex flex-col items-center py-12">
-        <picture>
-            <img class="rounded-full w-48 h-48 object-cover" src="https://avatars.githubusercontent.com/u/176331224?v=4" alt="Profile Picture" />
-        </picture>
-        <h1 class="text-4xl font-bold mt-4">Han Damin - miniex</h1>
-        <p class="mt-2 text-xl text-base-content/80">Rust + Javascript + App + Server</p>
+    <!-- Profile Section - Horizontal on mobile, vertical on larger screens -->
+    <section class="py-6 sm:py-8 md:py-12">
+        <!-- Mobile layout (horizontal) -->
+        <div class="flex flex-row items-center gap-4 sm:hidden">
+            <picture class="flex-shrink-0">
+                <img class="rounded-full w-24 h-24 object-cover border-4 border-primary/20 shadow-md" src="https://avatars.githubusercontent.com/u/176331224?v=4" alt="Profile Picture" />
+            </picture>
+            <div class="flex flex-col">
+                <h1 class="text-xl font-bold">Han Damin - miniex</h1>
+                <p class="text-sm text-base-content/80">Rust + Javascript + App + Server</p>
+                
+                <!-- Social links for mobile -->
+                <div class="flex gap-2 mt-2">
+                    <a href="https://github.com/miniex" class="btn btn-circle btn-xs btn-ghost">
+                        <i class="ph ph-github-logo text-lg"></i>
+                    </a>
+                    <a href="mailto:miniex@daminstudio.net" class="btn btn-circle btn-xs btn-ghost">
+                        <i class="ph ph-envelope text-lg"></i>
+                    </a>
+                    <a href="https://miniex.info" class="btn btn-circle btn-xs btn-ghost">
+                        <i class="ph ph-globe text-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tablet and Desktop layout (vertical) -->
+        <div class="hidden sm:flex flex-col items-center">
+            <picture>
+                <img class="rounded-full w-36 h-36 md:w-48 md:h-48 object-cover border-4 border-primary/20 shadow-md" src="https://avatars.githubusercontent.com/u/176331224?v=4" alt="Profile Picture" />
+            </picture>
+            <h1 class="text-3xl md:text-4xl font-bold mt-4 text-center">Han Damin - miniex</h1>
+            <p class="mt-2 text-lg md:text-xl text-base-content/80 text-center">Rust + Javascript + App + Server</p>
+            
+            <!-- Social links for desktop -->
+            <div class="flex gap-3 mt-4">
+                <a href="https://github.com/miniex" class="btn btn-circle btn-md btn-ghost">
+                    <i class="ph ph-github-logo text-2xl"></i>
+                </a>
+                <a href="mailto:contact@miniex.info" class="btn btn-circle btn-md btn-ghost">
+                    <i class="ph ph-envelope text-2xl"></i>
+                </a>
+                <a href="https://miniex.info" class="btn btn-circle btn-md btn-ghost">
+                    <i class="ph ph-globe text-2xl"></i>
+                </a>
+            </div>
+        </div>
     </section>
-    <div class="divider"></div>
+    
+    <div class="divider my-2 sm:my-4"></div>
+    
     <!-- Post Section -->
-    <section class="py-12">
-        <h2 class="text-3xl font-bold mb-8 text-center">Recent Posts</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <section class="py-6 sm:py-8 md:py-12">
+        <h2 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 md:mb-8 text-center">Recent Posts</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             {% if recent_posts.len() > 0 %}
                 {% for post in recent_posts %}
                     {% call components::post_card(post=post) %}

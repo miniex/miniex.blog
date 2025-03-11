@@ -1,38 +1,60 @@
 {% macro post_card(post) %}
-<a href="/post/{{ post.slug }}" class="group">
-    <div
-        class="bg-base-100 rounded-lg shadow-md overflow-hidden transition-all duration-300 ease-in-out transform group-hover:shadow-xl group-hover:-translate-y-1">
-        <div class="p-6">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <span
-                        class="bg-primary text-primary-content text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide">
+<a href="/post/{{ post.slug }}" class="group block h-full">
+    <div class="bg-base-100 rounded-lg shadow-md overflow-hidden transition-all duration-300 ease-in-out transform group-hover:shadow-xl group-hover:-translate-y-1 border border-base-200 h-full flex flex-col">
+        <!-- Card Header with gradient accent -->
+        <div class="h-2 bg-gradient-to-r from-primary to-secondary"></div>
+        
+        <div class="p-4 sm:p-5 md:p-6 flex flex-col flex-grow">
+            <!-- Top section with type and date -->
+            <div class="flex justify-between items-start mb-3 sm:mb-4">
+                <div class="flex flex-wrap gap-1.5">
+                    <span class="bg-primary/90 text-primary-content text-xs font-medium px-2 py-0.5 rounded-full">
                         {{ post.post_type }}
                     </span>
                     {% if let Some(series) = post.metadata.series %}
-                    <span
-                        class="ml-2 bg-secondary text-secondary-content text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide">
+                    <span class="bg-secondary/90 text-secondary-content text-xs font-medium px-2 py-0.5 rounded-full">
                         {{ series }}
                     </span>
                     {% endif %}
                 </div>
                 <p class="text-xs text-base-content/70">{{ post.metadata.created_at|date }}</p>
             </div>
-            <h3
-                class="text-xl font-bold mb-2 text-base-content group-hover:text-primary transition-colors duration-300">
+            
+            <!-- Title with gradient effect on hover -->
+            <h3 class="text-lg sm:text-xl font-bold mb-2 text-base-content group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary transition-all duration-300">
                 {{ post.metadata.title }}
             </h3>
-            <p class="text-sm text-base-content/80 mb-4">{{ post.metadata.description|truncate(100) }}</p>
-            <div class="flex justify-between mt-4">
-                <div class="flex flex-wrap gap-1">
+            
+            <!-- Description -->
+            <p class="text-sm text-base-content/80 mb-3 line-clamp-2 sm:line-clamp-3 flex-grow">
+                {{ post.metadata.description|truncate(120) }}
+            </p>
+            
+            <!-- Bottom section -->
+            <div class="mt-auto pt-3 border-t border-base-200">
+                <!-- Tags section -->
+                <div class="flex flex-wrap gap-1 mb-3">
+                    {% set tag_count = 0 %}
                     {% for tag in post.metadata.tags %}
-                    <span class="badge badge-outline">{{ tag }}</span>
+                        {% if tag_count < 3 %}
+                            <span class="badge badge-sm badge-outline text-xs">{{ tag }}</span>
+                        {% endif %}
+                        {% set tag_count = tag_count + 1 %}
                     {% endfor %}
+                    {% if tag_count > 3 %}
+                        <span class="badge badge-sm badge-outline text-xs">+{{ tag_count - 3 }}</span>
+                    {% endif %}
                 </div>
-                <span
-                    class="inline-block bg-primary text-primary-content text-sm font-semibold px-4 py-2 rounded transition-all duration-300 hover:bg-primary-focus hover:px-6 flex-shrink-0">
-                    Read
-                </span>
+                
+                <!-- Read button -->
+                <div class="flex justify-end">
+                    <span class="inline-flex items-center gap-1 text-sm font-medium text-primary group-hover:text-secondary transition-colors duration-300">
+                        Read more
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                </div>
             </div>
         </div>
     </div>

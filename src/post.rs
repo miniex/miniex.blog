@@ -2,7 +2,7 @@ mod de;
 
 use crate::AppState;
 use anyhow::{Context, Result};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use gray_matter::{engine::YAML, Matter};
 use pulldown_cmark::{html, Options, Parser};
 use serde::{Deserialize, Serialize};
@@ -65,7 +65,7 @@ pub struct PostMetadata {
 
 impl Ord for Post {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.metadata.created_at.cmp(&other.metadata.created_at)
+        other.metadata.created_at.cmp(&self.metadata.created_at)
     }
 }
 
@@ -84,11 +84,6 @@ impl PartialEq for Post {
 impl Eq for Post {}
 
 impl Post {
-    pub fn is_recent(&self) -> bool {
-        let now = Utc::now();
-        now.signed_duration_since(self.metadata.created_at) <= Duration::days(30)
-    }
-
     pub fn generate_slug(&mut self) {
         self.slug = slugify(&self.metadata.title);
     }
@@ -96,14 +91,14 @@ impl Post {
 
 /// get recent posts
 pub fn get_recent_posts(posts: &[Post]) -> Vec<Post> {
-    let mut recent_posts: Vec<Post> = posts
-        .iter()
-        .filter(|post| post.is_recent())
-        .cloned()
-        .collect();
+    // Clone all posts
+    let mut all_posts: Vec<Post> = posts.to_vec();
 
-    recent_posts.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
-    recent_posts
+    // Sort by newest first
+    all_posts.sort();
+
+    // Return only the 5 most recent posts
+    all_posts.into_iter().take(5).collect()
 }
 
 /// get posts by category
@@ -112,7 +107,7 @@ pub fn get_posts_by_category(
     post_type: PostType,
     category: Option<&str>,
 ) -> Vec<Post> {
-    posts
+    let mut filtered_posts = posts
         .iter()
         .filter(|post| {
             post.post_type == post_type
@@ -121,7 +116,11 @@ pub fn get_posts_by_category(
                     .unwrap_or(true)
         })
         .cloned()
-        .collect()
+        .collect::<Vec<Post>>();
+
+    // Sort by newest first
+    filtered_posts.sort();
+    filtered_posts
 }
 
 // load posts from mdx files
@@ -135,8 +134,10 @@ pub async fn load_posts(state: AppState) -> Result<()> {
 
 /// get all series information from posts, sorted by name
 pub fn get_series(posts: &[Post]) -> Vec<Series> {
-    let mut series_map: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
-    let mut latest_updates: std::collections::HashMap<String, DateTime<Utc>> = std::collections::HashMap::new();
+    let mut series_map: std::collections::HashMap<String, Vec<String>> =
+        std::collections::HashMap::new();
+    let mut latest_updates: std::collections::HashMap<String, DateTime<Utc>> =
+        std::collections::HashMap::new();
 
     // Collect authors and latest update times for each series
     for post in posts.iter() {
@@ -159,7 +160,11 @@ pub fn get_series(posts: &[Post]) -> Vec<Series> {
     let mut series: Vec<Series> = series_map
         .into_iter()
         .map(|(name, authors)| {
-            let unique_authors: Vec<String> = authors.into_iter().collect::<std::collections::HashSet<_>>().into_iter().collect();
+            let unique_authors: Vec<String> = authors
+                .into_iter()
+                .collect::<std::collections::HashSet<_>>()
+                .into_iter()
+                .collect();
             Series {
                 name: name.clone(),
                 authors: unique_authors,
@@ -181,7 +186,7 @@ pub fn get_series_names(posts: &[Post]) -> Vec<String> {
         .collect::<std::collections::HashSet<String>>()
         .into_iter()
         .collect();
-    
+
     // Sort alphabetically
     series_names.sort();
     series_names
@@ -202,7 +207,7 @@ pub fn get_posts_by_series(posts: &[Post], series_name: &str) -> Vec<Post> {
         .collect();
 
     // Sort by creation date to maintain chronological order
-    series_posts.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
+    series_posts.sort();
     series_posts
 }
 
