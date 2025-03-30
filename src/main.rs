@@ -174,7 +174,7 @@ async fn handle_review(
 
     let categories = posts
         .iter()
-        .filter(|p| matches!(p.post_type, PostType::Blog))
+        .filter(|p| matches!(p.post_type, PostType::Review))
         .flat_map(|p| p.metadata.tags.clone())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
@@ -232,7 +232,7 @@ async fn handle_diary(
 
     let categories = posts
         .iter()
-        .filter(|p| matches!(p.post_type, PostType::Blog))
+        .filter(|p| matches!(p.post_type, PostType::Diary))
         .flat_map(|p| p.metadata.tags.clone())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
