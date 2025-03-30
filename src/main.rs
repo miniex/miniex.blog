@@ -4,9 +4,13 @@ use axum::{
     Router,
 };
 use blog::{
-    post::{get_posts_by_category, get_posts_by_series, get_recent_posts, get_series, load_posts, PostType},
+    post::{
+        get_posts_by_category, get_posts_by_series, get_recent_posts, get_series, load_posts,
+        PostType,
+    },
     templates::{
-        BlogTemplate, DiaryTemplate, ErrorTemplate, IndexTemplate, PostTemplate, ReviewTemplate, SeriesDetailTemplate, SeriesTemplate
+        BlogTemplate, DiaryTemplate, ErrorTemplate, IndexTemplate, PostTemplate, ReviewTemplate,
+        SeriesDetailTemplate, SeriesTemplate,
     },
     AppState, Blog,
 };
@@ -142,29 +146,130 @@ async fn handle_blog(
     }
 }
 
-async fn handle_review() -> ReviewTemplate {
+#[derive(Deserialize)]
+struct ReviewQuery {
+    category: Option<String>,
+    page: Option<u32>,
+}
+
+async fn handle_review(
+    State(state): State<AppState>,
+    Query(query): Query<ReviewQuery>,
+) -> ReviewTemplate {
+    let posts = state.read().await;
+    let category = query.category.as_deref();
+    let page = query.page.unwrap_or(1);
+    let posts_per_page = 10;
+
+    let filtered_posts = get_posts_by_category(&posts, PostType::Review, category);
+    let total_posts = filtered_posts.len();
+    let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
+
+    let start = (page - 1) * posts_per_page;
+    let current_posts = filtered_posts
+        .into_iter()
+        .skip(start as usize)
+        .take(posts_per_page as usize)
+        .collect();
+
+    let categories = posts
+        .iter()
+        .filter(|p| matches!(p.post_type, PostType::Blog))
+        .flat_map(|p| p.metadata.tags.clone())
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .collect();
+
+    let page_numbers = if total_pages <= 5 {
+        (1..=total_pages).collect()
+    } else {
+        let start = std::cmp::max(1, std::cmp::min(page - 2, total_pages - 4));
+        let end = std::cmp::min(start + 4, total_pages);
+        (start..=end).collect()
+    };
+
     ReviewTemplate {
         blog: Blog::new().set_title("miniex::review"),
+        posts: current_posts,
+        categories,
+        current_page: page,
+        total_pages,
+        prev_page: if page > 1 { Some(page - 1) } else { None },
+        next_page: if page < total_pages {
+            Some(page + 1)
+        } else {
+            None
+        },
+        page_numbers,
     }
 }
 
-async fn handle_diary() -> DiaryTemplate {
+#[derive(Deserialize)]
+struct DiaryQuery {
+    category: Option<String>,
+    page: Option<u32>,
+}
+
+async fn handle_diary(
+    State(state): State<AppState>,
+    Query(query): Query<DiaryQuery>,
+) -> DiaryTemplate {
+    let posts = state.read().await;
+    let category = query.category.as_deref();
+    let page = query.page.unwrap_or(1);
+    let posts_per_page = 10;
+
+    let filtered_posts = get_posts_by_category(&posts, PostType::Diary, category);
+    let total_posts = filtered_posts.len();
+    let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
+
+    let start = (page - 1) * posts_per_page;
+    let current_posts = filtered_posts
+        .into_iter()
+        .skip(start as usize)
+        .take(posts_per_page as usize)
+        .collect();
+
+    let categories = posts
+        .iter()
+        .filter(|p| matches!(p.post_type, PostType::Blog))
+        .flat_map(|p| p.metadata.tags.clone())
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .collect();
+
+    let page_numbers = if total_pages <= 5 {
+        (1..=total_pages).collect()
+    } else {
+        let start = std::cmp::max(1, std::cmp::min(page - 2, total_pages - 4));
+        let end = std::cmp::min(start + 4, total_pages);
+        (start..=end).collect()
+    };
+
     DiaryTemplate {
         blog: Blog::new().set_title("miniex::diary"),
+        posts: current_posts,
+        categories,
+        current_page: page,
+        total_pages,
+        prev_page: if page > 1 { Some(page - 1) } else { None },
+        next_page: if page < total_pages {
+            Some(page + 1)
+        } else {
+            None
+        },
+        page_numbers,
     }
 }
 
-async fn handle_series(
-    State(state): State<AppState>,
-) ->SeriesTemplate {
+async fn handle_series(State(state): State<AppState>) -> SeriesTemplate {
     let posts = state.read().await;
     let series = get_series(&posts);
 
     SeriesTemplate {
         blog: Blog::new().set_title("miniex::series"),
-        series
+        series,
     }
-    
 }
 
 async fn handle_series_detail(
@@ -173,7 +278,7 @@ async fn handle_series_detail(
 ) -> SeriesDetailTemplate {
     let posts = state.read().await;
     let series_posts = get_posts_by_series(&posts, &series_name);
-    
+
     let series = get_series(&posts)
         .into_iter()
         .find(|s| s.name == series_name)
