@@ -2,39 +2,146 @@
 {% import "_components.html" as components %}
 
 {% block head %}
-<title>{{ blog.title }}</title>
+<title>{{ blog.title }} - {{ series_name }}</title>
 {% endblock %}
 
 {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
-    <!-- Series Header -->
-    <div class="mb-8">
-        <h1 class="text-4xl font-bold text-center my-8">{{ series_name }}</h1>
-        <div class="flex justify-center gap-2 mb-4">
-            {% for author in authors %}
-                <span class="badge badge-outline">{{ author }}</span>
-            {% endfor %}
-        </div>
-        <div class="text-center text-sm text-gray-500">
-            Last updated: {{ updated_at|date }}
+    <!-- Series Header with enhanced visual design -->
+    <div class="relative bg-base-100 rounded-xl shadow-md overflow-hidden mb-12 border border-base-300/20">
+        <!-- Decorative header background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-50"></div>
+        
+        <div class="relative z-10 p-8 text-center">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary inline-block">
+                {{ series_name }}
+            </h1>
+            
+            <div class="flex flex-wrap justify-center gap-2 mb-4">
+                {% for author in authors %}
+                    <div class="badge badge-lg bg-base-200 gap-2 py-3 px-4">
+                        <i class="ph ph-user text-base"></i>
+                        <span>{{ author }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="flex justify-center items-center gap-2 text-base-content/60 text-sm">
+                <i class="ph ph-clock text-base"></i>
+                <span>Last updated: {{ updated_at|date }}</span>
+            </div>
+            
+            <!-- Progress indicator (visual only) -->
+            <div class="mt-6 max-w-md mx-auto">
+                <div class="w-full bg-base-200 rounded-full h-2.5 mb-2 overflow-hidden">
+                    <div class="bg-gradient-to-r from-primary to-secondary h-2.5 rounded-full" style="width: 100%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-base-content/60">
+                    <span>Part 1</span>
+                    <span>Complete Series</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Posts Timeline -->
-    <div class="grid grid-cols-1 gap-8 relative">
-        {% if posts.len() > 0 %}
-            {% for post in posts %}
-                <div class="relative">
-                    <!-- Timeline Connector -->
-                        <div class="absolute left-1/2 top-full h-8 w-px bg-base-300 -translate-x-1/2"></div>
-                    
-                    <!-- Post Card -->
-                    {% call components::post_card(post=post) %}
+    <!-- Enhanced Posts Timeline -->
+    <div class="relative mx-6 sm:mx-12">
+        <!-- Timeline center line -->
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/30 via-secondary/30 to-primary/10 rounded-full mx-auto right-0"></div>
+        
+        <div class="relative z-10">
+            {% if posts.len() > 0 %}
+                {% for post in posts %}
+                    <div class="relative mb-12 last:mb-0">
+                        <!-- Timeline node -->
+                        <div class="absolute left-0 right-0 mx-auto w-6 h-6 rounded-full bg-base-100 border-4 border-primary/50 top-12 shadow-md timeline-node"></div>
+                        
+                        <!-- Post number label -->
+                        <div class="absolute left-0 right-0 mx-auto text-center top-12 w-6 h-6 flex items-center justify-center text-xs font-bold">
+                            {{ loop.index }}
+                        </div>
+                        
+                        <!-- Post card with offset -->
+                        <div class="ml-12 transform transition-all duration-500 timeline-item">
+                            {% call components::post_card(post=post) %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="flex flex-col items-center justify-center py-16 bg-base-100 rounded-xl shadow-sm border border-base-300/20 text-center my-8 ml-12">
+                    <i class="ph ph-article text-6xl text-base-content/30 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">No posts available in this series yet</h3>
+                    <p class="text-base-content/70 mb-6 max-w-md">Content for this series is coming soon!</p>
+                    <a href="/series" class="btn btn-primary">View All Series</a>
                 </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-center">No posts available in this series.</p>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<style>
+    /* Timeline animations */
+    .timeline-node {
+        transition: all 0.3s;
+    }
+    
+    .timeline-item {
+        opacity: 0;
+        animation: fadeSlideIn 0.5s ease-out forwards;
+        animation-delay: calc(var(--index, 0) * 150ms);
+    }
+    
+    @keyframes fadeSlideIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Apply animation delays to timeline items */
+    .timeline-item:nth-child(1) { --index: 1; }
+    .timeline-item:nth-child(2) { --index: 2; }
+    .timeline-item:nth-child(3) { --index: 3; }
+    .timeline-item:nth-child(4) { --index: 4; }
+    .timeline-item:nth-child(5) { --index: 5; }
+    .timeline-item:nth-child(6) { --index: 6; }
+    .timeline-item:nth-child(7) { --index: 7; }
+    .timeline-item:nth-child(8) { --index: 8; }
+    .timeline-item:nth-child(9) { --index: 9; }
+    .timeline-item:nth-child(10) { --index: 10; }
+</style>
+
+<script>
+    // Initialize IntersectionObserver for scroll animations
+    document.addEventListener('DOMContentLoaded', function() {
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const timelineNodes = document.querySelectorAll('.timeline-node');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateX(0)';
+                    
+                    // Find the associated node and animate it
+                    const index = Array.from(timelineItems).indexOf(entry.target);
+                    if (index >= 0 && timelineNodes[index]) {
+                        timelineNodes[index].style.backgroundColor = 'hsl(var(--p))';
+                        timelineNodes[index].style.borderColor = 'hsl(var(--p))';
+                    }
+                }
+            });
+        }, {
+            threshold: 0.2
+        });
+        
+        timelineItems.forEach(item => {
+            observer.observe(item);
+        });
+    });
+</script>
 {% endblock %}

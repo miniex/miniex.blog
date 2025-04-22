@@ -26,6 +26,6 @@ export default {
     },
     plugins: [typography, daisyui],
     daisyui: {
-        themes: ["cupcake"]
+        themes: ["cupcake", "dark"]
     }
 }

@@ -3,6 +3,7 @@
     {% if let Some(post) = post %}
         <title>{{ post.metadata.title }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="{{ post.metadata.description }}">
     {% else %}
         <title>Post Not Found</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,48 +11,149 @@
 {% endblock %}
 {% block main %}
     {% if let Some(post) = post %}
-        <div class="container mx-auto px-4 py-6">
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body p-4 sm:p-6 md:p-8">
-                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold">{{ post.metadata.title }}</h1>
-                    <p class="text-base sm:text-lg mb-4">{{ post.metadata.description }}</p>
-                    <div class="flex flex-wrap gap-2 sm:gap-4 mb-4 sm:mb-6">
-                        <div class="badge badge-secondary text-xs sm:text-sm">Author: {{ post.metadata.author }}</div>
-                    </div>
-                    <div class="mb-2">
-                        <span class="font-bold text-sm sm:text-base">Tags:</span> 
-                        {% for tag in post.metadata.tags %}
-                            <span class="badge badge-outline text-xs sm:text-sm ml-1">{{ tag }}</span>
-                        {% endfor %}
-                    </div>
-                    <span class="font-bold text-sm sm:text-base">Published: {{ post.metadata.created_at|date }}</span>
+        <div class="container mx-auto px-4 py-6 max-w-4xl">
+            <!-- Post header with gradient accent -->
+            <div class="mb-8">
+                <a href="javascript:history.back()" class="inline-flex items-center gap-2 mb-6 text-sm text-base-content/70 hover:text-primary transition-colors duration-300 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform group-hover:-translate-x-1 transition-all duration-300" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Back</span>
+                </a>
+                
+                <!-- Post type & series indicator -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="bg-primary/80 text-primary-content text-xs sm:text-sm font-medium px-3 py-1 rounded-full shadow-sm">
+                        {{ post.post_type }}
+                    </span>
                     {% if let Some(series) = post.metadata.series %}
-                        <span class="font-bold text-sm sm:text-base mt-1 block">Series: {{ series }}</span>
+                        <span class="bg-secondary/80 text-secondary-content text-xs sm:text-sm font-medium px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+                            <i class="ph ph-books text-sm"></i>
+                            {{ series }}
+                        </span>
                     {% endif %}
-                    <div class="divider my-4 sm:my-6"></div>
-                    <article class="prose prose-sm sm:prose lg:prose-lg !max-w-none">
+                </div>
+                
+                <!-- Title with subtle gradient background -->
+                <div class="relative py-6 px-4 sm:px-8 rounded-xl bg-gradient-to-br from-base-100 to-base-200 shadow-sm border border-base-300/20 mb-6">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary rounded-t-xl"></div>
+                    
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight">
+                        {{ post.metadata.title }}
+                    </h1>
+                    
+                    <p class="text-base sm:text-lg text-base-content/80 mb-4 leading-relaxed">
+                        {{ post.metadata.description }}
+                    </p>
+                    
+                    <div class="flex flex-wrap items-center text-sm text-base-content/70 gap-x-6 gap-y-3 mt-6">
+                        <!-- Author with icon -->
+                        <div class="flex items-center gap-1.5">
+                            <i class="ph ph-user text-base"></i>
+                            <span>{{ post.metadata.author }}</span>
+                        </div>
+                        
+                        <!-- Publication date with icon -->
+                        <div class="flex items-center gap-1.5">
+                            <i class="ph ph-calendar text-base"></i>
+                            <time>{{ post.metadata.created_at|date }}</time>
+                        </div>
+                        
+                        <!-- Estimated reading time with icon (placeholder) -->
+                        <div class="flex items-center gap-1.5">
+                            <i class="ph ph-clock text-base"></i>
+                            <span>5 min read</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tags with improved styling -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    {% for tag in post.metadata.tags %}
+                        <span class="px-3 py-1 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-full text-xs sm:text-sm transition-colors duration-300 flex items-center">
+                            <i class="ph ph-hash text-xs mr-1"></i>
+                            {{ tag }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Main content card with enhanced styling -->
+            <div class="card bg-base-100 shadow-md rounded-xl overflow-hidden border border-base-300/10">
+                <!-- Article content with typography improvements -->
+                <div class="card-body p-4 sm:p-8 md:p-10">
+                    <article class="prose prose-sm sm:prose lg:prose-lg !max-w-none prose-headings:font-bold prose-headings:text-base-content prose-a:text-primary hover:prose-a:text-primary-focus prose-a:no-underline hover:prose-a:underline prose-a:transition-colors prose-img:rounded-lg prose-pre:bg-base-200 prose-pre:text-base-content prose-pre:shadow-inner">
                         {{ post.content|safe }}
                     </article>
                 </div>
             </div>
+            
+            <!-- Post footer with sharing options and navigation -->
+            <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-base-200/50 rounded-xl border border-base-300/10">
+                <!-- Share section -->
+                <div class="flex flex-col items-center sm:items-start">
+                    <p class="text-sm font-medium text-base-content/70 mb-2">Share this article</p>
+                    <div class="flex gap-2">
+                        <button class="btn btn-circle btn-sm btn-ghost hover:bg-primary/10 transition-colors duration-300" onclick="navigator.share({title: '{{ post.metadata.title }}', text: '{{ post.metadata.description }}', url: window.location.href})">
+                            <i class="ph ph-share-network text-lg"></i>
+                        </button>
+                        <button class="btn btn-circle btn-sm btn-ghost hover:bg-primary/10 transition-colors duration-300" onclick="navigator.clipboard.writeText(window.location.href)">
+                            <i class="ph ph-link text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Back to top button -->
+                <a href="#" class="btn btn-sm bg-base-100 hover:bg-base-300 border-base-300/20 transition-colors duration-300 shadow-sm">
+                    <i class="ph ph-arrow-up text-base mr-1"></i>
+                    Back to top
+                </a>
+            </div>
         </div>
     {% else %}
-        <div class="flex-1 hero bg-base-200 min-h-screen">
-            <div class="hero-content text-center px-4">
+        <!-- Enhanced 404 page -->
+        <div class="flex-1 hero min-h-[70vh]">
+            <div class="hero-content text-center">
                 <div class="max-w-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto text-error" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mt-4 sm:mt-6">404</h1>
-                    <p class="text-xl sm:text-2xl mt-2">Page Not Found</p>
-                    <p class="py-4 sm:py-6">
+                    <!-- Animated 404 icon -->
+                    <div class="relative mx-auto w-32 h-32 mb-8">
+                        <div class="absolute inset-0 bg-error/10 rounded-full animate-pulse"></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto text-error w-20 h-20 absolute inset-0 m-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
+                    
+                    <!-- 404 text with gradient effect -->
+                    <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-error to-primary">404</h1>
+                    <p class="text-xl sm:text-2xl font-medium mb-4">Page Not Found</p>
+                    <p class="text-base text-base-content/70 mb-8 max-w-sm mx-auto">
                         Sorry, we couldn't find the page you're looking for. Please check the address or return to the homepage.
                     </p>
-                    <a href="/" class="btn btn-primary">Return to Home</a>
+                    
+                    <!-- Return button with animation -->
+                    <a href="/" class="btn btn-primary shadow-md hover:shadow-lg transition-all duration-300 gap-2">
+                        <i class="ph ph-house"></i>
+                        Return to Home
+                    </a>
                 </div>
             </div>
         </div>
     {% endif %}
+    
+    <!-- Scroll progress indicator -->
+    <div class="fixed top-0 left-0 w-full h-1 z-50">
+        <div id="progress-bar" class="h-full w-0 bg-gradient-to-r from-primary to-secondary transition-all duration-300"></div>
+    </div>
+    
+    <script>
+        // Scroll progress indicator
+        window.addEventListener('scroll', function() {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + '%';
+        });
+    </script>
 {% endblock %}

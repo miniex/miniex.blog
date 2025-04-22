@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="cupcake">
+<html lang="en" data-theme="cupcake" class="scroll-smooth transition-colors duration-300">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://unpkg.com/htmx.org@2.0.2"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="/assets/styles/tailwind.output.css" rel="stylesheet" />
     <link href="/assets/styles/global.css" rel="stylesheet" />
     <!-- each page -->
@@ -28,32 +29,73 @@
 
         gtag('config', 'G-XRQ5DNK9X4');
     </script>
+    <style>
+        /* Custom transitions and animations */
+        .page-transition {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .nav-shadow {
+            transition: box-shadow 0.3s ease;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+    </style>
 </head>
 
-<body class="flex flex-col min-h-screen bg-base-200">
-    <header class="bg-base-300 text-base-content shadow-sm sticky top-0 z-30">
+<body class="flex flex-col min-h-screen bg-base-200 font-['Inter',system-ui,sans-serif]">
+    <header class="bg-base-300/90 text-base-content backdrop-blur-sm nav-shadow sticky top-0 z-30 transition-all duration-300">
         <div class="navbar container mx-auto px-4">
             <div class="flex-1">
-                <a href="/" class="btn btn-ghost text-base sm:text-xl">
-                    <span class="font-bold">miniex</span>
+                <a href="/" class="btn btn-ghost text-base sm:text-xl group">
+                    <span class="font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary transition-all duration-300">miniex</span>
                 </a>
             </div>
             <div class="flex-none hidden md:block">
-                <ul class="grid grid-flow-col gap-1">
+                <ul class="grid grid-flow-col gap-2">
                     <li class="dropdown dropdown-hover">
-                        <label tabindex="0" class="btn btn-ghost">Posts</label>
-                        <ul tabindex="0" class="dropdown-content z-[1] menu shadow bg-base-100 rounded-box w-52">
-                            <li><a href="/blog">Blog</a></li>
-                            <li><a href="/review">Review</a></li>
-                            <li><a href="/diary">Diary</a></li>
+                        <label tabindex="0" class="btn btn-ghost rounded-full transition-all duration-300 hover:bg-primary/10">Posts</label>
+                        <ul tabindex="0" class="dropdown-content z-[1] menu shadow-lg bg-base-100 rounded-xl w-52 p-2 mt-2 border border-base-300/20 backdrop-blur-sm">
+                            <li><a href="/blog" class="rounded-lg transition-colors hover:bg-primary/10">Blog</a></li>
+                            <li><a href="/review" class="rounded-lg transition-colors hover:bg-primary/10">Review</a></li>
+                            <li><a href="/diary" class="rounded-lg transition-colors hover:bg-primary/10">Diary</a></li>
                         </ul>
                     </li>
-                    <li><a href="/series" class="btn btn-ghost">Series</a></li>
-                    <li><a href="https://miniex.info" class="btn btn-ghost">About Me</a></li>
+                    <li><a href="/series" class="btn btn-ghost rounded-full transition-all duration-300 hover:bg-primary/10">Series</a></li>
+                    <li><a href="https://miniex.info" class="btn btn-ghost rounded-full transition-all duration-300 hover:bg-primary/10">About Me</a></li>
+                    <li>
+                        <button id="theme-toggle" class="btn btn-circle btn-ghost transition-all duration-300 hover:bg-primary/10">
+                            <i class="ph ph-sun text-lg theme-light"></i>
+                            <i class="ph ph-moon text-lg theme-dark hidden"></i>
+                        </button>
+                    </li>
                 </ul>
             </div>
             <div class="flex-none md:hidden">
-                <label for="drawer" class="btn btn-square btn-ghost">
+                <label for="drawer" class="btn btn-circle btn-ghost hover:bg-primary/10 transition-colors duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         class="inline-block w-5 h-5 stroke-current">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -63,60 +105,130 @@
             </div>
         </div>
     </header>
-    <main class="container mx-auto flex-grow py-4 sm:py-6 md:py-8 px-2 sm:px-4">
+    <main class="container mx-auto flex-grow py-4 sm:py-6 md:py-8 px-2 sm:px-4 page-transition">
         {% block main %}{% endblock %}
         <div class="drawer drawer-end">
             <input id="drawer" type="checkbox" class="drawer-toggle" />
             <div class="drawer-side z-40">
                 <label for="drawer" class="drawer-overlay"></label>
-                <div class="px-4 py-6 w-64 sm:w-80 h-full bg-base-200 text-base-content">
-                    <ul class="menu text-base">
+                <div class="px-4 py-6 w-64 sm:w-80 h-full bg-base-200 text-base-content backdrop-blur-sm border-l border-base-300/20">
+                    <ul class="menu text-base gap-2">
                         <li>
                             <details>
-                                <summary>Posts</summary>
-                                <ul>
-                                    <li><a href="/blog">Blog</a></li>
-                                    <li><a href="/review">Review</a></li>
-                                    <li><a href="/diary">Diary</a></li>
+                                <summary class="font-medium rounded-lg hover:bg-primary/10 transition-colors">Posts</summary>
+                                <ul class="mt-2 rounded-lg bg-base-300/10 p-2">
+                                    <li><a href="/blog" class="rounded-lg hover:bg-primary/10 transition-colors">Blog</a></li>
+                                    <li><a href="/review" class="rounded-lg hover:bg-primary/10 transition-colors">Review</a></li>
+                                    <li><a href="/diary" class="rounded-lg hover:bg-primary/10 transition-colors">Diary</a></li>
                                 </ul>
                             </details>
                         </li>
-                        <li><a href="/series">Series</a></li>
-                        <li><a href="https://miniex.info">About Me</a></li>
+                        <li><a href="/series" class="font-medium rounded-lg hover:bg-primary/10 transition-colors">Series</a></li>
+                        <li><a href="https://miniex.info" class="font-medium rounded-lg hover:bg-primary/10 transition-colors">About Me</a></li>
+                        <li class="mt-4">
+                            <button id="theme-toggle-mobile" class="font-medium rounded-lg hover:bg-primary/10 transition-colors flex items-center gap-2">
+                                <i class="ph ph-sun text-lg theme-light"></i>
+                                <i class="ph ph-moon text-lg theme-dark hidden"></i>
+                                <span class="theme-light">Light Mode</span>
+                                <span class="theme-dark hidden">Dark Mode</span>
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
     </main>
-    <footer class="bg-base-300 text-base-content">
+    <footer class="bg-base-300 text-base-content border-t border-base-200/20">
         <div class="footer footer-center p-6 sm:p-8 md:p-10">
             <nav>
                 <ul class="grid grid-flow-col gap-2 sm:gap-4 text-sm sm:text-base">
-                    <li><a href="/blog" class="link link-hover">Blog</a></li>
-                    <li><a href="/review" class="link link-hover">Review</a></li>
-                    <li><a href="/diary" class="link link-hover">Diary</a></li>
-                    <li><a href="/series" class="link link-hover">Series</a></li>
-                    <li><a href="https://miniex.info" class="link link-hover">About Me</a></li>
+                    <li><a href="/blog" class="link link-hover hover:text-primary transition-colors duration-300">Blog</a></li>
+                    <li><a href="/review" class="link link-hover hover:text-primary transition-colors duration-300">Review</a></li>
+                    <li><a href="/diary" class="link link-hover hover:text-primary transition-colors duration-300">Diary</a></li>
+                    <li><a href="/series" class="link link-hover hover:text-primary transition-colors duration-300">Series</a></li>
+                    <li><a href="https://miniex.info" class="link link-hover hover:text-primary transition-colors duration-300">About Me</a></li>
                 </ul>
             </nav>
             <nav>
                 <div class="grid grid-flow-col gap-2 sm:gap-4">
-                    <a href="https://github.com/miniex" class="btn btn-ghost btn-circle btn-sm sm:btn-md">
+                    <a href="https://github.com/miniex" class="btn btn-ghost btn-circle btn-sm sm:btn-md hover:bg-base-100 hover:scale-110 transition-all duration-300">
                         <i class="ph ph-github-logo text-xl sm:text-2xl"></i>
                     </a>
-                    <a href="mailto:miniex@daminstudio.net" class="btn btn-ghost btn-circle btn-sm sm:btn-md">
+                    <a href="mailto:miniex@daminstudio.net" class="btn btn-ghost btn-circle btn-sm sm:btn-md hover:bg-base-100 hover:scale-110 transition-all duration-300">
                         <i class="ph ph-envelope text-xl sm:text-2xl"></i>
                     </a>
-                    <a href="https://miniex.info" class="btn btn-ghost btn-circle btn-sm sm:btn-md">
+                    <a href="https://miniex.info" class="btn btn-ghost btn-circle btn-sm sm:btn-md hover:bg-base-100 hover:scale-110 transition-all duration-300">
                         <i class="ph ph-globe text-xl sm:text-2xl"></i>
                     </a>
                 </div>
             </nav>
             <aside>
-                <p class="text-sm sm:text-base">Copyright © 2024 - All rights reserved by Han Damin</p>
+                <p class="text-sm sm:text-base opacity-70">Copyright © 2024 - All rights reserved by Han Damin</p>
             </aside>
         </div>
     </footer>
+    
+    <script>
+        // Add shadow to header on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-md');
+            } else {
+                header.classList.remove('shadow-md');
+            }
+        });
+
+        // Theme toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get theme toggles and html element
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+            const html = document.documentElement;
+            
+            // Check for saved theme preference or use system preference
+            const savedTheme = localStorage.getItem('theme');
+            const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Apply theme on initial load
+            if (savedTheme === 'dark' || (!savedTheme && systemDarkMode)) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
+            }
+            
+            // Toggle theme on button click
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+            });
+            
+            themeToggleMobile.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+            });
+            
+            // Function to apply theme
+            function applyTheme(theme) {
+                html.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'cupcake');
+                localStorage.setItem('theme', theme);
+                
+                // Update toggle visibility
+                const lightElements = document.querySelectorAll('.theme-light');
+                const darkElements = document.querySelectorAll('.theme-dark');
+                
+                if (theme === 'dark') {
+                    lightElements.forEach(el => el.classList.add('hidden'));
+                    darkElements.forEach(el => el.classList.remove('hidden'));
+                } else {
+                    lightElements.forEach(el => el.classList.remove('hidden'));
+                    darkElements.forEach(el => el.classList.add('hidden'));
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
