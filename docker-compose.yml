@@ -14,6 +14,7 @@ services:
       - ./assets:/app/assets
       - ./templates:/app/templates
       - ./contents:/app/contents
+      - ./data:/app/data
 
     environment:
       - RUST_LOG=info

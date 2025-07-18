@@ -1,20 +1,23 @@
 use axum::{
     extract::{Path, Query, State},
-    routing::get,
+    http::StatusCode,
+    response::Json,
+    routing::{get, post},
     Router,
 };
 use blog::{
+    db::{Database, Comment, Guestbook},
     post::{
         get_posts_by_category, get_posts_by_series, get_recent_posts, get_series, load_posts,
         PostType,
     },
     templates::{
-        BlogTemplate, DiaryTemplate, ErrorTemplate, IndexTemplate, PostTemplate, ReviewTemplate,
+        BlogTemplate, DiaryTemplate, ErrorTemplate, GuestbookTemplate, IndexTemplate, PostTemplate, ReviewTemplate,
         SeriesDetailTemplate, SeriesTemplate,
     },
-    AppState, Blog,
+    AppState, Blog, SharedState,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tower_http::services::{ServeDir, ServeFile};
@@ -27,7 +30,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app_state: AppState = Arc::new(RwLock::new(Vec::new()));
     load_posts(Arc::clone(&app_state)).await?;
 
-    let app = create_router(app_state);
+    let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
+        let current_dir = std::env::current_dir().unwrap();
+        format!("sqlite:{}/data/blog.db", current_dir.display())
+    });
+    let db = Database::new(&database_url).await?;
+    
+    let shared_state = SharedState {
+        posts: app_state,
+        db,
+    };
+
+    let app = create_router(shared_state);
 
     #[cfg(debug_assertions)]
     let app = add_live_reload(app);
@@ -45,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn create_router(state: AppState) -> Router {
+fn create_router(state: SharedState) -> Router {
     Router::new()
         .route("/", get(handle_index))
         .route("/blog", get(handle_blog))
@@ -54,6 +68,15 @@ fn create_router(state: AppState) -> Router {
         .route("/series", get(handle_series))
         .route("/series/:name", get(handle_series_detail))
         .route("/post/:id", get(handle_post))
+        .route("/guestbook", get(handle_guestbook))
+        .route("/api/comments/:post_id", get(get_comments))
+        .route("/api/comments", post(create_comment))
+        .route("/api/comments/edit/:comment_id", axum::routing::put(edit_comment))
+        .route("/api/comments/delete/:comment_id", axum::routing::delete(delete_comment))
+        .route("/api/guestbook", get(get_guestbook_entries))
+        .route("/api/guestbook", post(create_guestbook_entry))
+        .route("/api/guestbook/edit/:entry_id", axum::routing::put(edit_guestbook_entry))
+        .route("/api/guestbook/delete/:entry_id", axum::routing::delete(delete_guestbook_entry))
         .nest_service("/assets", ServeDir::new("assets"))
         .nest_service("/favicon.ico", ServeFile::new("assets/favicon/favicon.ico"))
         .layer(tower_http::trace::TraceLayer::new_for_http())
@@ -78,8 +101,8 @@ fn add_live_reload(app: Router) -> Router {
     app.layer(livereload)
 }
 
-async fn handle_index(State(state): State<AppState>) -> IndexTemplate {
-    let posts = state.read().await;
+async fn handle_index(State(state): State<SharedState>) -> IndexTemplate {
+    let posts = state.posts.read().await;
     let recent_posts = get_recent_posts(&posts);
 
     IndexTemplate {
@@ -95,10 +118,10 @@ struct BlogQuery {
 }
 
 async fn handle_blog(
-    State(state): State<AppState>,
+    State(state): State<SharedState>,
     Query(query): Query<BlogQuery>,
 ) -> BlogTemplate {
-    let posts = state.read().await;
+    let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
     let posts_per_page = 10;
@@ -153,10 +176,10 @@ struct ReviewQuery {
 }
 
 async fn handle_review(
-    State(state): State<AppState>,
+    State(state): State<SharedState>,
     Query(query): Query<ReviewQuery>,
 ) -> ReviewTemplate {
-    let posts = state.read().await;
+    let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
     let posts_per_page = 10;
@@ -211,10 +234,10 @@ struct DiaryQuery {
 }
 
 async fn handle_diary(
-    State(state): State<AppState>,
+    State(state): State<SharedState>,
     Query(query): Query<DiaryQuery>,
 ) -> DiaryTemplate {
-    let posts = state.read().await;
+    let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
     let posts_per_page = 10;
@@ -262,8 +285,8 @@ async fn handle_diary(
     }
 }
 
-async fn handle_series(State(state): State<AppState>) -> SeriesTemplate {
-    let posts = state.read().await;
+async fn handle_series(State(state): State<SharedState>) -> SeriesTemplate {
+    let posts = state.posts.read().await;
     let series = get_series(&posts);
 
     SeriesTemplate {
@@ -274,9 +297,9 @@ async fn handle_series(State(state): State<AppState>) -> SeriesTemplate {
 
 async fn handle_series_detail(
     Path(series_name): Path<String>,
-    State(state): State<AppState>,
+    State(state): State<SharedState>,
 ) -> SeriesDetailTemplate {
-    let posts = state.read().await;
+    let posts = state.posts.read().await;
     let series_posts = get_posts_by_series(&posts, &series_name);
 
     let series = get_series(&posts)
@@ -293,11 +316,169 @@ async fn handle_series_detail(
     }
 }
 
-async fn handle_post(Path(id): Path<String>, State(state): State<AppState>) -> PostTemplate {
-    let posts = state.read().await;
-    let post = posts.iter().find(|p| p.slug == id).cloned();
-    PostTemplate { post }
+async fn handle_post(Path(id): Path<String>, State(state): State<SharedState>) -> PostTemplate {
+    let posts = state.posts.read().await;
+    let current_post = posts.iter().find(|p| p.slug == id).cloned();
+    PostTemplate { current_post }
 }
+
+async fn handle_guestbook(State(state): State<SharedState>) -> Result<GuestbookTemplate, StatusCode> {
+    let guestbook_entries = match state.db.get_guestbook_entries(Some(20)).await {
+        Ok(entries) => entries,
+        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
+    };
+
+    Ok(GuestbookTemplate {
+        entries: guestbook_entries,
+    })
+}
+
+#[derive(Deserialize)]
+struct CreateCommentRequest {
+    author: String,
+    content: String,
+    password: Option<String>,
+}
+
+#[derive(Serialize)]
+struct ApiResponse<T> {
+    data: T,
+    message: String,
+}
+
+async fn get_comments(
+    Path(post_id): Path<String>,
+    State(state): State<SharedState>,
+) -> Result<Json<ApiResponse<Vec<Comment>>>, StatusCode> {
+    match state.db.get_comments_by_post(&post_id).await {
+        Ok(comments) => Ok(Json(ApiResponse {
+            data: comments,
+            message: "Comments retrieved successfully".to_string(),
+        })),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+#[derive(Deserialize)]
+struct CreateCommentWithPostRequest {
+    post_id: String,
+    author: String,
+    content: String,
+    password: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct EditCommentRequest {
+    content: String,
+    password: String,
+}
+
+#[derive(Serialize)]
+struct EditResponse {
+    success: bool,
+    message: String,
+}
+
+async fn create_comment(
+    State(state): State<SharedState>,
+    Json(payload): Json<CreateCommentWithPostRequest>,
+) -> Result<Json<ApiResponse<Comment>>, StatusCode> {
+    match state.db.create_comment(&payload.post_id, &payload.author, &payload.content, payload.password.as_deref()).await {
+        Ok(comment) => Ok(Json(ApiResponse {
+            data: comment,
+            message: "Comment created successfully".to_string(),
+        })),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+async fn edit_comment(
+    Path(comment_id): Path<String>,
+    State(state): State<SharedState>,
+    Json(payload): Json<EditCommentRequest>,
+) -> Result<Json<EditResponse>, StatusCode> {
+    match state.db.update_comment(&comment_id, &payload.content, &payload.password).await {
+        Ok(success) => Ok(Json(EditResponse {
+            success,
+            message: if success {
+                "Comment updated successfully".to_string()
+            } else {
+                "Wrong password or comment not found".to_string()
+            },
+        })),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+async fn delete_comment(
+    Path(comment_id): Path<String>,
+    State(state): State<SharedState>,
+) -> Result<Json<ApiResponse<()>>, StatusCode> {
+    match state.db.delete_comment(&comment_id).await {
+        Ok(_) => Ok(Json(ApiResponse {
+            data: (),
+            message: "Comment deleted successfully".to_string(),
+        })),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+async fn get_guestbook_entries(
+    State(state): State<SharedState>,
+) -> Result<Json<ApiResponse<Vec<Guestbook>>>, StatusCode> {
+    match state.db.get_guestbook_entries(Some(50)).await {
+        Ok(entries) => Ok(Json(ApiResponse {
+            data: entries,
+            message: "Guestbook entries retrieved successfully".to_string(),
+        })),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+async fn create_guestbook_entry(
+    State(state): State<SharedState>,
+    Json(payload): Json<CreateCommentRequest>,
+) -> Result<Json<ApiResponse<Guestbook>>, StatusCode> {
+    match state.db.create_guestbook_entry(&payload.author, &payload.content, payload.password.as_deref()).await {
+        Ok(entry) => Ok(Json(ApiResponse {
+            data: entry,
+            message: "Guestbook entry created successfully".to_string(),
+        })),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+async fn edit_guestbook_entry(
+    Path(entry_id): Path<String>,
+    State(state): State<SharedState>,
+    Json(payload): Json<EditCommentRequest>,
+) -> Result<Json<EditResponse>, StatusCode> {
+    match state.db.update_guestbook_entry(&entry_id, &payload.content, &payload.password).await {
+        Ok(success) => Ok(Json(EditResponse {
+            success,
+            message: if success {
+                "Guestbook entry updated successfully".to_string()
+            } else {
+                "Wrong password or entry not found".to_string()
+            },
+        })),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+async fn delete_guestbook_entry(
+    Path(entry_id): Path<String>,
+    State(state): State<SharedState>,
+) -> Result<Json<ApiResponse<()>>, StatusCode> {
+    match state.db.delete_guestbook_entry(&entry_id).await {
+        Ok(_) => Ok(Json(ApiResponse {
+            data: (),
+            message: "Guestbook entry deleted successfully".to_string(),
+        })),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
 
 async fn handle_error() -> ErrorTemplate {
     ErrorTemplate {}

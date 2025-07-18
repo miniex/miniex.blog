@@ -1,6 +1,6 @@
 {% extends "_base.html" %}
 {% block head %}
-    {% if let Some(post) = post %}
+    {% if let Some(post) = current_post %}
         <title>{{ post.metadata.title }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="{{ post.metadata.description }}">
@@ -10,7 +10,7 @@
     {% endif %}
 {% endblock %}
 {% block main %}
-    {% if let Some(post) = post %}
+    {% if let Some(post) = current_post %}
         <div class="container mx-auto px-4 py-6 max-w-4xl">
             <!-- Post header with gradient accent -->
             <div class="mb-8">
@@ -88,6 +88,53 @@
                 </div>
             </div>
             
+            <!-- Comments section -->
+            <div class="mt-8 card bg-base-100 shadow-md rounded-xl overflow-hidden border border-base-300/10">
+                <div class="card-body p-4 sm:p-8">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i class="ph ph-chat-circle text-primary"></i>
+                        Comments
+                    </h2>
+                    
+                    <!-- Comment form -->
+                    <div class="mb-8 p-6 bg-base-200/50 rounded-lg border border-base-300/10">
+                        <form id="comment-form" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="label">
+                                        <span class="label-text font-medium">Name</span>
+                                    </label>
+                                    <input type="text" id="comment-author" name="comment-author" placeholder="Enter your name" class="input input-bordered w-full" required autocomplete="off">
+                                </div>
+                                <div>
+                                    <label class="label">
+                                        <span class="label-text font-medium">Password <span class="text-xs text-base-content/60">(optional, for editing)</span></span>
+                                    </label>
+                                    <input type="password" id="comment-password" name="comment-password" placeholder="Set password to edit later" class="input input-bordered w-full" autocomplete="new-password">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="label">
+                                    <span class="label-text font-medium">Comment</span>
+                                </label>
+                                <textarea id="comment-content" placeholder="Write your comment..." class="textarea textarea-bordered w-full h-24" required></textarea>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ph ph-paper-plane-right mr-2"></i>
+                                    Post Comment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Comments list -->
+                    <div id="comments-container" class="space-y-4">
+                        <!-- Comments will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Post footer with sharing options and navigation -->
             <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-base-200/50 rounded-xl border border-base-300/10">
                 <!-- Share section -->
@@ -155,5 +202,176 @@
             const scrolled = (winScroll / height) * 100;
             document.getElementById('progress-bar').style.width = scrolled + '%';
         });
+
+        // Comments functionality
+        {% if let Some(post) = current_post %}
+        const postId = '{{ post.slug }}';
+        
+        // Load comments when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComments();
+        });
+
+        // Comment form submission
+        document.getElementById('comment-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const author = document.getElementById('comment-author').value;
+            const content = document.getElementById('comment-content').value;
+            const password = document.getElementById('comment-password').value;
+            
+            if (!author.trim() || !content.trim()) {
+                alert('Please enter both name and comment.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/comments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ post_id: postId, author, content, password: password || null })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('comment-author').value = '';
+                    document.getElementById('comment-content').value = '';
+                    document.getElementById('comment-password').value = '';
+                    loadComments();
+                } else {
+                    alert('Failed to create comment.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            }
+        });
+
+        // Load comments function
+        async function loadComments() {
+            try {
+                const response = await fetch(`/api/comments/${postId}`);
+                const data = await response.json();
+                
+                const container = document.getElementById('comments-container');
+                if (data.data.length === 0) {
+                    container.innerHTML = '<p class="text-center text-base-content/70 py-8">Be the first to comment!</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.data.map(comment => `
+                    <div class="group relative p-6 bg-gradient-to-br from-base-100 to-base-200 rounded-xl border border-base-300/20 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary/60 to-secondary/60 rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-base-300/30">
+                                    <i class="ph ph-user text-primary text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-base-content text-lg">${comment.author}</h4>
+                                    <p class="text-sm text-base-content/60 flex items-center gap-1">
+                                        <i class="ph ph-clock text-xs"></i>
+                                        ${formatDate(comment.created_at)}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                ${comment.password_hash ? `<button class="btn btn-sm btn-ghost btn-circle edit-comment-btn hover:bg-primary/10 hover:text-primary" data-id="${comment.id}">
+                                    <i class="ph ph-pencil text-base"></i>
+                                </button>` : ''}
+                                <button class="btn btn-sm btn-ghost btn-circle delete-comment-btn hover:bg-error/10 hover:text-error" data-id="${comment.id}">
+                                    <i class="ph ph-trash text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="pl-13">
+                            <p class="text-base-content/90 whitespace-pre-wrap leading-relaxed">${comment.content}</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add edit event listeners
+                document.querySelectorAll('.edit-comment-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const commentId = this.dataset.id;
+                        const commentContainer = this.closest('.group');
+                        const currentContent = commentContainer.querySelector('.whitespace-pre-wrap').textContent;
+                        
+                        const password = prompt('Enter password to edit comment:');
+                        if (!password) return;
+                        
+                        const newContent = prompt('Edit your comment:', currentContent);
+                        if (!newContent || newContent === currentContent) return;
+                        
+                        try {
+                            const response = await fetch(`/api/comments/edit/${commentId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ content: newContent, password })
+                            });
+                            
+                            if (response.ok) {
+                                const result = await response.json();
+                                if (result.success) {
+                                    loadComments();
+                                } else {
+                                    alert('Wrong password or comment not found.');
+                                }
+                            } else {
+                                alert('Failed to edit comment.');
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('An error occurred.');
+                        }
+                    });
+                });
+
+                // Add delete event listeners
+                document.querySelectorAll('.delete-comment-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const commentId = this.dataset.id;
+                        
+                        if (confirm('Are you sure you want to delete this comment?')) {
+                            try {
+                                const response = await fetch(`/api/comments/delete/${commentId}`, {
+                                    method: 'DELETE'
+                                });
+                                
+                                if (response.ok) {
+                                    loadComments();
+                                } else {
+                                    alert('Failed to delete comment.');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('An error occurred.');
+                            }
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                document.getElementById('comments-container').innerHTML = '<p class="text-center text-error py-8">Failed to load comments.</p>';
+            }
+        }
+
+        // Format date helper
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        {% endif %}
     </script>
 {% endblock %}

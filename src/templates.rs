@@ -1,4 +1,5 @@
 use crate::{
+    db::Guestbook,
     filters,
     post::{Post, Series},
     Blog,
@@ -72,7 +73,13 @@ pub struct SeriesDetailTemplate {
 #[derive(Template)]
 #[template(path = "post.html")]
 pub struct PostTemplate {
-    pub post: Option<Post>,
+    pub current_post: Option<Post>,
+}
+
+#[derive(Template)]
+#[template(path = "guestbook.html")]
+pub struct GuestbookTemplate {
+    pub entries: Vec<Guestbook>,
 }
 
 #[derive(Template)]

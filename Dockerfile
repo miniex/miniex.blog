@@ -34,6 +34,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update && apt-get install -y \
     libssl3 \
     ca-certificates \
+    sqlite3 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -41,6 +42,12 @@ COPY --from=builder /usr/src/app/target/release/blog .
 COPY --from=builder /usr/src/app/assets ./assets
 COPY --from=builder /usr/src/app/templates ./templates
 COPY --from=builder /usr/src/app/contents ./contents
+
+# Create data directory for SQLite database with proper permissions
+RUN mkdir -p /app/data && \
+    chmod 755 /app/data && \
+    chown -R root:root /app/data
+ENV DATABASE_URL=sqlite:/app/data/blog.db
 
 EXPOSE 80
 CMD ["./blog"]

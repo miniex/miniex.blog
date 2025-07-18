@@ -3,3 +3,9 @@
 node_modules
 
 target
+
+# Database files
+data/
+*.db
+*.sqlite
+*.sqlite3
