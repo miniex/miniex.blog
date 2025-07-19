@@ -14,6 +14,10 @@ ssh-keyscan gitlab.daminstudio.com >> ~/.ssh/known_hosts
 cd $REPO_PATH
 git pull origin main
 
+# Ensure data directory exists with proper permissions
+mkdir -p data
+chmod 777 data
+
 # Force rebuild of Docker images
 docker compose -f $COMPOSE_FILE build --no-cache
 
