@@ -31,8 +31,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     load_posts(Arc::clone(&app_state)).await?;
 
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        let current_dir = std::env::current_dir().unwrap();
-        format!("sqlite:{}/data/blog.db", current_dir.display())
+        // Ensure data directory exists
+        std::fs::create_dir_all("./data").unwrap_or_default();
+        "sqlite:./data/blog.db".to_string()
     });
     let db = Database::new(&database_url).await?;
     

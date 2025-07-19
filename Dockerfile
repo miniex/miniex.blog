@@ -46,7 +46,7 @@ COPY --from=builder /usr/src/app/contents ./contents
 # Create data directory for SQLite database with proper permissions
 RUN mkdir -p /app/data && \
     chmod 777 /app/data
-ENV DATABASE_URL=sqlite:/app/data/blog.db
+ENV DATABASE_URL=sqlite:./data/blog.db
 
 EXPOSE 80
 CMD ["./blog"]
