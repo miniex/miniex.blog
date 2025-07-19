@@ -1,5 +1,5 @@
 # Build stage
-FROM rust:latest as builder
+FROM rust:1.85.1 as builder
 WORKDIR /usr/src/app
 
 # Install Node.js, Bun, and other necessary tools
