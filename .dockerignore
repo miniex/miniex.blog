@@ -1,0 +1,11 @@
+.git
+.gitignore
+node_modules
+target
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Allow resume.mdx in Docker builds (will be created from CI variable)
+!contents/resume.mdx
