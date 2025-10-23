@@ -109,6 +109,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       e.preventDefault();
 
+      // Disable scroll event handler during programmatic scroll
+      isProgrammaticScroll = true;
+
       // Calculate offset for fixed header
       const headerOffset = 100;
       const elementPosition = item.heading.getBoundingClientRect().top;
@@ -119,6 +122,11 @@ document.addEventListener("DOMContentLoaded", function () {
         top: offsetPosition,
         behavior: "smooth",
       });
+
+      // Re-enable scroll handler after smooth scroll completes
+      setTimeout(() => {
+        isProgrammaticScroll = false;
+      }, 2000);
 
       // Update URL without triggering scroll
       history.pushState(null, null, `#${item.id}`);
@@ -244,9 +252,19 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     }
 
+    // Find the top-level h2 parent
+    let h2Container = activeContainer;
+    let parent = activeContainer.parentElement;
+    while (parent && parent.id !== "toc") {
+      if (parent.classList.contains("toc-item")) {
+        h2Container = parent;
+      }
+      parent = parent.parentElement;
+    }
+
     // Collect all ancestors that should be expanded
     const ancestorsToExpand = new Set();
-    let parent = activeContainer.parentElement;
+    parent = activeContainer.parentElement;
     while (parent && parent.id !== "toc") {
       if (parent.classList.contains("toc-children")) {
         ancestorsToExpand.add(parent);
@@ -254,31 +272,27 @@ document.addEventListener("DOMContentLoaded", function () {
       parent = parent.parentElement;
     }
 
-    // Collapse all h2 children containers that are not ancestors
+    // Collapse all h2 children containers that are not in the active h2 section
     document
       .querySelectorAll("#toc .toc-children")
       .forEach((childrenContainer) => {
-        if (!ancestorsToExpand.has(childrenContainer)) {
-          // Only collapse if it's a direct child of h2 (has a toggle icon in parent)
-          const parentContainer = childrenContainer.parentElement;
-          const toggleIcon = parentContainer.querySelector(".toc-toggle");
-          if (toggleIcon) {
+        const parentContainer = childrenContainer.parentElement;
+        const toggleIcon = parentContainer.querySelector(".toc-toggle");
+
+        // Only collapse h2 sections (those with toggle icons)
+        if (toggleIcon) {
+          // Check if this is the active h2 section
+          if (parentContainer === h2Container) {
+            // Expand the active h2 section
+            expandChildren(childrenContainer);
+            toggleIcon.style.transform = "rotate(90deg)";
+          } else {
+            // Collapse other h2 sections
             collapseChildren(childrenContainer);
             toggleIcon.style.transform = "rotate(0deg)";
           }
         }
       });
-
-    // Expand all ancestors
-    ancestorsToExpand.forEach((childrenContainer) => {
-      expandChildren(childrenContainer);
-      // Rotate the toggle icon
-      const parentContainer = childrenContainer.parentElement;
-      const toggleIcon = parentContainer.querySelector(".toc-toggle");
-      if (toggleIcon) {
-        toggleIcon.style.transform = "rotate(90deg)";
-      }
-    });
   }
 
   // Find which heading should be expanded based on its children
@@ -296,8 +310,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Highlight active section on scroll
   let isScrolling = false;
+  let isProgrammaticScroll = false;
+
   window.addEventListener("scroll", function () {
-    if (isScrolling) return;
+    if (isScrolling || isProgrammaticScroll) return;
 
     isScrolling = true;
     setTimeout(() => {
