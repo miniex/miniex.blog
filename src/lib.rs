@@ -1,10 +1,10 @@
+pub mod db;
 pub mod filters;
 pub mod post;
 pub mod templates;
-pub mod db;
 
-use post::Post;
 use db::Database;
+use post::Post;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

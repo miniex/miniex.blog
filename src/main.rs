@@ -429,6 +429,11 @@ struct EditCommentRequest {
     password: String,
 }
 
+#[derive(Deserialize)]
+struct DeleteRequest {
+    password: String,
+}
+
 #[derive(Serialize)]
 struct EditResponse {
     success: bool,
@@ -482,11 +487,20 @@ async fn edit_comment(
 async fn delete_comment(
     Path(comment_id): Path<String>,
     State(state): State<SharedState>,
-) -> Result<Json<ApiResponse<()>>, StatusCode> {
-    match state.db.delete_comment(&comment_id).await {
-        Ok(_) => Ok(Json(ApiResponse {
-            data: (),
-            message: "Comment deleted successfully".to_string(),
+    Json(payload): Json<DeleteRequest>,
+) -> Result<Json<EditResponse>, StatusCode> {
+    match state
+        .db
+        .delete_comment(&comment_id, &payload.password)
+        .await
+    {
+        Ok(success) => Ok(Json(EditResponse {
+            success,
+            message: if success {
+                "Comment deleted successfully".to_string()
+            } else {
+                "Wrong password or comment not found".to_string()
+            },
         })),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
@@ -550,11 +564,20 @@ async fn edit_guestbook_entry(
 async fn delete_guestbook_entry(
     Path(entry_id): Path<String>,
     State(state): State<SharedState>,
-) -> Result<Json<ApiResponse<()>>, StatusCode> {
-    match state.db.delete_guestbook_entry(&entry_id).await {
-        Ok(_) => Ok(Json(ApiResponse {
-            data: (),
-            message: "Guestbook entry deleted successfully".to_string(),
+    Json(payload): Json<DeleteRequest>,
+) -> Result<Json<EditResponse>, StatusCode> {
+    match state
+        .db
+        .delete_guestbook_entry(&entry_id, &payload.password)
+        .await
+    {
+        Ok(success) => Ok(Json(EditResponse {
+            success,
+            message: if success {
+                "Guestbook entry deleted successfully".to_string()
+            } else {
+                "Wrong password or entry not found".to_string()
+            },
         })),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }

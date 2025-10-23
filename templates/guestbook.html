@@ -276,17 +276,29 @@
             btn.addEventListener("click", async function () {
                 const entryId = this.dataset.id;
 
+                const password = prompt("Enter password to delete this entry:");
+                if (!password) return;
+
                 if (confirm("Are you sure you want to delete this entry?")) {
                     try {
                         const response = await fetch(
                             `/api/guestbook/delete/${entryId}`,
                             {
                                 method: "DELETE",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ password }),
                             },
                         );
 
                         if (response.ok) {
-                            location.reload();
+                            const result = await response.json();
+                            if (result.success) {
+                                location.reload();
+                            } else {
+                                alert("Wrong password or entry not found.");
+                            }
                         } else {
                             alert("Failed to delete entry.");
                         }
