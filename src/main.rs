@@ -364,6 +364,7 @@ async fn handle_resume() -> Result<ResumeTemplate, StatusCode> {
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     options.insert(Options::ENABLE_TABLES);
+    options.insert(Options::ENABLE_HEADING_ATTRIBUTES);
     let parser = Parser::new_ext(parsed.content.as_str(), options);
 
     let mut html_output = String::new();
