@@ -113,6 +113,7 @@
     <body
         class="flex flex-col min-h-screen bg-base-200 font-['Inter',system-ui,sans-serif]"
     >
+        {% block header %}
         <header
             class="bg-base-300/90 text-base-content backdrop-blur-sm nav-shadow sticky top-0 z-30 transition-all duration-300"
         >
@@ -219,6 +220,7 @@
                 </div>
             </div>
         </header>
+        {% endblock %}
         <main
             class="container mx-auto flex-grow py-4 sm:py-6 md:py-8 px-2 sm:px-4 page-transition"
         >

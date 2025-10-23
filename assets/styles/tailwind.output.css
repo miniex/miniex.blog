@@ -6588,6 +6588,11 @@ html:has(.drawer-toggle:checked) {
     padding-bottom: 2rem;
   }
 
+  .md\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
   .md\:text-4xl {
     font-size: 2.25rem;
     line-height: 2.5rem;
