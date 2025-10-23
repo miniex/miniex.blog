@@ -20,8 +20,6 @@ archive_to_github:
     - git clone $CI_REPOSITORY_URL repo
     - cd repo
     - git remote add github git@github.com:miniex/miniex.blog.git
-    - git rm --cached contents/resume.mdx || true
-    - git commit -m "Remove resume.mdx for GitHub archive" || true
     - git push -f github main
 
 deploy_to_dms-ax:
