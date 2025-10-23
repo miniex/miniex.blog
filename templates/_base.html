@@ -13,8 +13,20 @@
             href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
             rel="stylesheet"
         />
-        <link href="/assets/styles/tailwind.output.css?v=2" rel="stylesheet" />
-        <link href="/assets/styles/global.css?v=2" rel="stylesheet" />
+        <link href="/assets/styles/tailwind.output.css?v=4" rel="stylesheet" />
+        <link href="/assets/styles/global.css?v=4" rel="stylesheet" />
+        <!-- highlight.js -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                hljs.highlightAll();
+            });
+        </script>
         <!-- each page -->
         {% block head %}{% endblock %}
         <!-- favicon -->

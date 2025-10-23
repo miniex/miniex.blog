@@ -101,7 +101,6 @@ fn create_router(state: SharedState) -> Router {
             axum::routing::delete(delete_guestbook_entry),
         )
         .nest_service("/assets", ServeDir::new("assets"))
-        .nest_service("/js", ServeDir::new("js"))
         .nest_service("/favicon.ico", ServeFile::new("assets/favicon/favicon.ico"))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .fallback(handle_error)
@@ -116,7 +115,7 @@ fn add_live_reload(app: Router) -> Router {
     );
     let reloader = livereload.reloader();
     let mut watcher = notify::recommended_watcher(move |_| reloader.reload()).unwrap();
-    let paths = ["assets", "templates", "js"];
+    let paths = ["assets", "templates"];
     for path in paths.iter() {
         watcher
             .watch(std::path::Path::new(path), notify::RecursiveMode::Recursive)

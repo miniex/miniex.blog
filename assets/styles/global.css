@@ -57,6 +57,59 @@ article tbody tr:hover {
     background-color: hsl(var(--b2) / 0.5);
 }
 
+/* Inline code - no background */
+article code:not(pre code) {
+    background-color: transparent !important;
+}
+
+/* Prevent highlight.js from adding background */
+.hljs {
+    background: transparent !important;
+}
+
+code.hljs {
+    background: transparent !important;
+}
+
+/* Force rounded corners on pre */
+article pre {
+    border-radius: 1.5rem !important;
+}
+
+/* Dark mode code block styling */
+[data-theme="dark"] article pre {
+    background-color: #1a1a1a !important;
+}
+
+[data-theme="dark"] article pre code {
+    color: #e6e6e6 !important;
+}
+
+[data-theme="dark"] article pre code .hljs-keyword,
+[data-theme="dark"] article pre code .hljs-selector-tag,
+[data-theme="dark"] article pre code .hljs-type {
+    color: #ff79c6 !important;
+}
+
+[data-theme="dark"] article pre code .hljs-string,
+[data-theme="dark"] article pre code .hljs-attr {
+    color: #50fa7b !important;
+}
+
+[data-theme="dark"] article pre code .hljs-function,
+[data-theme="dark"] article pre code .hljs-title {
+    color: #bd93f9 !important;
+}
+
+[data-theme="dark"] article pre code .hljs-number,
+[data-theme="dark"] article pre code .hljs-literal {
+    color: #8be9fd !important;
+}
+
+[data-theme="dark"] article pre code .hljs-comment {
+    color: #6272a4 !important;
+}
+
 /* Responsive font size for mobile */
 @media (max-width: 768px) {
     article.prose {

@@ -54,19 +54,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const link = document.createElement("a");
     link.href = `#${item.id}`;
     link.textContent = item.text;
-    link.className = `block py-2 pr-3 text-sm rounded-lg transition-colors duration-200 hover:bg-primary/10 hover:text-primary`;
+    link.className = `block py-2.5 pr-3 text-sm rounded-lg transition-all duration-300 ease-out hover:bg-primary/15 hover:text-primary hover:translate-x-1 border-l-2 border-transparent`;
 
     // Style based on level
     if (item.level === 2) {
-      link.style.paddingLeft = "0rem";
-      link.classList.add("font-semibold");
+      link.style.paddingLeft = "0.75rem";
+      link.classList.add("font-semibold", "text-base");
     } else if (item.level === 3) {
-      link.style.paddingLeft = "1rem";
+      link.style.paddingLeft = "1.5rem";
+      link.classList.add("font-medium");
     } else if (item.level === 4) {
-      link.style.paddingLeft = "2rem";
+      link.style.paddingLeft = "2.5rem";
       link.classList.add("text-sm");
     } else if (item.level >= 5) {
-      link.style.paddingLeft = "3rem";
+      link.style.paddingLeft = "3.5rem";
       link.classList.add("text-xs", "opacity-70");
     }
 
@@ -234,7 +235,8 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateActiveItem(headingId) {
     // Remove all active states
     document.querySelectorAll("#toc a").forEach((a) => {
-      a.classList.remove("bg-primary/10", "text-primary", "font-semibold");
+      a.classList.remove("bg-primary/20", "text-primary", "font-bold", "border-l-primary", "shadow-sm", "scale-105");
+      a.style.borderLeftColor = "transparent";
     });
 
     // Find and highlight active item
@@ -246,10 +248,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const activeLink = activeContainer.querySelector("a");
     if (activeLink) {
       activeLink.classList.add(
-        "bg-primary/10",
+        "bg-primary/20",
         "text-primary",
-        "font-semibold",
+        "font-bold",
+        "shadow-sm",
+        "scale-105"
       );
+      activeLink.style.borderLeftColor = "hsl(var(--p))";
+      activeLink.style.borderLeftWidth = "3px";
     }
 
     // Find the top-level h2 parent
