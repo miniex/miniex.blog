@@ -46,7 +46,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // Smooth scroll
     link.addEventListener("click", function (e) {
       e.preventDefault();
-      heading.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      // Calculate offset for fixed header (96px = top-24)
+      const headerOffset = 100;
+      const elementPosition = heading.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
 
       // Update URL without triggering scroll
       history.pushState(null, null, `#${heading.id}`);
