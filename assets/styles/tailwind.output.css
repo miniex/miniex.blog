@@ -907,22 +907,22 @@ html {
 
 .prose :where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
   font-weight: 500;
-  font-style: italic;
+  font-style: normal;
   color: var(--tw-prose-quotes);
   border-inline-start-width: 0.25rem;
   border-inline-start-color: var(--tw-prose-quote-borders);
-  quotes: "\201C""\201D""\2018""\2019";
+  quotes: none;
   margin-top: 1.6em;
   margin-bottom: 1.6em;
   padding-inline-start: 1em;
 }
 
 .prose :where(blockquote p:first-of-type):not(:where([class~="not-prose"],[class~="not-prose"] *))::before {
-  content: open-quote;
+  content: none;
 }
 
 .prose :where(blockquote p:last-of-type):not(:where([class~="not-prose"],[class~="not-prose"] *))::after {
-  content: close-quote;
+  content: none;
 }
 
 .prose :where(h1):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
@@ -5503,22 +5503,22 @@ html:has(.drawer-toggle:checked) {
 
   .sm\:prose :where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
     font-weight: 500;
-    font-style: italic;
+    font-style: normal;
     color: var(--tw-prose-quotes);
     border-inline-start-width: 0.25rem;
     border-inline-start-color: var(--tw-prose-quote-borders);
-    quotes: "\201C""\201D""\2018""\2019";
+    quotes: none;
     margin-top: 1.6em;
     margin-bottom: 1.6em;
     padding-inline-start: 1em;
   }
 
   .sm\:prose :where(blockquote p:first-of-type):not(:where([class~="not-prose"],[class~="not-prose"] *))::before {
-    content: open-quote;
+    content: none;
   }
 
   .sm\:prose :where(blockquote p:last-of-type):not(:where([class~="not-prose"],[class~="not-prose"] *))::after {
-    content: close-quote;
+    content: none;
   }
 
   .sm\:prose :where(h1):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
@@ -6613,10 +6613,6 @@ html:has(.drawer-toggle:checked) {
   .lg\:mx-0 {
     margin-left: 0px;
     margin-right: 0px;
-  }
-
-  .lg\:block {
-    display: block;
   }
 
   .lg\:grid-cols-3 {

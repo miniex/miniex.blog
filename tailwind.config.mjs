@@ -19,6 +19,16 @@ export default {
               marginRight: "auto",
               borderRadius: "25px",
             },
+            blockquote: {
+              fontStyle: "normal",
+              quotes: "none",
+            },
+            "blockquote p:first-of-type::before": {
+              content: "none",
+            },
+            "blockquote p:last-of-type::after": {
+              content: "none",
+            },
           },
         },
       },
