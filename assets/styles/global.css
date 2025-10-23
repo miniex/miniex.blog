@@ -36,17 +36,33 @@ article thead {
 }
 
 article th {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     text-align: left;
     font-weight: 600;
     color: hsl(var(--bc));
     border-bottom: 2px solid hsl(var(--b3));
 }
 
+article th:first-child {
+    padding-left: 2rem;
+}
+
+article th:last-child {
+    padding-right: 2rem;
+}
+
 article td {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid hsl(var(--b3));
     color: hsl(var(--bc) / 0.8);
+}
+
+article td:first-child {
+    padding-left: 2rem;
+}
+
+article td:last-child {
+    padding-right: 2rem;
 }
 
 article tbody tr:last-child td {
