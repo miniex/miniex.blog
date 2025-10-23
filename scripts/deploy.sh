@@ -26,12 +26,13 @@ fi
 
 # Set default RESUME_TAG if not provided
 : ${RESUME_TAG:=default-secret-tag}
+: ${RESUME_TITLE:=miniex::resume}
 
 # Force rebuild of Docker images
-RESUME_TAG=$RESUME_TAG docker compose -f $COMPOSE_FILE build --no-cache
+RESUME_TAG=$RESUME_TAG RESUME_TITLE=$RESUME_TITLE docker compose -f $COMPOSE_FILE build --no-cache
 
 # Start the services
-RESUME_TAG=$RESUME_TAG docker compose -f $COMPOSE_FILE up -d
+RESUME_TAG=$RESUME_TAG RESUME_TITLE=$RESUME_TITLE docker compose -f $COMPOSE_FILE up -d
 
 # Remove old, unused images
 docker image prune -f

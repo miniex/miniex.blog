@@ -370,8 +370,12 @@ async fn handle_resume() -> Result<ResumeTemplate, StatusCode> {
     let mut html_output = String::new();
     html::push_html(&mut html_output, parser);
 
+    // Get resume title from environment variable or use default
+    let resume_title =
+        std::env::var("RESUME_TITLE").unwrap_or_else(|_| "miniex::resume".to_string());
+
     Ok(ResumeTemplate {
-        blog: Blog::new().set_title("miniex::resume"),
+        blog: Blog::new().set_title(&resume_title),
         content: html_output,
     })
 }

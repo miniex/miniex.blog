@@ -20,6 +20,7 @@ services:
       - RUST_LOG=info
       - RUST_BACKTRACE=1
       - RESUME_TAG=${RESUME_TAG:-default-secret-tag}
+      - RESUME_TITLE=${RESUME_TITLE:-miniex::resume}
 
     command: ["./blog"]
 
