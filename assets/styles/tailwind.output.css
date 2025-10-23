@@ -6627,3 +6627,9 @@ html:has(.drawer-toggle:checked) {
     flex-direction: row;
   }
 }
+
+@media (min-width: 1280px) {
+  .xl\:block {
+    display: block;
+  }
+}
