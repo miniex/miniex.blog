@@ -18,6 +18,12 @@ git pull origin main
 mkdir -p data
 chmod 777 data
 
+# Create resume.mdx from environment variable if provided
+if [ -n "$RESUME_CONTENT" ]; then
+    mkdir -p contents
+    echo "$RESUME_CONTENT" > contents/resume.mdx
+fi
+
 # Set default RESUME_TAG if not provided
 : ${RESUME_TAG:=default-secret-tag}
 
