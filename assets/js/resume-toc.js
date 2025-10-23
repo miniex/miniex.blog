@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const link = document.createElement("a");
     link.href = `#${item.id}`;
     link.textContent = item.text;
-    link.className = `block py-2.5 pr-3 text-sm rounded-lg transition-all duration-300 ease-out hover:bg-primary/15 hover:text-primary hover:translate-x-1 border-l-2 border-transparent`;
+    link.className = `block py-2.5 pr-3 text-sm rounded-lg transition-all duration-300 ease-out hover:bg-primary/15 hover:text-primary border-l-2 border-transparent`;
 
     // Style based on level
     if (item.level === 2) {
@@ -74,10 +74,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add toggle icon for items with children (only for h2)
     if (item.children.length > 0 && item.level === 2) {
-      const toggleIcon = document.createElement("span");
-      toggleIcon.className = "toc-toggle inline-block mr-1";
-      toggleIcon.innerHTML = "▶";
-      toggleIcon.style.fontSize = "0.7em";
+      const toggleIcon = document.createElement("i");
+      toggleIcon.className = "toc-toggle ph ph-caret-right inline-block mr-1.5";
+      toggleIcon.style.fontSize = "0.9em";
       toggleIcon.style.transition = "transform 0.3s ease-out";
       toggleIcon.style.transformOrigin = "center";
       link.prepend(toggleIcon);
@@ -91,10 +90,12 @@ document.addEventListener("DOMContentLoaded", function () {
           const isExpanded = childrenContainer.dataset.expanded === "true";
           if (isExpanded) {
             collapseChildren(childrenContainer);
-            toggleIcon.style.transform = "rotate(0deg)";
+            toggleIcon.className =
+              "toc-toggle ph ph-caret-right inline-block mr-1.5";
           } else {
             expandChildren(childrenContainer);
-            toggleIcon.style.transform = "rotate(90deg)";
+            toggleIcon.className =
+              "toc-toggle ph ph-caret-down inline-block mr-1.5";
           }
         }
       });
@@ -121,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isProgrammaticScroll = true;
 
       // Calculate offset for fixed header
-      const headerOffset = 100;
+      const headerOffset = 120;
       const elementPosition = item.heading.getBoundingClientRect().top;
       const offsetPosition =
         elementPosition + window.pageYOffset - headerOffset;
@@ -146,7 +147,8 @@ document.addEventListener("DOMContentLoaded", function () {
           expandChildren(childrenContainer);
           const toggleIcon = container.querySelector(".toc-toggle");
           if (toggleIcon) {
-            toggleIcon.style.transform = "rotate(90deg)";
+            toggleIcon.className =
+              "toc-toggle ph ph-caret-down inline-block mr-1.5";
           }
         }
       }
@@ -256,10 +258,9 @@ document.addEventListener("DOMContentLoaded", function () {
         "text-primary",
         "font-bold",
         "border-l-primary",
-        "shadow-sm",
-        "scale-105",
       );
       a.style.borderLeftColor = "transparent";
+      a.style.borderLeftWidth = "2px";
     });
 
     // Find and highlight active item in both desktop and mobile TOC
@@ -270,13 +271,7 @@ document.addEventListener("DOMContentLoaded", function () {
     activeContainers.forEach((activeContainer) => {
       const activeLink = activeContainer.querySelector("a");
       if (activeLink) {
-        activeLink.classList.add(
-          "bg-primary/20",
-          "text-primary",
-          "font-bold",
-          "shadow-sm",
-          "scale-105",
-        );
+        activeLink.classList.add("bg-primary/20", "text-primary", "font-bold");
         activeLink.style.borderLeftColor = "hsl(var(--p))";
         activeLink.style.borderLeftWidth = "3px";
       }
@@ -321,11 +316,13 @@ document.addEventListener("DOMContentLoaded", function () {
             if (parentContainer === h2Container) {
               // Expand the active h2 section
               expandChildren(childrenContainer);
-              toggleIcon.style.transform = "rotate(90deg)";
+              toggleIcon.className =
+                "toc-toggle ph ph-caret-down inline-block mr-1.5";
             } else {
               // Collapse other h2 sections
               collapseChildren(childrenContainer);
-              toggleIcon.style.transform = "rotate(0deg)";
+              toggleIcon.className =
+                "toc-toggle ph ph-caret-right inline-block mr-1.5";
             }
           }
         });
@@ -354,7 +351,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     isScrolling = true;
     setTimeout(() => {
-      const scrollPos = window.scrollY + 150;
+      const scrollPos = window.scrollY + 120;
 
       const currentHeading = findActiveHeadingWithContext(headings, scrollPos);
 
