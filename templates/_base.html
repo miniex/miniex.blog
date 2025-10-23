@@ -15,6 +15,11 @@
         />
         <link href="/assets/styles/tailwind.output.css?v=6" rel="stylesheet" />
         <link href="/assets/styles/global.css?v=6" rel="stylesheet" />
+        <link
+            rel="stylesheet"
+            href="/assets/styles/print.css?v=1"
+            media="print"
+        />
         <!-- highlight.js -->
         <link
             rel="stylesheet"
@@ -318,6 +323,7 @@
                 </div>
             </div>
         </main>
+        {% block footer %}
         <footer
             class="bg-base-300 text-base-content border-t border-base-200/20"
         >
@@ -401,6 +407,7 @@
                 </aside>
             </div>
         </footer>
+        {% endblock %}
 
         <script>
             // Add shadow to header on scroll

@@ -1,0 +1,356 @@
+/* PDF Print Styles for Resume Page */
+
+@media print {
+    /* ===== Force light mode for print ===== */
+    [data-theme="dark"] article pre {
+        background-color: #f5f5f5 !important;
+    }
+
+    [data-theme="dark"] article pre code {
+        color: #000000 !important;
+    }
+
+    [data-theme="dark"] article pre code .hljs-keyword,
+    [data-theme="dark"] article pre code .hljs-selector-tag,
+    [data-theme="dark"] article pre code .hljs-type,
+    [data-theme="dark"] article pre code .hljs-string,
+    [data-theme="dark"] article pre code .hljs-attr,
+    [data-theme="dark"] article pre code .hljs-function,
+    [data-theme="dark"] article pre code .hljs-title,
+    [data-theme="dark"] article pre code .hljs-number,
+    [data-theme="dark"] article pre code .hljs-literal {
+        color: #000000 !important;
+        font-weight: 400 !important;
+    }
+
+    [data-theme="dark"] article pre code .hljs-comment {
+        color: #666666 !important;
+    }
+
+    /* ===== Hide UI Elements ===== */
+    header,
+    aside,
+    .btn,
+    button,
+    #theme-toggle,
+    #toc,
+    .drawer,
+    .fixed,
+    footer,
+    nav,
+    .footer {
+        display: none !important;
+    }
+
+    /* ===== Page Setup ===== */
+    @page {
+        size: A4;
+        margin: 2cm 1.5cm;
+        border: none !important;
+    }
+
+    html,
+    body,
+    main,
+    article,
+    div,
+    * {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* ===== Body & Container ===== */
+    body {
+        background: white !important;
+        color: #1a1a1a !important;
+        font-family: "GangwonEdu_OTFBoldA", sans-serif;
+        border: none !important;
+    }
+
+    body::after,
+    body::before,
+    html::after,
+    html::before {
+        display: none !important;
+    }
+
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* ===== Content Layout ===== */
+    article {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* ===== Typography ===== */
+    article h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #000000 !important;
+        margin-top: 2rem;
+        margin-bottom: 1.2rem;
+        letter-spacing: -0.02em;
+    }
+
+    article h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #000000 !important;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid #e0e0e0 !important;
+        letter-spacing: -0.01em;
+    }
+
+    article h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1a1a1a !important;
+        margin-top: 1.8rem;
+        margin-bottom: 0.8rem;
+    }
+
+    article h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2a2a2a !important;
+        margin-top: 1.4rem;
+        margin-bottom: 0.6rem;
+    }
+
+    article p {
+        margin-top: 0.6rem;
+        margin-bottom: 0.6rem;
+        line-height: 1.8;
+        color: #1a1a1a !important;
+        text-align: justify;
+    }
+
+    article ul,
+    article ol {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    article li {
+        margin-top: 0.4rem;
+        margin-bottom: 0.4rem;
+        line-height: 1.7;
+        color: #1a1a1a !important;
+    }
+
+    article ul > li::marker {
+        color: #333333 !important;
+    }
+
+    article strong {
+        font-weight: 700;
+        color: #000000 !important;
+    }
+
+    article hr {
+        display: none !important;
+    }
+
+    /* ===== Links ===== */
+    article a {
+        color: #0066cc !important;
+        text-decoration: none;
+        border-bottom: 1px solid #b3d9ff;
+    }
+
+    /* Show URLs for external links */
+    article a[href^="http"]:after {
+        content: " (" attr(href) ")";
+        font-size: 0.75em;
+        color: #666666 !important;
+        font-weight: normal;
+    }
+
+    /* Don't show URLs for email links */
+    article a[href^="mailto:"]:after {
+        content: "";
+    }
+
+    /* ===== Tables ===== */
+    article table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        border: 1px solid #d0d0d0;
+        background: white;
+        font-size: 0.95em;
+    }
+
+    article thead {
+        background-color: #f5f5f5 !important;
+    }
+
+    article th {
+        padding: 0.9rem 1.1rem;
+        text-align: left;
+        font-weight: 700;
+        color: #000000 !important;
+        border: 1px solid #d0d0d0;
+        background-color: #f5f5f5 !important;
+    }
+
+    article td {
+        padding: 0.9rem 1.1rem;
+        border: 1px solid #d0d0d0;
+        color: #1a1a1a !important;
+        vertical-align: top;
+    }
+
+    article tbody tr {
+        background-color: white !important;
+    }
+
+    article tbody tr:nth-child(even) {
+        background-color: #fafafa !important;
+    }
+
+    article tbody tr:hover {
+        background-color: white !important;
+    }
+
+    /* ===== Code Blocks ===== */
+    article code:not(pre code) {
+        background-color: #f0f0f0 !important;
+        color: #000000 !important;
+        padding: 0.15em 0.4em !important;
+        border-radius: 0 !important;
+        font-size: 0.85em !important;
+        font-weight: 400 !important;
+        border: 1px solid #d0d0d0 !important;
+        font-family: "Consolas", "Monaco", "Courier New", monospace !important;
+    }
+
+    article pre {
+        background-color: #f5f5f5 !important;
+        border: 1px solid #cccccc !important;
+        border-radius: 0 !important;
+        padding: 0.8rem !important;
+        margin: 1rem 0 !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+        max-height: none !important;
+        height: auto !important;
+    }
+
+    article pre code {
+        background-color: transparent !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        font-size: 0.6rem !important;
+        line-height: 1.3 !important;
+        font-weight: 400 !important;
+        border: none !important;
+        font-family: "Consolas", "Monaco", "Courier New", monospace !important;
+    }
+
+    /* Syntax highlighting for print - all black */
+    article pre code .hljs-keyword,
+    article pre code .hljs-selector-tag,
+    article pre code .hljs-type,
+    article pre code .hljs-string,
+    article pre code .hljs-attr,
+    article pre code .hljs-function,
+    article pre code .hljs-title,
+    article pre code .hljs-number,
+    article pre code .hljs-literal {
+        color: #000000 !important;
+        font-weight: 400 !important;
+    }
+
+    article pre code .hljs-comment {
+        color: #666666 !important;
+        font-style: italic !important;
+        font-weight: 400 !important;
+    }
+
+    /* Hide copy buttons */
+    .code-copy-button {
+        display: none !important;
+    }
+
+    /* ===== Blockquotes ===== */
+    article blockquote {
+        background-color: #f8f9fa !important;
+        border-left: 4px solid #0066cc;
+        padding: 1rem 1.5rem;
+        margin: 1.5rem 0;
+        border-radius: 0.3rem;
+        font-style: italic;
+    }
+
+    article blockquote p {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #2a2a2a !important;
+        line-height: 1.8;
+    }
+
+    /* ===== Page Break Control ===== */
+    /* Let everything flow naturally across pages */
+
+    * {
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+        page-break-inside: auto !important;
+        break-before: auto !important;
+        break-after: auto !important;
+        break-inside: auto !important;
+        orphans: 1 !important;
+        widows: 1 !important;
+    }
+
+    /* Code blocks - remove ALL page break restrictions */
+    article pre,
+    article pre code {
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+        page-break-inside: auto !important;
+        break-before: auto !important;
+        break-after: auto !important;
+        break-inside: auto !important;
+    }
+
+    /* Table headers repeat on each page */
+    article thead {
+        display: table-header-group;
+    }
+
+    article tbody {
+        display: table-row-group;
+    }
+
+    /* ===== Remove Unnecessary Spacing ===== */
+    .prose {
+        max-width: 100% !important;
+    }
+
+    /* ===== Fix flexbox/grid layouts for print ===== */
+    .flex,
+    .flex-row,
+    .flex-col {
+        display: block !important;
+    }
+
+    .grid {
+        display: block !important;
+    }
+}

@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
   const content = document.getElementById("resume-content");
   const toc = document.getElementById("toc");
+  const tocMobile = document.getElementById("toc-mobile");
 
-  if (!content || !toc) {
+  if (!content || (!toc && !tocMobile)) {
     return;
   }
 
@@ -110,6 +111,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       e.preventDefault();
 
+      // Close mobile drawer if open
+      const mobileDrawer = document.getElementById("mobile-toc-drawer");
+      if (mobileDrawer && mobileDrawer.checked) {
+        mobileDrawer.checked = false;
+      }
+
       // Disable scroll event handler during programmatic scroll
       isProgrammaticScroll = true;
 
@@ -172,10 +179,19 @@ document.addEventListener("DOMContentLoaded", function () {
     return container;
   }
 
-  // Render all top-level items
-  tocStructure.forEach((item) => {
-    toc.appendChild(renderTocItem(item, true));
-  });
+  // Render all top-level items for desktop TOC
+  if (toc) {
+    tocStructure.forEach((item) => {
+      toc.appendChild(renderTocItem(item, true));
+    });
+  }
+
+  // Render all top-level items for mobile TOC
+  if (tocMobile) {
+    tocStructure.forEach((item) => {
+      tocMobile.appendChild(renderTocItem(item, true));
+    });
+  }
 
   // Expand children with animation
   function expandChildren(childrenContainer) {
@@ -233,72 +249,87 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Update active item and expand its ancestors, collapse others
   function updateActiveItem(headingId) {
-    // Remove all active states
-    document.querySelectorAll("#toc a").forEach((a) => {
-      a.classList.remove("bg-primary/20", "text-primary", "font-bold", "border-l-primary", "shadow-sm", "scale-105");
-      a.style.borderLeftColor = "transparent";
-    });
-
-    // Find and highlight active item
-    const activeContainer = document.querySelector(
-      `[data-heading-id="${headingId}"]`,
-    );
-    if (!activeContainer) return;
-
-    const activeLink = activeContainer.querySelector("a");
-    if (activeLink) {
-      activeLink.classList.add(
+    // Remove all active states from both desktop and mobile TOC
+    document.querySelectorAll("#toc a, #toc-mobile a").forEach((a) => {
+      a.classList.remove(
         "bg-primary/20",
         "text-primary",
         "font-bold",
+        "border-l-primary",
         "shadow-sm",
-        "scale-105"
+        "scale-105",
       );
-      activeLink.style.borderLeftColor = "hsl(var(--p))";
-      activeLink.style.borderLeftWidth = "3px";
-    }
+      a.style.borderLeftColor = "transparent";
+    });
 
-    // Find the top-level h2 parent
-    let h2Container = activeContainer;
-    let parent = activeContainer.parentElement;
-    while (parent && parent.id !== "toc") {
-      if (parent.classList.contains("toc-item")) {
-        h2Container = parent;
+    // Find and highlight active item in both desktop and mobile TOC
+    const activeContainers = document.querySelectorAll(
+      `[data-heading-id="${headingId}"]`,
+    );
+
+    activeContainers.forEach((activeContainer) => {
+      const activeLink = activeContainer.querySelector("a");
+      if (activeLink) {
+        activeLink.classList.add(
+          "bg-primary/20",
+          "text-primary",
+          "font-bold",
+          "shadow-sm",
+          "scale-105",
+        );
+        activeLink.style.borderLeftColor = "hsl(var(--p))";
+        activeLink.style.borderLeftWidth = "3px";
       }
-      parent = parent.parentElement;
-    }
+    });
 
-    // Collect all ancestors that should be expanded
-    const ancestorsToExpand = new Set();
-    parent = activeContainer.parentElement;
-    while (parent && parent.id !== "toc") {
-      if (parent.classList.contains("toc-children")) {
-        ancestorsToExpand.add(parent);
+    if (activeContainers.length === 0) return;
+    const activeContainer = activeContainers[0];
+
+    // Process both desktop and mobile TOC
+    activeContainers.forEach((activeContainer) => {
+      // Find the TOC container (either #toc or #toc-mobile)
+      let tocContainer = activeContainer.parentElement;
+      while (
+        tocContainer &&
+        tocContainer.id !== "toc" &&
+        tocContainer.id !== "toc-mobile"
+      ) {
+        tocContainer = tocContainer.parentElement;
       }
-      parent = parent.parentElement;
-    }
+      if (!tocContainer) return;
 
-    // Collapse all h2 children containers that are not in the active h2 section
-    document
-      .querySelectorAll("#toc .toc-children")
-      .forEach((childrenContainer) => {
-        const parentContainer = childrenContainer.parentElement;
-        const toggleIcon = parentContainer.querySelector(".toc-toggle");
-
-        // Only collapse h2 sections (those with toggle icons)
-        if (toggleIcon) {
-          // Check if this is the active h2 section
-          if (parentContainer === h2Container) {
-            // Expand the active h2 section
-            expandChildren(childrenContainer);
-            toggleIcon.style.transform = "rotate(90deg)";
-          } else {
-            // Collapse other h2 sections
-            collapseChildren(childrenContainer);
-            toggleIcon.style.transform = "rotate(0deg)";
-          }
+      // Find the top-level h2 parent
+      let h2Container = activeContainer;
+      let parent = activeContainer.parentElement;
+      while (parent && parent.id !== tocContainer.id) {
+        if (parent.classList.contains("toc-item")) {
+          h2Container = parent;
         }
-      });
+        parent = parent.parentElement;
+      }
+
+      // Collapse all h2 children containers that are not in the active h2 section
+      tocContainer
+        .querySelectorAll(".toc-children")
+        .forEach((childrenContainer) => {
+          const parentContainer = childrenContainer.parentElement;
+          const toggleIcon = parentContainer.querySelector(".toc-toggle");
+
+          // Only collapse h2 sections (those with toggle icons)
+          if (toggleIcon) {
+            // Check if this is the active h2 section
+            if (parentContainer === h2Container) {
+              // Expand the active h2 section
+              expandChildren(childrenContainer);
+              toggleIcon.style.transform = "rotate(90deg)";
+            } else {
+              // Collapse other h2 sections
+              collapseChildren(childrenContainer);
+              toggleIcon.style.transform = "rotate(0deg)";
+            }
+          }
+        });
+    });
   }
 
   // Find which heading should be expanded based on its children
