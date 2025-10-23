@@ -43,5 +43,6 @@ deploy_to_dms-ax:
     - echo "$RESUME_CONTENT" > contents/resume.mdx
   script:
     - scp -P 2023 scripts/deploy.sh $SERVER_USER@$SERVER_IP:/tmp/deploy.sh
-    - ssh -p 2023 $SERVER_USER@$SERVER_IP "export RESUME_TAG='$RESUME_TAG' RESUME_TITLE='$RESUME_TITLE' RESUME_CONTENT='$RESUME_CONTENT' && bash /tmp/deploy.sh"
-    - ssh -p 2023 $SERVER_USER@$SERVER_IP 'rm -f /tmp/deploy.sh'
+    - scp -P 2023 contents/resume.mdx $SERVER_USER@$SERVER_IP:/tmp/resume.mdx
+    - ssh -p 2023 $SERVER_USER@$SERVER_IP "export RESUME_TAG='$RESUME_TAG' RESUME_TITLE='$RESUME_TITLE' && bash /tmp/deploy.sh"
+    - ssh -p 2023 $SERVER_USER@$SERVER_IP 'rm -f /tmp/deploy.sh /tmp/resume.mdx'

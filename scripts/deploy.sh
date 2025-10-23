@@ -18,10 +18,10 @@ git pull origin main
 mkdir -p data
 chmod 777 data
 
-# Create resume.mdx from environment variable if provided
-if [ -n "$RESUME_CONTENT" ]; then
+# Copy resume.mdx from /tmp if it exists
+if [ -f "/tmp/resume.mdx" ]; then
     mkdir -p contents
-    echo "$RESUME_CONTENT" > contents/resume.mdx
+    cp /tmp/resume.mdx contents/resume.mdx
 fi
 
 # Set default RESUME_TAG if not provided
