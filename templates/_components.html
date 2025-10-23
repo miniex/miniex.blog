@@ -1,69 +1,103 @@
 {% macro post_card(post) %}
 <a href="/post/{{ post.slug }}" class="group block h-full">
-    <div class="bg-base-100 rounded-xl shadow-sm overflow-hidden transition-all duration-300 ease-in-out transform group-hover:shadow-xl group-hover:-translate-y-2 border border-base-200/50 h-full flex flex-col">
+    <div
+        class="bg-base-100 rounded-xl shadow-sm overflow-hidden transition-all duration-300 ease-in-out transform group-hover:shadow-xl group-hover:-translate-y-2 border border-base-200/50 h-full flex flex-col"
+    >
         <!-- Card Header with gradient accent and animated stripe pattern on hover -->
         <div class="relative h-2 bg-base-300 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-primary to-secondary transform translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
-            
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-primary to-secondary transform translate-x-full group-hover:translate-x-0 transition-transform duration-700"
+            ></div>
+
             <!-- Decorative stripes that animate on hover -->
-            <div class="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-700">
+            <div
+                class="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-700"
+            >
                 <div class="absolute inset-0 bg-stripes"></div>
             </div>
         </div>
-        
-        <div class="p-5 sm:p-6 flex flex-col flex-grow relative overflow-hidden">
+
+        <div
+            class="p-5 sm:p-6 flex flex-col flex-grow relative overflow-hidden"
+        >
             <!-- Subtle corner decoration -->
-            <div class="absolute top-0 right-0 w-24 h-24 -mt-12 -mr-12 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-full blur-xl transform rotate-45 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-            
+            <div
+                class="absolute top-0 right-0 w-24 h-24 -mt-12 -mr-12 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-full blur-xl transform rotate-45 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+            ></div>
+
             <!-- Top section with type and date - enhanced with better spacing and typography -->
             <div class="flex justify-between items-start mb-4 relative">
                 <div class="flex flex-wrap gap-2">
-                    <span class="bg-primary/80 text-primary-content text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
+                    <span
+                        class="bg-primary/80 text-primary-content text-xs font-medium px-2.5 py-1 rounded-full shadow-sm"
+                    >
                         {{ post.post_type }}
                     </span>
                     {% if let Some(series) = post.metadata.series %}
-                    <span class="bg-secondary/80 text-secondary-content text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
+                    <span
+                        class="bg-secondary/80 text-secondary-content text-xs font-medium px-2.5 py-1 rounded-full shadow-sm"
+                    >
                         {{ series }}
                     </span>
                     {% endif %}
                 </div>
-                <time class="text-xs font-medium bg-base-200/70 text-base-content/70 px-2 py-1 rounded-full">
+                <time
+                    class="text-xs font-medium bg-base-200/70 text-base-content/70 px-2 py-1 rounded-full"
+                >
                     {{ post.metadata.created_at|date }}
                 </time>
             </div>
-            
+
             <!-- Title with enhanced hover effect -->
-            <h3 class="text-lg sm:text-xl font-bold mb-3 text-base-content group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary transition-all duration-500">
+            <h3
+                class="text-lg sm:text-xl font-bold mb-3 text-base-content group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary transition-all duration-500"
+            >
                 {{ post.metadata.title }}
             </h3>
-            
+
             <!-- Description with better typography -->
-            <p class="text-sm sm:text-base text-base-content/70 mb-4 line-clamp-2 sm:line-clamp-3 flex-grow leading-relaxed">
+            <p
+                class="text-sm sm:text-base text-base-content/70 mb-4 line-clamp-2 sm:line-clamp-3 flex-grow leading-relaxed"
+            >
                 {{ post.metadata.description|truncate(120) }}
             </p>
-            
+
             <!-- Bottom section with enhanced design -->
             <div class="mt-auto pt-4 border-t border-base-200/50 relative">
                 <!-- Tags section with improved styling -->
                 <div class="flex flex-wrap gap-1.5 mb-4">
-                    {% set tag_count = 0 %}
-                    {% for tag in post.metadata.tags %}
-                        {% if tag_count < 3 %}
-                            <span class="badge badge-sm text-xs bg-base-200/80 hover:bg-base-200 border-none transition-colors duration-300">{{ tag }}</span>
-                        {% endif %}
-                        {% set tag_count = tag_count + 1 %}
-                    {% endfor %}
+                    {% set tag_count = 0 %} {% for tag in post.metadata.tags %}
+                    {% if tag_count < 3 %}
+                    <span
+                        class="badge badge-sm text-xs bg-base-200/80 hover:bg-base-200 border-none transition-colors duration-300"
+                        >{{ tag }}</span
+                    >
+                    {% endif %} {% set tag_count = tag_count + 1 %} {% endfor %}
                     {% if tag_count > 3 %}
-                        <span class="badge badge-sm text-xs bg-base-200/80 hover:bg-base-200 border-none transition-colors duration-300">+{{ tag_count - 3 }}</span>
+                    <span
+                        class="badge badge-sm text-xs bg-base-200/80 hover:bg-base-200 border-none transition-colors duration-300"
+                        >+{{ tag_count - 3 }}</span
+                    >
                     {% endif %}
                 </div>
-                
+
                 <!-- Read button with enhanced hover effect -->
                 <div class="flex justify-end">
-                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-primary group-hover:text-secondary transition-all duration-300 py-1 px-2 rounded-lg group-hover:bg-base-200/60">
+                    <span
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-primary group-hover:text-secondary transition-all duration-300 py-1 px-2 rounded-lg group-hover:bg-base-200/60"
+                    >
                         Read more
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform group-hover:translate-x-1.5 transition-all duration-500 ease-out" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="w-4 h-4 transform group-hover:translate-x-1.5 transition-all duration-500 ease-out"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                                clip-rule="evenodd"
+                            />
                         </svg>
                     </span>
                 </div>
@@ -76,17 +110,21 @@
     .bg-stripes {
         background-image: repeating-linear-gradient(
             45deg,
-            rgba(255,255,255,0.1),
-            rgba(255,255,255,0.1) 5px,
+            rgba(255, 255, 255, 0.1),
+            rgba(255, 255, 255, 0.1) 5px,
             transparent 5px,
             transparent 10px
         );
         animation: moveStripes 10s linear infinite;
     }
-    
+
     @keyframes moveStripes {
-        0% { background-position: 0 0; }
-        100% { background-position: 56px 0; }
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 56px 0;
+        }
     }
 </style>
 {% endmacro %}

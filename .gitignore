@@ -9,3 +9,6 @@ data/
 *.db
 *.sqlite
 *.sqlite3
+
+# Resume file (generated from CI variable)
+contents/resume.mdx

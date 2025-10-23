@@ -17,9 +17,12 @@ archive_to_github:
     - git config --global user.email "miniex@daminstudio.net"
     - git config --global user.name "miniex"
   script:
-    - git clone --mirror $CI_REPOSITORY_URL repo
+    - git clone $CI_REPOSITORY_URL repo
     - cd repo
-    - git push -f --mirror git@github.com:miniex/miniex.blog.git
+    - git remote add github git@github.com:miniex/miniex.blog.git
+    - git rm --cached contents/resume.mdx || true
+    - git commit -m "Remove resume.mdx for GitHub archive" || true
+    - git push -f github main
 
 deploy_to_dms-ax:
   stage: deploy
@@ -33,10 +36,14 @@ deploy_to_dms-ax:
 
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    
+
     - ssh-keyscan -p 2023 $SERVER_IP >> ~/.ssh/known_hosts 2>&1
     - chmod 644 ~/.ssh/known_hosts
+
+    # Create resume.mdx from CI variable
+    - mkdir -p contents
+    - echo "$RESUME_CONTENT" > contents/resume.mdx
   script:
     - scp -P 2023 scripts/deploy.sh $SERVER_USER@$SERVER_IP:/tmp/deploy.sh
-    - ssh -p 2023 $SERVER_USER@$SERVER_IP 'bash /tmp/deploy.sh'
+    - ssh -p 2023 $SERVER_USER@$SERVER_IP "export RESUME_TAG='$RESUME_TAG' && bash /tmp/deploy.sh"
     - ssh -p 2023 $SERVER_USER@$SERVER_IP 'rm -f /tmp/deploy.sh'

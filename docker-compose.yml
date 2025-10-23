@@ -19,6 +19,7 @@ services:
     environment:
       - RUST_LOG=info
       - RUST_BACKTRACE=1
+      - RESUME_TAG=${RESUME_TAG:-default-secret-tag}
 
     command: ["./blog"]
 

@@ -1,11 +1,11 @@
-{% extends "_base.html" %}
-{% import "_components.html" as components %}
-{% block head %}
+{% extends "_base.html" %} {% import "_components.html" as components %} {%
+block head %}
 <title>{{ blog.title }}</title>
-{% endblock %}
-{% block main %}
+{% endblock %} {% block main %}
 <!-- Hero Section with subtle gradient background -->
-<div class="relative overflow-hidden bg-gradient-to-b from-base-300/50 to-base-200 mb-12 rounded-xl shadow-inner">
+<div
+    class="relative overflow-hidden bg-gradient-to-b from-base-300/50 to-base-200 mb-12 rounded-xl shadow-inner"
+>
     <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
     <div class="container mx-auto px-4 max-w-4xl py-8 sm:py-12 md:py-16">
         <!-- Profile Section with improved visuals -->
@@ -13,77 +13,125 @@
             <!-- Mobile layout - Enhanced and more modern -->
             <div class="flex flex-row items-center gap-5 sm:hidden">
                 <div class="relative flex-shrink-0">
-                    <div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full opacity-20 blur-md transform scale-110"></div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full opacity-20 blur-md transform scale-110"
+                    ></div>
                     <picture class="relative flex-shrink-0 w-24">
-                        <img class="rounded-full w-24 h-24 object-cover border-4 border-base-100 shadow-lg" 
-                             src="https://avatars.githubusercontent.com/u/176331224?v=4" alt="Profile Picture" />
+                        <img
+                            class="rounded-full w-24 h-24 object-cover border-4 border-base-100 shadow-lg"
+                            src="https://avatars.githubusercontent.com/u/176331224?v=4"
+                            alt="Profile Picture"
+                        />
                     </picture>
                 </div>
-                <div class="flex flex-col min-w-0"> <!-- min-w-0 fixes text overflow -->
-                    <h1 class="text-xl font-bold truncate bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary animate-gradient">Han Damin - miniex</h1>
-                    <p class="text-sm text-base-content/80 mb-2">Rust + Javascript + App + Server</p>
-                    
+                <div class="flex flex-col min-w-0">
+                    <!-- min-w-0 fixes text overflow -->
+                    <h1
+                        class="text-xl font-bold truncate bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary animate-gradient"
+                    >
+                        Han Damin - miniex
+                    </h1>
+                    <p class="text-sm text-base-content/80 mb-2">
+                        Rust + Javascript + App + Server
+                    </p>
+
                     <!-- Social links for mobile with hover effects -->
                     <div class="flex gap-2 mt-1">
-                        <a href="https://github.com/miniex" class="btn btn-circle btn-xs glass hover:bg-primary/20 hover:scale-110 transition-all duration-300">
+                        <a
+                            href="https://github.com/miniex"
+                            class="btn btn-circle btn-xs glass hover:bg-primary/20 hover:scale-110 transition-all duration-300"
+                        >
                             <i class="ph ph-github-logo text-lg"></i>
                         </a>
-                        <a href="mailto:miniex@daminstudio.net" class="btn btn-circle btn-xs glass hover:bg-primary/20 hover:scale-110 transition-all duration-300">
+                        <a
+                            href="mailto:miniex@daminstudio.net"
+                            class="btn btn-circle btn-xs glass hover:bg-primary/20 hover:scale-110 transition-all duration-300"
+                        >
                             <i class="ph ph-envelope text-lg"></i>
                         </a>
-                        <a href="https://miniex.info" class="btn btn-circle btn-xs glass hover:bg-primary/20 hover:scale-110 transition-all duration-300">
+                        <a
+                            href="https://miniex.info"
+                            class="btn btn-circle btn-xs glass hover:bg-primary/20 hover:scale-110 transition-all duration-300"
+                        >
                             <i class="ph ph-globe text-lg"></i>
                         </a>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Tablet and Desktop layout - Enhanced with animations and effects -->
             <div class="hidden sm:block text-center">
                 <div class="relative inline-block">
                     <!-- Decorative background effect -->
-                    <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-primary to-secondary opacity-20 blur-xl transform scale-125"></div>
-                    
+                    <div
+                        class="absolute inset-0 rounded-full bg-gradient-to-tr from-primary to-secondary opacity-20 blur-xl transform scale-125"
+                    ></div>
+
                     <!-- Profile image with refined styling -->
                     <picture class="relative inline-block">
-                        <img class="rounded-full w-36 h-36 md:w-48 md:h-48 object-cover border-4 border-base-100 shadow-xl transform hover:scale-105 transition-transform duration-500" 
-                             src="https://avatars.githubusercontent.com/u/176331224?v=4" alt="Profile Picture" />
+                        <img
+                            class="rounded-full w-36 h-36 md:w-48 md:h-48 object-cover border-4 border-base-100 shadow-xl transform hover:scale-105 transition-transform duration-500"
+                            src="https://avatars.githubusercontent.com/u/176331224?v=4"
+                            alt="Profile Picture"
+                        />
                     </picture>
                 </div>
-                
+
                 <!-- Enhanced typography with gradient effect -->
-                <h1 class="text-3xl md:text-5xl font-bold mt-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+                <h1
+                    class="text-3xl md:text-5xl font-bold mt-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
+                >
                     Han Damin - miniex
                 </h1>
-                
-                <p class="mt-3 text-lg md:text-xl text-base-content/80 text-center max-w-xl mx-auto">
+
+                <p
+                    class="mt-3 text-lg md:text-xl text-base-content/80 text-center max-w-xl mx-auto"
+                >
                     Rust + Javascript + App + Server
                 </p>
-                
+
                 <!-- Social links with enhanced hover effects -->
                 <div class="flex gap-4 mt-6 justify-center">
-                    <a href="https://github.com/miniex" class="btn btn-circle glass hover:bg-primary/20 hover:scale-110 transition-all duration-300 shadow-md">
+                    <a
+                        href="https://github.com/miniex"
+                        class="btn btn-circle glass hover:bg-primary/20 hover:scale-110 transition-all duration-300 shadow-md"
+                    >
                         <i class="ph ph-github-logo text-2xl"></i>
                     </a>
-                    <a href="mailto:miniex@daminstudio.net" class="btn btn-circle glass hover:bg-primary/20 hover:scale-110 transition-all duration-300 shadow-md">
+                    <a
+                        href="mailto:miniex@daminstudio.net"
+                        class="btn btn-circle glass hover:bg-primary/20 hover:scale-110 transition-all duration-300 shadow-md"
+                    >
                         <i class="ph ph-envelope text-2xl"></i>
                     </a>
-                    <a href="https://miniex.info" class="btn btn-circle glass hover:bg-primary/20 hover:scale-110 transition-all duration-300 shadow-md">
+                    <a
+                        href="https://miniex.info"
+                        class="btn btn-circle glass hover:bg-primary/20 hover:scale-110 transition-all duration-300 shadow-md"
+                    >
                         <i class="ph ph-globe text-2xl"></i>
                     </a>
                 </div>
-                
+
                 <!-- Quick access buttons -->
-                <div class="flex gap-3 mt-8 justify-center flex-wrap">
-                    <a href="/blog" class="btn btn-primary btn-sm shadow-md hover:shadow-lg transition-all duration-300">
+                <div class="flex gap-4 mt-8 justify-center flex-wrap">
+                    <a
+                        href="/blog"
+                        class="btn btn-primary btn-sm shadow-md hover:shadow-lg transition-all duration-300"
+                    >
                         <i class="ph ph-article text-base mr-2"></i>
                         Blog
                     </a>
-                    <a href="/series" class="btn btn-secondary btn-sm shadow-md hover:shadow-lg transition-all duration-300">
+                    <a
+                        href="/series"
+                        class="btn btn-secondary btn-sm shadow-md hover:shadow-lg transition-all duration-300"
+                    >
                         <i class="ph ph-books text-base mr-2"></i>
                         Series
                     </a>
-                    <a href="/guestbook" class="btn btn-accent btn-sm shadow-md hover:shadow-lg transition-all duration-300">
+                    <a
+                        href="/guestbook"
+                        class="btn btn-accent btn-sm shadow-md hover:shadow-lg transition-all duration-300"
+                    >
                         <i class="ph ph-chat-circle text-base mr-2"></i>
                         Guestbook
                     </a>
@@ -91,18 +139,41 @@
             </div>
         </section>
     </div>
-    
+
     <!-- Decorative wave divider with gradient -->
     <div class="absolute bottom-0 left-0 right-0 h-8 sm:h-12">
-        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <svg
+            class="w-full h-full"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 320"
+            preserveAspectRatio="none"
+        >
             <defs>
-                <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:hsl(var(--p)); stop-opacity:0.1" />
-                    <stop offset="50%" style="stop-color:hsl(var(--s)); stop-opacity:0.15" />
-                    <stop offset="100%" style="stop-color:hsl(var(--p)); stop-opacity:0.1" />
+                <linearGradient
+                    id="waveGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="0%"
+                >
+                    <stop
+                        offset="0%"
+                        style="stop-color: hsl(var(--p)); stop-opacity: 0.1"
+                    />
+                    <stop
+                        offset="50%"
+                        style="stop-color: hsl(var(--s)); stop-opacity: 0.15"
+                    />
+                    <stop
+                        offset="100%"
+                        style="stop-color: hsl(var(--p)); stop-opacity: 0.1"
+                    />
                 </linearGradient>
             </defs>
-            <path fill="url(#waveGradient)" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,250.7C960,235,1056,181,1152,160C1248,139,1344,149,1392,154.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            <path
+                fill="url(#waveGradient)"
+                d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,250.7C960,235,1056,181,1152,160C1248,139,1344,149,1392,154.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+            ></path>
         </svg>
     </div>
 </div>
@@ -110,24 +181,33 @@
 <div class="container mx-auto px-4 max-w-4xl">
     <!-- Post Section with enhanced styling -->
     <section class="py-6 sm:py-8 md:py-12">
-        <h2 class="text-2xl sm:text-3xl font-bold mb-8 sm:mb-10 text-center relative">
+        <h2
+            class="text-2xl sm:text-3xl font-bold mb-8 sm:mb-10 text-center relative"
+        >
             <span class="inline-block relative">
                 Recent Posts
-                <span class="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"></span>
+                <span
+                    class="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"
+                ></span>
             </span>
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {% if recent_posts.len() > 0 %}
-                {% for post in recent_posts %}
-                    {% call components::post_card(post=post) %}
-                {% endfor %}
-            {% else %}
-                <div class="col-span-2 flex flex-col items-center justify-center p-12 bg-base-100 rounded-xl shadow-sm border border-base-300/20">
-                    <i class="ph ph-note-pencil text-6xl text-base-content/30 mb-4"></i>
-                    <p class="text-center text-lg">No recent posts available yet.</p>
-                    <p class="text-center text-base-content/60 mt-2">Check back soon for new content!</p>
-                </div>
+            {% if recent_posts.len() > 0 %} {% for post in recent_posts %} {%
+            call components::post_card(post=post) %} {% endfor %} {% else %}
+            <div
+                class="col-span-2 flex flex-col items-center justify-center p-12 bg-base-100 rounded-xl shadow-sm border border-base-300/20"
+            >
+                <i
+                    class="ph ph-note-pencil text-6xl text-base-content/30 mb-4"
+                ></i>
+                <p class="text-center text-lg">
+                    No recent posts available yet.
+                </p>
+                <p class="text-center text-base-content/60 mt-2">
+                    Check back soon for new content!
+                </p>
+            </div>
             {% endif %}
         </div>
     </section>
@@ -138,14 +218,15 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M10 10L0 0V20L10 10L20 0V20L10 10Z'/%3E%3C/g%3E%3C/svg%3E");
         background-size: 24px 24px;
     }
-    
+
     .animate-gradient {
         background-size: 200% 200%;
         animation: gradient-shift 4s ease infinite;
     }
-    
+
     @keyframes gradient-shift {
-        0%, 100% {
+        0%,
+        100% {
             background-position: 0% 50%;
         }
         50% {

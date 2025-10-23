@@ -18,11 +18,14 @@ git pull origin main
 mkdir -p data
 chmod 777 data
 
+# Set default RESUME_TAG if not provided
+: ${RESUME_TAG:=default-secret-tag}
+
 # Force rebuild of Docker images
-docker compose -f $COMPOSE_FILE build --no-cache
+RESUME_TAG=$RESUME_TAG docker compose -f $COMPOSE_FILE build --no-cache
 
 # Start the services
-docker compose -f $COMPOSE_FILE up -d
+RESUME_TAG=$RESUME_TAG docker compose -f $COMPOSE_FILE up -d
 
 # Remove old, unused images
 docker image prune -f

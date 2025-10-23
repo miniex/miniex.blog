@@ -1,11 +1,7 @@
-{% extends "_base.html" %}
-{% import "_components.html" as components %}
-
-{% block head %}
+{% extends "_base.html" %} {% import "_components.html" as components %} {%
+block head %}
 <title>{{ blog.title }}</title>
-{% endblock %}
-
-{% block main %}
+{% endblock %} {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
     <h1 class="text-4xl font-bold text-center my-8">Review Posts</h1>
 
@@ -14,19 +10,18 @@
         <h2 class="text-2xl font-semibold mb-4">Filter by Category</h2>
         <div class="flex flex-wrap gap-2">
             {% for category in categories %}
-                <a href="?category={{ category }}" class="btn btn-outline btn-sm">{{category}}</a>
+            <a href="?category={{ category }}" class="btn btn-outline btn-sm"
+                >{{category}}</a
+            >
             {% endfor %}
         </div>
     </div>
 
     <!-- Blog Posts -->
     <div class="grid grid-cols-1 gap-8">
-        {% if posts.len() > 0 %}
-            {% for post in posts %}
-                {% call components::post_card(post=post) %}
-            {% endfor %}
-        {% else %}
-            <p class="text-center">No posts available.</p>
+        {% if posts.len() > 0 %} {% for post in posts %} {% call
+        components::post_card(post=post) %} {% endfor %} {% else %}
+        <p class="text-center">No posts available.</p>
         {% endif %}
     </div>
 
@@ -34,13 +29,15 @@
     <div class="flex justify-center mt-8">
         <div class="join">
             {% if let Some(prev) = prev_page %}
-                <a href="?page={{ prev }}" class="join-item btn">«</a>
-            {% endif %}
-            {% for page_num in page_numbers %}
-                <a href="?page={{ page_num }}" class="join-item btn {% if current_page|to_ref == page_num %}btn-active{% endif %}">{{ page_num }}</a>
-            {% endfor %}
-            {% if let Some(next) = next_page %}
-                <a href="?page={{ next }}" class="join-item btn">»</a>
+            <a href="?page={{ prev }}" class="join-item btn">«</a>
+            {% endif %} {% for page_num in page_numbers %}
+            <a
+                href="?page={{ page_num }}"
+                class="join-item btn {% if current_page|to_ref == page_num %}btn-active{% endif %}"
+                >{{ page_num }}</a
+            >
+            {% endfor %} {% if let Some(next) = next_page %}
+            <a href="?page={{ next }}" class="join-item btn">»</a>
             {% endif %}
         </div>
     </div>

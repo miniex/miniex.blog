@@ -1,68 +1,99 @@
-{% extends "_base.html" %}
-
-{% block head %}
+{% extends "_base.html" %} {% block head %}
 <title>{{ blog.title }}</title>
-{% endblock %}
-
-{% block main %}
+{% endblock %} {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
     <div class="text-center mb-12">
-        <h1 class="text-4xl sm:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary inline-block">Series</h1>
-        <p class="text-base-content/70 max-w-lg mx-auto">Explore collections of related posts organized into series for in-depth learning and discovery.</p>
+        <h1
+            class="text-4xl sm:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary inline-block"
+        >
+            Series
+        </h1>
+        <p class="text-base-content/70 max-w-lg mx-auto">
+            Explore collections of related posts organized into series for
+            in-depth learning and discovery.
+        </p>
     </div>
-    
+
     <!-- Series List -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% if series.len() > 0 %}
-            {% for s in series %}
-                <div class="group relative bg-base-100 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-base-300/10 overflow-hidden h-full flex flex-col">
-                    <!-- Decorative top gradient -->
-                    <div class="h-1.5 bg-gradient-to-r from-primary to-secondary w-full"></div>
-                    
-                    <!-- Card content -->
-                    <div class="p-5 sm:p-6 flex flex-col flex-grow relative">
-                        <!-- Decorative background element -->
-                        <div class="absolute top-0 right-0 w-32 h-32 -mt-12 -mr-12 bg-primary/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
-                        <h2 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">{{ s.name }}</h2>
-                        
-                        <div class="flex flex-wrap gap-1.5 mb-3">
-                            {% for author in s.authors %}
-                                <span class="badge badge-sm bg-base-200 border-base-300/20 text-xs">{{ author }}</span>
-                            {% endfor %}
-                        </div>
-                        
-                        <div class="flex items-center gap-1.5 text-xs text-base-content/60 mt-auto mb-4">
-                            <i class="ph ph-clock text-base"></i>
-                            <span>Updated: {{ s.updated_at|date }}</span>
-                        </div>
-                        
-                        <a href="/series/{{ s.name }}" class="btn btn-sm bg-base-200 hover:bg-primary/10 border-none transition-all duration-300 group-hover:bg-primary/20 w-full">
-                            <span class="flex items-center gap-1.5">
-                                <i class="ph ph-books text-base"></i>
-                                <span>View Series</span>
-                                <i class="ph ph-arrow-right ml-auto transform group-hover:translate-x-1 transition-transform duration-300"></i>
-                            </span>
-                        </a>
-                    </div>
+        {% if series.len() > 0 %} {% for s in series %}
+        <div
+            class="group relative bg-base-100 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-base-300/10 overflow-hidden h-full flex flex-col"
+        >
+            <!-- Decorative top gradient -->
+            <div
+                class="h-1.5 bg-gradient-to-r from-primary to-secondary w-full"
+            ></div>
+
+            <!-- Card content -->
+            <div class="p-5 sm:p-6 flex flex-col flex-grow relative">
+                <!-- Decorative background element -->
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 -mt-12 -mr-12 bg-primary/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                ></div>
+
+                <h2
+                    class="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300"
+                >
+                    {{ s.name }}
+                </h2>
+
+                <div class="flex flex-wrap gap-1.5 mb-3">
+                    {% for author in s.authors %}
+                    <span
+                        class="badge badge-sm bg-base-200 border-base-300/20 text-xs"
+                        >{{ author }}</span
+                    >
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-span-full flex flex-col items-center justify-center py-16 bg-base-100 rounded-xl shadow-sm border border-base-300/20 text-center">
-                <i class="ph ph-books text-6xl text-base-content/30 mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">No series available yet</h3>
-                <p class="text-base-content/70 mb-6 max-w-md">Series will appear here once they're created. Check back soon!</p>
+
+                <div
+                    class="flex items-center gap-1.5 text-xs text-base-content/60 mt-auto mb-4"
+                >
+                    <i class="ph ph-clock text-base"></i>
+                    <span>Updated: {{ s.updated_at|date }}</span>
+                </div>
+
+                <a
+                    href="/series/{{ s.name }}"
+                    class="btn btn-sm bg-base-200 hover:bg-primary/10 border-none transition-all duration-300 group-hover:bg-primary/20 w-full"
+                >
+                    <span class="flex items-center gap-1.5">
+                        <i class="ph ph-books text-base"></i>
+                        <span>View Series</span>
+                        <i
+                            class="ph ph-arrow-right ml-auto transform group-hover:translate-x-1 transition-transform duration-300"
+                        ></i>
+                    </span>
+                </a>
             </div>
+        </div>
+        {% endfor %} {% else %}
+        <div
+            class="col-span-full flex flex-col items-center justify-center py-16 bg-base-100 rounded-xl shadow-sm border border-base-300/20 text-center"
+        >
+            <i class="ph ph-books text-6xl text-base-content/30 mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">No series available yet</h3>
+            <p class="text-base-content/70 mb-6 max-w-md">
+                Series will appear here once they're created. Check back soon!
+            </p>
+        </div>
         {% endif %}
     </div>
 </div>
 
 <style>
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    
+
     .grid {
         animation: fadeIn 0.5s ease-out forwards;
     }

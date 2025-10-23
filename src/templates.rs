@@ -77,6 +77,13 @@ pub struct PostTemplate {
 }
 
 #[derive(Template)]
+#[template(path = "resume.html")]
+pub struct ResumeTemplate {
+    pub blog: Blog,
+    pub content: String,
+}
+
+#[derive(Template)]
 #[template(path = "guestbook.html")]
 pub struct GuestbookTemplate {
     pub entries: Vec<Guestbook>,

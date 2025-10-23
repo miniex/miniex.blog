@@ -1,0 +1,64 @@
+{% extends "_base.html" %} {% block head %}
+<title>{{ blog.title }}</title>
+<meta name="description" content="Resume - Taemin Yoon" />
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css"
+/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
+<script src="/js/resume-toc.js?v=1" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        hljs.highlightAll();
+    });
+</script>
+<style>
+    /* Remove highlight.js background, keep original prose background */
+    article pre code.hljs {
+        background: inherit !important;
+        color: hsl(var(--bc)) !important;
+    }
+</style>
+{% endblock %} {% block main %}
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Main Content -->
+        <div class="flex-1 w-full max-w-4xl mx-auto lg:mx-0">
+            <!-- Header Section -->
+            <div class="mb-8">
+                <h1
+                    class="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
+                >
+                    Resume
+                </h1>
+                <div
+                    class="w-24 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"
+                ></div>
+            </div>
+
+            <!-- Content Section -->
+            <article id="resume-content" class="prose prose-lg max-w-none">
+                {{ content|safe }}
+            </article>
+        </div>
+
+        <!-- Table of Contents - Sticky on right -->
+        <aside class="hidden lg:block w-80 flex-shrink-0">
+            <div class="sticky top-24">
+                <div
+                    class="card bg-base-100 shadow-lg rounded-xl border border-base-300/20 p-6"
+                >
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i class="ph ph-list text-primary"></i>
+                        TOC
+                    </h2>
+                    <nav id="toc" class="space-y-1">
+                        <!-- TOC will be generated here -->
+                    </nav>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

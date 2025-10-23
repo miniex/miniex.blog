@@ -1,6 +1,7 @@
 @font-face {
     font-family: "GangwonEdu_OTFBoldA";
-    src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff") format("woff");
+    src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff")
+        format("woff");
     font-weight: normal;
     font-style: normal;
 }
@@ -17,4 +18,60 @@ main {
     line-height: 1.6;
     max-width: 1200px;
     padding: 20px;
+}
+
+/* Table styling for resume */
+article table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    background-color: hsl(var(--b1));
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+article thead {
+    background-color: hsl(var(--b2));
+}
+
+article th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: hsl(var(--bc));
+    border-bottom: 2px solid hsl(var(--b3));
+}
+
+article td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid hsl(var(--b3));
+    color: hsl(var(--bc) / 0.8);
+}
+
+article tbody tr:last-child td {
+    border-bottom: none;
+}
+
+article tbody tr:hover {
+    background-color: hsl(var(--b2) / 0.5);
+}
+
+/* Responsive font size for mobile */
+@media (max-width: 768px) {
+    article.prose {
+        font-size: 0.875rem; /* 14px */
+    }
+
+    article.prose h1 {
+        font-size: 1.5rem; /* 24px */
+    }
+
+    article.prose h2 {
+        font-size: 1.25rem; /* 20px */
+    }
+
+    article.prose h3 {
+        font-size: 1.125rem; /* 18px */
+    }
 }

@@ -6,14 +6,14 @@ use axum::{
     Router,
 };
 use blog::{
-    db::{Database, Comment, Guestbook},
+    db::{Comment, Database, Guestbook},
     post::{
         get_posts_by_category, get_posts_by_series, get_recent_posts, get_series, load_posts,
         PostType,
     },
     templates::{
-        BlogTemplate, DiaryTemplate, ErrorTemplate, GuestbookTemplate, IndexTemplate, PostTemplate, ReviewTemplate,
-        SeriesDetailTemplate, SeriesTemplate,
+        BlogTemplate, DiaryTemplate, ErrorTemplate, GuestbookTemplate, IndexTemplate, PostTemplate,
+        ResumeTemplate, ReviewTemplate, SeriesDetailTemplate, SeriesTemplate,
     },
     AppState, Blog, SharedState,
 };
@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "sqlite:./data/blog.db".to_string()
     });
     let db = Database::new(&database_url).await?;
-    
+
     let shared_state = SharedState {
         posts: app_state,
         db,
@@ -61,6 +61,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn create_router(state: SharedState) -> Router {
+    // Get resume route from environment variable or use default
+    let resume_route = if cfg!(debug_assertions) {
+        "/resume".to_string()
+    } else {
+        std::env::var("RESUME_TAG")
+            .map(|tag| format!("/resume/{}", tag))
+            .unwrap_or_else(|_| "/resume".to_string())
+    };
+
     Router::new()
         .route("/", get(handle_index))
         .route("/blog", get(handle_blog))
@@ -69,16 +78,30 @@ fn create_router(state: SharedState) -> Router {
         .route("/series", get(handle_series))
         .route("/series/:name", get(handle_series_detail))
         .route("/post/:id", get(handle_post))
+        .route(&resume_route, get(handle_resume))
         .route("/guestbook", get(handle_guestbook))
         .route("/api/comments/:post_id", get(get_comments))
         .route("/api/comments", post(create_comment))
-        .route("/api/comments/edit/:comment_id", axum::routing::put(edit_comment))
-        .route("/api/comments/delete/:comment_id", axum::routing::delete(delete_comment))
+        .route(
+            "/api/comments/edit/:comment_id",
+            axum::routing::put(edit_comment),
+        )
+        .route(
+            "/api/comments/delete/:comment_id",
+            axum::routing::delete(delete_comment),
+        )
         .route("/api/guestbook", get(get_guestbook_entries))
         .route("/api/guestbook", post(create_guestbook_entry))
-        .route("/api/guestbook/edit/:entry_id", axum::routing::put(edit_guestbook_entry))
-        .route("/api/guestbook/delete/:entry_id", axum::routing::delete(delete_guestbook_entry))
+        .route(
+            "/api/guestbook/edit/:entry_id",
+            axum::routing::put(edit_guestbook_entry),
+        )
+        .route(
+            "/api/guestbook/delete/:entry_id",
+            axum::routing::delete(delete_guestbook_entry),
+        )
         .nest_service("/assets", ServeDir::new("assets"))
+        .nest_service("/js", ServeDir::new("js"))
         .nest_service("/favicon.ico", ServeFile::new("assets/favicon/favicon.ico"))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .fallback(handle_error)
@@ -93,7 +116,7 @@ fn add_live_reload(app: Router) -> Router {
     );
     let reloader = livereload.reloader();
     let mut watcher = notify::recommended_watcher(move |_| reloader.reload()).unwrap();
-    let paths = ["assets", "templates"];
+    let paths = ["assets", "templates", "js"];
     for path in paths.iter() {
         watcher
             .watch(std::path::Path::new(path), notify::RecursiveMode::Recursive)
@@ -323,7 +346,38 @@ async fn handle_post(Path(id): Path<String>, State(state): State<SharedState>) -
     PostTemplate { current_post }
 }
 
-async fn handle_guestbook(State(state): State<SharedState>) -> Result<GuestbookTemplate, StatusCode> {
+async fn handle_resume() -> Result<ResumeTemplate, StatusCode> {
+    use gray_matter::{engine::YAML, Matter};
+    use pulldown_cmark::{html, Options, Parser};
+    use tokio::fs;
+
+    // Read the resume.mdx file
+    let content = fs::read_to_string("contents/resume.mdx")
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Parse front matter
+    let matter = Matter::<YAML>::new();
+    let parsed = matter.parse(&content);
+
+    // Parse markdown to HTML
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_TABLES);
+    let parser = Parser::new_ext(parsed.content.as_str(), options);
+
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+
+    Ok(ResumeTemplate {
+        blog: Blog::new().set_title("miniex::resume"),
+        content: html_output,
+    })
+}
+
+async fn handle_guestbook(
+    State(state): State<SharedState>,
+) -> Result<GuestbookTemplate, StatusCode> {
     let guestbook_entries = match state.db.get_guestbook_entries(Some(20)).await {
         Ok(entries) => entries,
         Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
@@ -384,7 +438,16 @@ async fn create_comment(
     State(state): State<SharedState>,
     Json(payload): Json<CreateCommentWithPostRequest>,
 ) -> Result<Json<ApiResponse<Comment>>, StatusCode> {
-    match state.db.create_comment(&payload.post_id, &payload.author, &payload.content, payload.password.as_deref()).await {
+    match state
+        .db
+        .create_comment(
+            &payload.post_id,
+            &payload.author,
+            &payload.content,
+            payload.password.as_deref(),
+        )
+        .await
+    {
         Ok(comment) => Ok(Json(ApiResponse {
             data: comment,
             message: "Comment created successfully".to_string(),
@@ -398,7 +461,11 @@ async fn edit_comment(
     State(state): State<SharedState>,
     Json(payload): Json<EditCommentRequest>,
 ) -> Result<Json<EditResponse>, StatusCode> {
-    match state.db.update_comment(&comment_id, &payload.content, &payload.password).await {
+    match state
+        .db
+        .update_comment(&comment_id, &payload.content, &payload.password)
+        .await
+    {
         Ok(success) => Ok(Json(EditResponse {
             success,
             message: if success {
@@ -440,7 +507,15 @@ async fn create_guestbook_entry(
     State(state): State<SharedState>,
     Json(payload): Json<CreateCommentRequest>,
 ) -> Result<Json<ApiResponse<Guestbook>>, StatusCode> {
-    match state.db.create_guestbook_entry(&payload.author, &payload.content, payload.password.as_deref()).await {
+    match state
+        .db
+        .create_guestbook_entry(
+            &payload.author,
+            &payload.content,
+            payload.password.as_deref(),
+        )
+        .await
+    {
         Ok(entry) => Ok(Json(ApiResponse {
             data: entry,
             message: "Guestbook entry created successfully".to_string(),
@@ -454,7 +529,11 @@ async fn edit_guestbook_entry(
     State(state): State<SharedState>,
     Json(payload): Json<EditCommentRequest>,
 ) -> Result<Json<EditResponse>, StatusCode> {
-    match state.db.update_guestbook_entry(&entry_id, &payload.content, &payload.password).await {
+    match state
+        .db
+        .update_guestbook_entry(&entry_id, &payload.content, &payload.password)
+        .await
+    {
         Ok(success) => Ok(Json(EditResponse {
             success,
             message: if success {
@@ -479,7 +558,6 @@ async fn delete_guestbook_entry(
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
 }
-
 
 async fn handle_error() -> ErrorTemplate {
     ErrorTemplate {}

@@ -1,34 +1,40 @@
-{% extends "_base.html" %}
-{% import "_components.html" as components %}
-
-{% block head %}
+{% extends "_base.html" %} {% import "_components.html" as components %} {%
+block head %}
 <title>{{ blog.title }}</title>
-{% endblock %}
-
-{% block main %}
+{% endblock %} {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
     <h1 class="text-4xl font-bold text-center my-8">Blog Posts</h1>
 
     <!-- Enhanced Category/Tag Filter -->
-    <div class="mb-10 bg-base-100 p-5 rounded-xl shadow-sm border border-base-300/20 transition-all duration-300 hover:shadow-md">
+    <div
+        class="mb-10 bg-base-100 p-5 rounded-xl shadow-sm border border-base-300/20 transition-all duration-300 hover:shadow-md"
+    >
         <h2 class="text-2xl font-semibold mb-4 relative inline-block">
             Filter by Category
-            <span class="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"></span>
+            <span
+                class="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"
+            ></span>
         </h2>
-        
+
         <div class="flex flex-wrap gap-2.5 mt-5">
-            <a href="/blog" class="category-filter badge badge-lg gap-2 transition-all duration-300 bg-primary text-primary-content hover:bg-primary/80">
+            <a
+                href="/blog"
+                class="category-filter badge badge-lg gap-2 transition-all duration-300 bg-primary text-primary-content hover:bg-primary/80"
+            >
                 <i class="ph ph-tag"></i>All
             </a>
-            
+
             {% for cat in categories %}
-                <a href="?category={{ cat }}" class="category-filter badge badge-lg gap-2 transition-all duration-300 bg-base-200 hover:bg-base-300 hover:scale-105">
-                    <i class="ph ph-hash"></i>{{ cat }}
-                </a>
+            <a
+                href="?category={{ cat }}"
+                class="category-filter badge badge-lg gap-2 transition-all duration-300 bg-base-200 hover:bg-base-300 hover:scale-105"
+            >
+                <i class="ph ph-hash"></i>{{ cat }}
+            </a>
             {% endfor %}
         </div>
     </div>
-    
+
     <style>
         .category-filter {
             padding: 0.5rem 1rem;
@@ -39,25 +45,34 @@
     <!-- Blog Posts -->
     <div class="grid grid-cols-1 gap-8">
         {% if posts.len() > 0 %}
-            <div class="grid grid-cols-1 gap-8 animate-fadeIn">
-                {% for post in posts %}
-                    {% call components::post_card(post=post) %}
-                {% endfor %}
-            </div>
+        <div class="grid grid-cols-1 gap-8 animate-fadeIn">
+            {% for post in posts %} {% call components::post_card(post=post) %}
+            {% endfor %}
+        </div>
         {% else %}
-            <div class="flex flex-col items-center justify-center p-16 bg-base-100 rounded-xl shadow-sm border border-base-300/20 text-center animate-fadeIn">
-                <i class="ph ph-article text-6xl text-base-content/30 mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">No posts available yet</h3>
-                <p class="text-base-content/70 mb-6">Check back soon for new content!</p>
-            </div>
+        <div
+            class="flex flex-col items-center justify-center p-16 bg-base-100 rounded-xl shadow-sm border border-base-300/20 text-center animate-fadeIn"
+        >
+            <i class="ph ph-article text-6xl text-base-content/30 mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">No posts available yet</h3>
+            <p class="text-base-content/70 mb-6">
+                Check back soon for new content!
+            </p>
+        </div>
         {% endif %}
-        
+
         <style>
             @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
-            
+
             .animate-fadeIn {
                 animation: fadeIn 0.5s ease-out forwards;
             }
@@ -68,13 +83,15 @@
     <div class="flex justify-center mt-8">
         <div class="join">
             {% if let Some(prev) = prev_page %}
-                <a href="?page={{ prev }}" class="join-item btn">«</a>
-            {% endif %}
-            {% for page_num in page_numbers %}
-                <a href="?page={{ page_num }}" class="join-item btn {% if current_page|to_ref == page_num %}btn-active{% endif %}">{{ page_num }}</a>
-            {% endfor %}
-            {% if let Some(next) = next_page %}
-                <a href="?page={{ next }}" class="join-item btn">»</a>
+            <a href="?page={{ prev }}" class="join-item btn">«</a>
+            {% endif %} {% for page_num in page_numbers %}
+            <a
+                href="?page={{ page_num }}"
+                class="join-item btn {% if current_page|to_ref == page_num %}btn-active{% endif %}"
+                >{{ page_num }}</a
+            >
+            {% endfor %} {% if let Some(next) = next_page %}
+            <a href="?page={{ next }}" class="join-item btn">»</a>
             {% endif %}
         </div>
     </div>
