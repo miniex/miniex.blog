@@ -42,7 +42,6 @@ COPY --from=builder /usr/src/app/target/release/blog .
 COPY --from=builder /usr/src/app/assets ./assets
 COPY --from=builder /usr/src/app/templates ./templates
 COPY --from=builder /usr/src/app/contents ./contents
-COPY --from=builder /usr/src/app/js ./js
 
 # Create data directory for SQLite database with proper permissions
 RUN mkdir -p /app/data && \
