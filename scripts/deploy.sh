@@ -12,7 +12,9 @@ ssh-add ~/.ssh/gitlab
 ssh-keyscan gitlab.daminstudio.com >> ~/.ssh/known_hosts
 
 cd $REPO_PATH
-git pull origin main
+# Fetch latest changes and reset to match remote main branch
+git fetch origin main
+git reset --hard origin/main
 
 # Ensure data directory exists with proper permissions
 mkdir -p data
