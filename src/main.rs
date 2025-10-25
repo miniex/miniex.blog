@@ -63,11 +63,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn create_router(state: SharedState) -> Router {
     // Get resume route from environment variable or use default
     let resume_route = if cfg!(debug_assertions) {
-        "/resume".to_string()
+        "/resume/ytm".to_string()
     } else {
         std::env::var("RESUME_TAG")
             .map(|tag| format!("/resume/{}", tag))
-            .unwrap_or_else(|_| "/resume".to_string())
+            .unwrap_or_else(|_| "/resume/ytm".to_string())
     };
 
     Router::new()
