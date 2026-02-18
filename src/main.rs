@@ -85,6 +85,7 @@ fn create_router(state: SharedState) -> Router {
         .route(&resume_route, get(handle_resume))
         .route("/guestbook", get(handle_guestbook))
         .route("/feed.xml", get(handle_feed))
+        .route("/sitemap.xml", get(handle_sitemap))
         .route("/api/search", get(handle_search))
         .route("/api/set-lang", get(handle_set_lang))
         .route("/api/comments/:post_id", get(get_comments))
@@ -109,6 +110,7 @@ fn create_router(state: SharedState) -> Router {
         )
         .nest_service("/assets", ServeDir::new("assets"))
         .nest_service("/favicon.ico", ServeFile::new("assets/favicon/favicon.ico"))
+        .nest_service("/robots.txt", ServeFile::new("assets/robots.txt"))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .fallback(handle_error)
         .with_state(state)
@@ -699,6 +701,43 @@ async fn handle_feed(
     (
         StatusCode::OK,
         [("content-type", "application/atom+xml; charset=utf-8")],
+        xml,
+    )
+}
+
+async fn handle_sitemap(State(state): State<SharedState>) -> impl IntoResponse {
+    let posts = state.posts.read().await;
+
+    let mut xml = String::new();
+    xml.push_str("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+    xml.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+
+    // Static pages
+    for path in &["/", "/blog", "/review", "/diary", "/series", "/guestbook"] {
+        xml.push_str("  <url>\n");
+        xml.push_str(&format!("    <loc>{}{}</loc>\n", SITE_URL, path));
+        xml.push_str("    <changefreq>weekly</changefreq>\n");
+        xml.push_str("  </url>\n");
+    }
+
+    // Post pages
+    let mut sorted_posts: Vec<&Post> = posts.iter().collect();
+    sorted_posts.sort_by(|a, b| b.metadata.updated_at.cmp(&a.metadata.updated_at));
+
+    for post in &sorted_posts {
+        let lastmod = post.metadata.updated_at.format("%Y-%m-%d").to_string();
+        xml.push_str("  <url>\n");
+        xml.push_str(&format!("    <loc>{}/post/{}</loc>\n", SITE_URL, post.slug));
+        xml.push_str(&format!("    <lastmod>{}</lastmod>\n", lastmod));
+        xml.push_str("    <changefreq>monthly</changefreq>\n");
+        xml.push_str("  </url>\n");
+    }
+
+    xml.push_str("</urlset>\n");
+
+    (
+        StatusCode::OK,
+        [("content-type", "application/xml; charset=utf-8")],
         xml,
     )
 }
