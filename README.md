@@ -199,3 +199,13 @@ nix build            # result/bin/blog
 Code is licensed under MIT OR Apache-2.0.
 
 All content under `contents/` is copyrighted by the author. All rights reserved.
+
+**The following are personal to this site and must not be reused:**
+- All content under `contents/` (blog posts, reviews, diary entries, resume)
+- Author name and profile (`Han Damin`, `miniex`)
+- Domain names (`miniex.blog`, `miniex.info`, `daminstudio.com`)
+- IndexNow API key (`assets/indexnow-key.txt`)
+- Resume secret tag (`RESUME_TAG`)
+- GitLab/GitHub repository URLs (`Cargo.toml`, `.gitlab-ci.yml`)
+- Deploy infrastructure (server paths, container/network names)
+- Favicon and profile images
