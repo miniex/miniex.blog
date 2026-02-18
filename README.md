@@ -7,15 +7,21 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 ## Features
 
 - **Post System** — Three categories: Blog, Review, Diary. Written in MDX (YAML front matter + Markdown) with auto-generated TOC, reading time estimation, and series support
-- **i18n** — Korean, Japanese, English. Language determined by filename suffix (`slug.ko.mdx`). Detection order: Cookie → Accept-Language → default (en)
+- **i18n** — Korean, Japanese, English. Language determined by filename suffix (`slug.ko.mdx`). Detection order: Cookie → Accept-Language → default (en). Language fallback for post listings (shows available translation when preferred language is missing)
 - **Comments & Guestbook** — SQLite-backed. Password-protected edit and delete
-- **Search** — `/api/search` endpoint. Searches title, description, and tags. Open with Ctrl+K
+- **Search** — `/api/search` endpoint. Searches title, description, and tags. Open with `Ctrl+K` or `/`
 - **Dark Mode** — DaisyUI pastel/pastel-dark themes. Persisted in localStorage
 - **LaTeX Math** — Inline (`$...$`) and block (`$$...$$`) math rendering via KaTeX
-- **Atom Feed** — `/feed.xml`
+- **Code Blocks** — Syntax highlighting via Highlight.js with copy-to-clipboard button
+- **Graph Rendering** — `graph` fenced code block for mathematical function plotting via function-plot
+- **Chart Rendering** — `chart` fenced code block for bar, line, pie, doughnut, and radar charts via Chart.js
+- **3D Plot Rendering** — `plot3d` fenced code block for 3D surfaces, vector fields, and scatter plots via Plotly.js
+- **Sort Toggle** — Ascending/descending sort on all list pages (blog, review, diary, series, guestbook) with htmx partial updates
+- **Series** — Group related posts into a series with prev/next navigation, status tracking (Ongoing/Completed), and per-language navigation chains
+- **Resume** — Dynamic resume page with hierarchical TOC, collapsible sections, and print-to-PDF optimization
+- **Atom Feed** — `/feed.xml` (20 recent posts)
 - **Sitemap** — `/sitemap.xml` (dynamically generated)
 - **Robots.txt** — `/robots.txt`
-- **Series** — Group related posts into a series with prev/next navigation
 
 ## Tech Stack
 
@@ -24,7 +30,8 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 | Backend | Rust, Axum, Tokio |
 | Templates | Askama |
 | Styling | Tailwind CSS 3, DaisyUI, Phosphor Icons |
-| Frontend | HTMX, Highlight.js, KaTeX, Vanilla JS |
+| Fonts | Nunito, Gowun Dodum (KO), Zen Maru Gothic (JA), JetBrains Mono |
+| Frontend | HTMX, Highlight.js, KaTeX, function-plot, Chart.js, Plotly.js |
 | Database | SQLite (sqlx) |
 | Build | Cargo, Bun |
 | Deploy | Docker, GitLab CI/CD |
@@ -40,28 +47,38 @@ src/
 ├── post.rs          # MDX loading, markdown parsing, TOC generation
 ├── post/de.rs       # DateTime serialization
 ├── filters.rs       # Askama template filters
-├── i18n.rs          # Translations (50+ keys x 3 languages)
+├── i18n.rs          # Translations (80+ keys x 3 languages)
 └── templates.rs     # Template definitions
 
 templates/
 ├── _base.html       # Layout (header, footer, search modal)
 ├── _components.html # post_card macro
-├── index.html       # Homepage
-├── blog.html        # Blog list
-├── review.html      # Review list
-├── diary.html       # Diary list
-├── post.html        # Post detail (comments, TOC)
-├── series.html      # Series list
-├── series_detail.html
-├── guestbook.html   # Guestbook
-├── resume.html      # Resume
+├── index.html       # Homepage (recent posts)
+├── blog.html        # Blog list (category filter, sort, pagination)
+├── review.html      # Review list (category filter, sort, pagination)
+├── diary.html       # Diary list (category filter, sort, pagination)
+├── post.html        # Post detail (comments, TOC, series nav)
+├── series.html      # Series list (sort by updated_at)
+├── series_detail.html # Series detail (timeline, sort)
+├── guestbook.html   # Guestbook (sort)
+├── resume.html      # Resume (hierarchical TOC, print)
 └── error.html       # 404
 
 assets/
-├── js/              # search, code-highlight, post-toc, resume-*
-├── styles/          # tailwind input/output, global.css, print.css
-├── favicon/         # Sakura flower icons
-└── robots.txt       # Crawler rules
+├── js/
+│   ├── search.js          # Search modal (Ctrl+K, language filter)
+│   ├── code-highlight.js  # Syntax highlighting + copy button
+│   ├── graph-render.js    # Graph, chart, plot3d rendering
+│   ├── post-toc.js        # Post TOC (scroll tracking)
+│   ├── resume-toc.js      # Resume TOC (collapsible h2 sections)
+│   └── resume-print.js    # Print-to-PDF optimization
+├── styles/
+│   ├── tailwind.input.css # Tailwind source
+│   ├── tailwind.output.css# Compiled output
+│   ├── global.css         # Custom styles (tables, code blocks, graphs)
+│   └── print.css          # Print media styles
+├── favicon/               # Sakura flower icons
+└── robots.txt             # Crawler rules
 
 contents/
 ├── blog/            # Blog posts (*.mdx)
@@ -90,8 +107,31 @@ tags: ["rust", "web"]
 created_at: "2025/01/15 12:00"
 updated_at: "2025/01/16 12:00"
 series: "My Series"
+series_order: 1
+series_description: "A series about..."
+series_status: "ongoing"
 ---
 ```
+
+## Routes
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | Homepage |
+| GET | `/blog` | Blog listing |
+| GET | `/review` | Review listing |
+| GET | `/diary` | Diary listing |
+| GET | `/series` | Series listing |
+| GET | `/series/:name` | Series detail |
+| GET | `/post/:slug` | Post detail |
+| GET | `/guestbook` | Guestbook |
+| GET | `/feed.xml` | Atom feed |
+| GET | `/sitemap.xml` | Sitemap |
+| GET | `/robots.txt` | Robots.txt |
+| GET | `/api/search` | Search API |
+| GET | `/api/set-lang` | Set language cookie |
+| GET/POST/PUT/DELETE | `/api/comments/*` | Comments CRUD |
+| GET/POST/PUT/DELETE | `/api/guestbook/*` | Guestbook CRUD |
 
 ## Getting Started
 
