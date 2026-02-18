@@ -51,6 +51,38 @@ else
   RESUME_TAG=$RESUME_TAG RESUME_TITLE=$RESUME_TITLE docker compose -f $COMPOSE_FILE restart
 fi
 
+# Ping search engines for indexing
+echo "Waiting for container to be ready..."
+sleep 5
+
+INDEXNOW_BODY='{
+  "host": "miniex.blog",
+  "key": "0de3222f-6b9a-4e62-9d8e-5d98d960963e",
+  "keyLocation": "https://miniex.blog/assets/indexnow-key.txt",
+  "urlList": ["https://miniex.blog/sitemap.xml"]
+}'
+
+echo "Pinging Google Sitemap..."
+curl -s "https://www.google.com/ping?sitemap=https://miniex.blog/sitemap.xml" || true
+
+echo "Pinging IndexNow (Bing)..."
+curl -s -X POST "https://www.bing.com/indexnow" \
+  -H "Content-Type: application/json" -d "$INDEXNOW_BODY" || true
+
+echo "Pinging IndexNow (Naver)..."
+curl -s -X POST "https://searchadvisor.naver.com/indexnow" \
+  -H "Content-Type: application/json" -d "$INDEXNOW_BODY" || true
+
+echo "Pinging IndexNow (Yandex)..."
+curl -s -X POST "https://yandex.com/indexnow" \
+  -H "Content-Type: application/json" -d "$INDEXNOW_BODY" || true
+
+echo "Pinging IndexNow (Seznam)..."
+curl -s -X POST "https://search.seznam.cz/indexnow" \
+  -H "Content-Type: application/json" -d "$INDEXNOW_BODY" || true
+
+echo "Search engine ping complete."
+
 # Remove the key from the agent and kill the agent
 ssh-add -D
 eval $(ssh-agent -k)
