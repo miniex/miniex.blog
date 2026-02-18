@@ -548,16 +548,16 @@ article pre:hover .code-copy-button {
   .function-plot-target,
   .chart-js-target,
   .plotly-target {
-    padding: 1rem 1rem 0.875rem;
-    margin: 1.5rem 0;
-    border-radius: 1rem;
+    padding: 0.5rem 0.25rem 0.5rem;
+    margin: 1rem 0;
+    border-radius: 0.75rem;
   }
 
   .function-plot-target::before,
   .chart-js-target::before,
   .plotly-target::before {
-    left: 1rem;
-    right: 1rem;
+    left: 0.25rem;
+    right: 0.25rem;
   }
 
   .graph-chart-title {
@@ -573,8 +573,31 @@ article pre:hover .code-copy-button {
   }
 
   .graph-legend-item {
-    font-size: 0.875rem;
-    padding: 0.1875rem 0.5rem;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+  }
+
+  /* Controls: always visible on touch devices, bigger tap targets */
+  .graph-controls {
+    opacity: 0.7;
+  }
+
+  .graph-ctrl-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+  }
+
+  /* function-plot SVG: constrain to container */
+  .function-plot-target svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Plotly: prevent overflow */
+  .plotly-target .js-plotly-plot {
+    max-width: 100%;
+    overflow: hidden;
   }
 }
 

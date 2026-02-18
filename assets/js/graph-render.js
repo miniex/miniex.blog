@@ -48,6 +48,10 @@
     ],
   };
 
+  function isMobile() {
+    return window.innerWidth < 768;
+  }
+
   function isDark() {
     return (
       (document.documentElement.getAttribute("data-theme") || "")
@@ -214,6 +218,27 @@
     }
   }
 
+  // Block D3 touch drag on mobile — prevents hijacking page scroll.
+  function blockDrag(container) {
+    var svg = container.querySelector("svg");
+    if (svg) {
+      svg.addEventListener(
+        "touchstart",
+        function (e) {
+          e.stopImmediatePropagation();
+        },
+        true,
+      );
+      svg.addEventListener(
+        "touchmove",
+        function (e) {
+          e.stopImmediatePropagation();
+        },
+        true,
+      );
+    }
+  }
+
   function renderGraph(el) {
     var raw = el.textContent;
     el.setAttribute("data-config", raw);
@@ -251,25 +276,33 @@
     target.className = "graph-plot-target";
     graphWrap.appendChild(target);
 
-    var containerW = el.clientWidth - 48;
-    var plotW = Math.max(containerW, 320);
-
     var plotData = fns.map(function (f) {
       return { fn: f.expr, graphType: "polyline", color: f.color };
     });
 
+    // Responsive dimensions — recalculated on each render/replot
+    function getPlotDims() {
+      var m = isMobile();
+      var pad = m ? 4 : 48;
+      var w = el.clientWidth - pad;
+      return { width: Math.max(w, 200), height: m ? 220 : 360 };
+    }
+
     var plotInstance;
     try {
+      var dims = getPlotDims();
       plotInstance = functionPlot({
         target: target,
-        width: plotW,
-        height: 360,
+        width: dims.width,
+        height: dims.height,
         xAxis: { domain: xDom, label: cfg.xlabel || "" },
         yAxis: { domain: yDom, label: cfg.ylabel || "" },
         grid: true,
         data: plotData,
       });
       blockWheelZoom(target);
+      // Disable D3 drag on mobile — conflicts with page scroll
+      if (isMobile()) blockDrag(target);
     } catch (e) {
       console.error("function-plot error:", e);
       target.style.padding = "2rem";
@@ -288,6 +321,7 @@
     var btnZoomIn = document.createElement("button");
     btnZoomIn.className = "graph-ctrl-btn";
     btnZoomIn.title = "Zoom in";
+    btnZoomIn.setAttribute("aria-label", "Zoom in");
     btnZoomIn.appendChild(
       mkSvgIcon([
         ["line", { x1: "12", y1: "5", x2: "12", y2: "19" }],
@@ -299,6 +333,7 @@
     var btnZoomOut = document.createElement("button");
     btnZoomOut.className = "graph-ctrl-btn";
     btnZoomOut.title = "Zoom out";
+    btnZoomOut.setAttribute("aria-label", "Zoom out");
     btnZoomOut.appendChild(
       mkSvgIcon([["line", { x1: "5", y1: "12", x2: "19", y2: "12" }]]),
     );
@@ -307,6 +342,7 @@
     var btnReset = document.createElement("button");
     btnReset.className = "graph-ctrl-btn";
     btnReset.title = "Reset view";
+    btnReset.setAttribute("aria-label", "Reset view");
     btnReset.appendChild(
       mkSvgIcon([
         ["path", { d: "M3 12a9 9 0 1 1 3 6.7" }],
@@ -333,16 +369,18 @@
       curXDom = newX;
       curYDom = newY;
       target.textContent = "";
+      var dims = getPlotDims();
       plotInstance = functionPlot({
         target: target,
-        width: plotW,
-        height: 360,
+        width: dims.width,
+        height: dims.height,
         xAxis: { domain: curXDom, label: cfg.xlabel || "" },
         yAxis: { domain: curYDom, label: cfg.ylabel || "" },
         grid: true,
         data: plotData,
       });
       blockWheelZoom(target);
+      if (isMobile()) blockDrag(target);
       plotInstance.on("all:zoom", function () {
         curXDom = plotInstance.meta.xScale.domain().slice();
         curYDom = plotInstance.meta.yScale.domain().slice();
@@ -478,17 +516,20 @@
     var canvas = document.createElement("canvas");
     wrap.appendChild(canvas);
 
+    var mobile = isMobile();
     var scalesConf = {};
     if (!isPie) {
+      var tickSize = mobile ? 10 : 12;
+      var tickPad = mobile ? 3 : 6;
       var axisBase = {
         ticks: {
           color: p.textMuted,
           font: {
             family: "'JetBrains Mono', monospace",
-            size: 12,
+            size: tickSize,
             weight: "400",
           },
-          padding: 6,
+          padding: tickPad,
         },
         grid: {
           color: p.grid,
@@ -504,19 +545,19 @@
           ticks: {
             color: p.textMuted,
             backdropColor: "transparent",
-            font: { family: "'JetBrains Mono', monospace", size: 12 },
+            font: { family: "'JetBrains Mono', monospace", size: tickSize },
           },
           grid: { color: p.grid, lineWidth: 1 },
           angleLines: { color: p.grid },
           pointLabels: {
             color: p.text,
-            font: { size: 12, weight: "500" },
+            font: { size: tickSize, weight: "500" },
           },
         };
       } else {
         scalesConf.x = JSON.parse(JSON.stringify(axisBase));
         scalesConf.y = JSON.parse(JSON.stringify(axisBase));
-        scalesConf.y.ticks.padding = 8;
+        scalesConf.y.ticks.padding = mobile ? 4 : 8;
       }
     }
 
@@ -526,20 +567,25 @@
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        aspectRatio: mobile ? 1.2 : 2,
         animation: { duration: 700, easing: "easeOutQuart" },
         interaction: { intersect: false, mode: isPie ? "nearest" : "index" },
-        layout: { padding: { top: 4, bottom: 4, left: 2, right: 2 } },
+        layout: {
+          padding: mobile
+            ? { top: 2, bottom: 2, left: 0, right: 0 }
+            : { top: 4, bottom: 4, left: 2, right: 2 },
+        },
         plugins: {
           legend: {
             display: true,
             position: isPie ? "bottom" : "top",
             labels: {
               color: p.text,
-              font: { size: 12, weight: "500" },
-              padding: 14,
+              font: { size: mobile ? 10 : 12, weight: "500" },
+              padding: mobile ? 8 : 14,
               usePointStyle: true,
-              pointStyleWidth: 8,
-              boxHeight: 7,
+              pointStyleWidth: mobile ? 6 : 8,
+              boxHeight: mobile ? 6 : 7,
             },
           },
           tooltip: {
@@ -548,12 +594,17 @@
             bodyColor: p.text,
             borderColor: p.border,
             borderWidth: 1,
-            cornerRadius: 10,
-            padding: { top: 10, bottom: 10, left: 14, right: 14 },
-            bodyFont: { size: 12, family: "'JetBrains Mono', monospace" },
-            titleFont: { size: 12, weight: "600" },
-            boxPadding: 4,
-            caretSize: 5,
+            cornerRadius: mobile ? 8 : 10,
+            padding: mobile
+              ? { top: 6, bottom: 6, left: 8, right: 8 }
+              : { top: 10, bottom: 10, left: 14, right: 14 },
+            bodyFont: {
+              size: mobile ? 10 : 12,
+              family: "'JetBrains Mono', monospace",
+            },
+            titleFont: { size: mobile ? 10 : 12, weight: "600" },
+            boxPadding: mobile ? 3 : 4,
+            caretSize: mobile ? 4 : 5,
             displayColors: true,
             usePointStyle: true,
           },
@@ -625,13 +676,14 @@
 
   function plotlyBaseLayout(cfg, p) {
     var dark = isDark();
+    var mobile = isMobile();
     return {
       title: cfg.title
         ? {
             text: cfg.title,
             font: {
               family: "'Nunito', 'Gowun Dodum', sans-serif",
-              size: 15,
+              size: mobile ? 12 : 15,
               color: p.text,
               weight: 600,
             },
@@ -641,10 +693,12 @@
       plot_bgcolor: "rgba(0,0,0,0)",
       font: {
         family: "'JetBrains Mono', monospace",
-        size: 12,
+        size: mobile ? 10 : 12,
         color: p.textMuted,
       },
-      margin: { l: 50, r: 30, t: cfg.title ? 50 : 20, b: 50 },
+      margin: mobile
+        ? { l: 32, r: 12, t: cfg.title ? 36 : 12, b: 32 }
+        : { l: 50, r: 30, t: cfg.title ? 50 : 20, b: 50 },
       showlegend: false,
       hovermode: false,
     };
@@ -652,27 +706,32 @@
 
   function plotlyAxis2d(p) {
     var dark = isDark();
+    var mobile = isMobile();
     return {
       gridcolor: dark ? p.grid : "rgba(0,0,0,0.15)",
-      gridwidth: 1.5,
+      gridwidth: mobile ? 1 : 1.5,
       zerolinecolor: dark ? p.border : "rgba(0,0,0,0.4)",
-      zerolinewidth: 2,
+      zerolinewidth: mobile ? 1.5 : 2,
       showline: false,
-      tickfont: { size: 12, color: p.textMuted },
+      tickfont: { size: mobile ? 9 : 12, color: p.textMuted },
     };
   }
 
   function plotlyAxis3d(p) {
     var dark = isDark();
+    var mobile = isMobile();
     return {
       backgroundcolor: "rgba(0,0,0,0)",
       gridcolor: dark ? p.grid : "rgba(0,0,0,0.2)",
-      gridwidth: 2,
+      gridwidth: mobile ? 1 : 2,
       zerolinecolor: dark ? p.border : "rgba(0,0,0,0.4)",
-      zerolinewidth: 2,
+      zerolinewidth: mobile ? 1.5 : 2,
       showbackground: false,
       showline: false,
-      tickfont: { size: 12, color: dark ? p.textMuted : "rgba(0,0,0,0.7)" },
+      tickfont: {
+        size: mobile ? 9 : 12,
+        color: dark ? p.textMuted : "rgba(0,0,0,0.7)",
+      },
     };
   }
 
@@ -714,6 +773,7 @@
     var btnZoomIn = document.createElement("button");
     btnZoomIn.className = "graph-ctrl-btn";
     btnZoomIn.title = "Zoom in";
+    btnZoomIn.setAttribute("aria-label", "Zoom in");
     btnZoomIn.appendChild(
       mkSvgIcon([
         ["line", { x1: "12", y1: "5", x2: "12", y2: "19" }],
@@ -724,6 +784,7 @@
     var btnZoomOut = document.createElement("button");
     btnZoomOut.className = "graph-ctrl-btn";
     btnZoomOut.title = "Zoom out";
+    btnZoomOut.setAttribute("aria-label", "Zoom out");
     btnZoomOut.appendChild(
       mkSvgIcon([["line", { x1: "5", y1: "12", x2: "19", y2: "12" }]]),
     );
@@ -731,6 +792,7 @@
     var btnReset = document.createElement("button");
     btnReset.className = "graph-ctrl-btn";
     btnReset.title = "Reset view";
+    btnReset.setAttribute("aria-label", "Reset view");
     btnReset.appendChild(
       mkSvgIcon([
         ["path", { d: "M3 12a9 9 0 1 1 3 6.7" }],
@@ -759,7 +821,7 @@
     var yRange = cfg.y ? parseRange(cfg.y) : [-5, 5];
     var expr = cfg.fn || "sin(sqrt(x^2 + y^2))";
 
-    var N = 60;
+    var N = isMobile() ? 40 : 60;
     var xVals = [],
       yVals = [],
       zVals = [];
@@ -804,11 +866,11 @@
       showscale: true,
       colorbar: {
         tickfont: {
-          size: 12,
+          size: isMobile() ? 9 : 12,
           color: isDark() ? p.textMuted : "rgba(0,0,0,0.7)",
         },
-        thickness: 15,
-        len: 0.6,
+        thickness: isMobile() ? 10 : 15,
+        len: isMobile() ? 0.5 : 0.6,
       },
     };
 
@@ -1423,7 +1485,17 @@
     }
   }
 
-  // ── Theme toggle re-render ──
+  // ── Debounce helper ──
+
+  function debounce(fn, ms) {
+    var timer;
+    return function () {
+      clearTimeout(timer);
+      timer = setTimeout(fn, ms);
+    };
+  }
+
+  // ── Theme toggle / resize re-render ──
 
   function reRender(graphEls, chartEls, plotlyEls) {
     graphEls.forEach(function (el) {
@@ -1487,5 +1559,22 @@
         }
       }
     }).observe(document.documentElement, { attributes: true });
+
+    // Re-render on resize / orientation change (debounced)
+    var hasGraphs = gEls.length || cEls.length || pEls.length;
+    if (hasGraphs) {
+      var prevW = window.innerWidth;
+      window.addEventListener(
+        "resize",
+        debounce(function () {
+          // Only re-render if width actually changed (avoids mobile address-bar triggers)
+          if (window.innerWidth !== prevW) {
+            prevW = window.innerWidth;
+            reRender(gEls, cEls, pEls);
+          }
+        }, 300),
+        { passive: true },
+      );
+    }
   });
 })();
