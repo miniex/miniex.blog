@@ -768,6 +768,17 @@ async fn handle_sitemap(State(state): State<SharedState>) -> impl IntoResponse {
         xml.push_str("  </url>\n");
     }
 
+    // Series pages
+    let series_list = get_series(&posts, Lang::En, false);
+    for s in &series_list {
+        let lastmod = s.updated_at.format("%Y-%m-%d").to_string();
+        xml.push_str("  <url>\n");
+        xml.push_str(&format!("    <loc>{}/series/{}</loc>\n", SITE_URL, s.name));
+        xml.push_str(&format!("    <lastmod>{}</lastmod>\n", lastmod));
+        xml.push_str("    <changefreq>weekly</changefreq>\n");
+        xml.push_str("  </url>\n");
+    }
+
     // Post pages
     let mut sorted_posts: Vec<&Post> = posts.iter().collect();
     sorted_posts.sort_by(|a, b| b.metadata.updated_at.cmp(&a.metadata.updated_at));

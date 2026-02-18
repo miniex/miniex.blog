@@ -12,6 +12,12 @@
 <meta property="og:type" content="{{ blog.og_type }}" />
 <meta property="og:url" content="{{ blog.url }}" />
 <meta property="og:site_name" content="miniex.blog" />
+{% if let Some(og_img) = post.metadata.og_image %}
+<meta property="og:image" content="{{ og_img }}" />
+{% else %}
+<meta property="og:image" content="https://miniex.blog/assets/favicon/sakura-flower-512-238032.png" />
+{% endif %}
+<meta property="og:locale" content="{{ post.lang.as_str() }}" />
 <meta property="article:author" content="{{ post.metadata.author }}" />
 <meta
   property="article:published_time"
@@ -28,8 +34,44 @@
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="{{ post.metadata.title }}" />
 <meta name="twitter:description" content="{{ post.metadata.description }}" />
+{% if let Some(og_img) = post.metadata.og_image %}
+<meta name="twitter:image" content="{{ og_img }}" />
+{% else %}
+<meta name="twitter:image" content="https://miniex.blog/assets/favicon/sakura-flower-512-238032.png" />
+{% endif %}
 <!-- Canonical -->
 <link rel="canonical" href="{{ blog.url }}" />
+<!-- hreflang for multilingual -->
+{% for al in available_langs %}
+<link rel="alternate" hreflang="{{ al.as_str() }}" href="https://miniex.blog/post/{{ post.translation_key }}?lang={{ al.as_str() }}" />
+{% endfor %}
+<link rel="alternate" hreflang="x-default" href="https://miniex.blog/post/{{ post.translation_key }}" />
+<!-- JSON-LD BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ post.metadata.title }}",
+  "description": "{{ post.metadata.description }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ post.metadata.author }}"
+  },
+  "datePublished": "{{ post.metadata.created_at }}",
+  "dateModified": "{{ post.metadata.updated_at }}",
+  "url": "{{ blog.url }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "miniex.blog",
+    "url": "https://miniex.blog"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ blog.url }}"
+  },
+  "keywords": "{% for tag in post.metadata.tags %}{{ tag }}{% if !loop.last %}, {% endif %}{% endfor %}"
+}
+</script>
 {% else %}
 <title>{{ t.post_not_found_subtitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />

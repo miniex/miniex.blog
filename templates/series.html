@@ -6,6 +6,12 @@
 <meta property="og:type" content="{{ blog.og_type }}" />
 <meta property="og:url" content="{{ blog.url }}" />
 <meta property="og:site_name" content="miniex.blog" />
+<meta
+  property="og:image"
+  content="https://miniex.blog/assets/favicon/sakura-flower-512-238032.png"
+/>
+<meta property="og:locale" content="{{ lang.as_str() }}" />
+<link rel="canonical" href="{{ blog.url }}" />
 {% endblock %} {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
   <div class="text-center mb-12">

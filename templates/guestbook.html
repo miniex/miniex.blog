@@ -1,6 +1,17 @@
 {% extends "_base.html" %} {% block head %}
 <title>miniex::guestbook</title>
 <meta name="description" content="{{ t.guestbook_subtitle }}" />
+<meta property="og:title" content="miniex::guestbook" />
+<meta property="og:description" content="{{ t.guestbook_subtitle }}" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://miniex.blog/guestbook" />
+<meta property="og:site_name" content="miniex.blog" />
+<meta
+  property="og:image"
+  content="https://miniex.blog/assets/favicon/sakura-flower-512-238032.png"
+/>
+<meta property="og:locale" content="{{ lang.as_str() }}" />
+<link rel="canonical" href="https://miniex.blog/guestbook" />
 {% endblock %} {% block main %}
 <div class="container mx-auto px-4 py-6 max-w-4xl">
   <!-- Header Section -->

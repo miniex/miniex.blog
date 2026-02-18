@@ -113,6 +113,9 @@ pub struct PostMetadata {
     pub prev_post: Option<String>,
     #[serde(default)]
     pub next_post: Option<String>,
+    // -- og image (optional) --
+    #[serde(default)]
+    pub og_image: Option<String>,
     // -- i18n (optional) --
     #[serde(default)]
     pub lang: Option<String>,
