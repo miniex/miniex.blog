@@ -7751,10 +7751,6 @@ html:has(.drawer-toggle:checked) {
     width: 15rem;
   }
 
-  .lg\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .lg\:flex-row {
     flex-direction: row;
   }
