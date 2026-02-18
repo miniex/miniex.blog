@@ -9,8 +9,9 @@ use blog::{
     db::{Comment, Database, Guestbook},
     i18n::{Lang, LangExtractor, Translations},
     post::{
-        get_available_translations, get_posts_by_category, get_posts_by_series, get_recent_posts,
-        get_series, get_series_nav_info, load_posts, Post, PostType,
+        dedup_by_translation, get_available_translations, get_posts_by_category,
+        get_posts_by_series, get_recent_posts, get_series, get_series_nav_info, load_posts, Post,
+        PostType,
     },
     templates::{
         BlogTemplate, DiaryTemplate, ErrorTemplate, GuestbookTemplate, IndexTemplate, PostTemplate,
@@ -182,7 +183,7 @@ async fn handle_blog(
 
     let categories = posts
         .iter()
-        .filter(|p| matches!(p.post_type, PostType::Blog) && p.lang == lang)
+        .filter(|p| matches!(p.post_type, PostType::Blog))
         .flat_map(|p| p.metadata.tags.clone())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
@@ -247,7 +248,7 @@ async fn handle_review(
 
     let categories = posts
         .iter()
-        .filter(|p| matches!(p.post_type, PostType::Review) && p.lang == lang)
+        .filter(|p| matches!(p.post_type, PostType::Review))
         .flat_map(|p| p.metadata.tags.clone())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
@@ -312,7 +313,7 @@ async fn handle_diary(
 
     let categories = posts
         .iter()
-        .filter(|p| matches!(p.post_type, PostType::Diary) && p.lang == lang)
+        .filter(|p| matches!(p.post_type, PostType::Diary))
         .flat_map(|p| p.metadata.tags.clone())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
@@ -528,18 +529,26 @@ async fn handle_search(
     let search_lang = Lang::parse(&query.lang);
     let q = query.q.to_lowercase();
 
-    let results: Vec<SearchResult> = posts
+    let matching: Vec<Post> = posts
         .iter()
         .filter(|post| {
-            post.lang == search_lang
-                && (post.metadata.title.to_lowercase().contains(&q)
-                    || post.metadata.description.to_lowercase().contains(&q)
-                    || post
-                        .metadata
-                        .tags
-                        .iter()
-                        .any(|tag| tag.to_lowercase().contains(&q)))
+            post.metadata.title.to_lowercase().contains(&q)
+                || post.metadata.description.to_lowercase().contains(&q)
+                || post
+                    .metadata
+                    .tags
+                    .iter()
+                    .any(|tag| tag.to_lowercase().contains(&q))
         })
+        .cloned()
+        .collect();
+
+    let deduped = dedup_by_translation(matching, search_lang);
+    let mut sorted = deduped;
+    sorted.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
+
+    let results: Vec<SearchResult> = sorted
+        .into_iter()
         .take(20)
         .map(|post| SearchResult {
             slug: post.slug.clone(),

@@ -36,6 +36,14 @@ impl Lang {
         }
     }
 
+    pub fn code(self) -> &'static str {
+        match self {
+            Lang::Ko => "KO",
+            Lang::Ja => "JA",
+            Lang::En => "EN",
+        }
+    }
+
     pub fn label(self) -> &'static str {
         match self {
             Lang::Ko => "한국어",

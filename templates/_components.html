@@ -22,6 +22,11 @@
             {{ series }}
           </span>
           {% endif %}
+          <span
+            class="badge badge-sm bg-accent/8 text-accent border-none font-medium"
+          >
+            {{ post.lang.code() }}
+          </span>
         </div>
         <time class="text-xs text-base-content/50 font-medium">
           {{ post.metadata.created_at|date }}

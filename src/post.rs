@@ -150,34 +150,54 @@ fn parse_file_lang(stem: &str) -> (String, Option<Lang>) {
     (stem.to_string(), None)
 }
 
-/// get recent posts filtered by language
-pub fn get_recent_posts(posts: &[Post], lang: Lang) -> Vec<Post> {
-    let mut all_posts: Vec<Post> = posts.iter().filter(|p| p.lang == lang).cloned().collect();
-    all_posts.sort();
-    all_posts.into_iter().take(5).collect()
+/// Deduplicate posts by translation_key, preferring the given language.
+/// For each group of posts sharing the same translation_key, pick the one
+/// matching `lang`; if none matches, pick the first one (arbitrary fallback).
+pub fn dedup_by_translation(posts: Vec<Post>, lang: Lang) -> Vec<Post> {
+    let mut seen: HashMap<String, Post> = HashMap::new();
+    for post in posts {
+        seen.entry(post.translation_key.clone())
+            .and_modify(|existing| {
+                // Replace if the new post matches the preferred language
+                // and the existing one does not
+                if post.lang == lang && existing.lang != lang {
+                    *existing = post.clone();
+                }
+            })
+            .or_insert(post);
+    }
+    seen.into_values().collect()
 }
 
-/// get posts by category filtered by language
+/// get recent posts with language fallback
+pub fn get_recent_posts(posts: &[Post], lang: Lang) -> Vec<Post> {
+    let all_posts: Vec<Post> = posts.to_vec();
+    let mut deduped = dedup_by_translation(all_posts, lang);
+    deduped.sort();
+    deduped.into_iter().take(5).collect()
+}
+
+/// get posts by category with language fallback
 pub fn get_posts_by_category(
     posts: &[Post],
     post_type: PostType,
     category: Option<&str>,
     lang: Lang,
 ) -> Vec<Post> {
-    let mut filtered_posts = posts
+    let filtered: Vec<Post> = posts
         .iter()
         .filter(|post| {
             post.post_type == post_type
-                && post.lang == lang
                 && category
                     .map(|c| post.metadata.tags.contains(&c.to_string()))
                     .unwrap_or(true)
         })
         .cloned()
-        .collect::<Vec<Post>>();
+        .collect();
 
-    filtered_posts.sort();
-    filtered_posts
+    let mut deduped = dedup_by_translation(filtered, lang);
+    deduped.sort();
+    deduped
 }
 
 // load posts from mdx files
@@ -192,15 +212,15 @@ pub async fn load_posts(state: AppState) -> Result<()> {
     Ok(())
 }
 
-/// get all series information from posts filtered by language, sorted by name
-pub fn get_series(posts: &[Post], lang: Lang) -> Vec<Series> {
+/// get all series information from posts (all languages), sorted by name
+pub fn get_series(posts: &[Post], _lang: Lang) -> Vec<Series> {
     let mut series_map: HashMap<String, Vec<String>> = HashMap::new();
     let mut latest_updates: HashMap<String, DateTime<Utc>> = HashMap::new();
     let mut descriptions: HashMap<String, Option<String>> = HashMap::new();
     let mut statuses: HashMap<String, SeriesStatus> = HashMap::new();
     let mut post_counts: HashMap<String, usize> = HashMap::new();
 
-    for post in posts.iter().filter(|p| p.lang == lang) {
+    for post in posts.iter() {
         if let Some(series_name) = &post.metadata.series {
             series_map
                 .entry(series_name.clone())
@@ -260,11 +280,10 @@ pub fn get_series(posts: &[Post], lang: Lang) -> Vec<Series> {
     series
 }
 
-/// get all series names from posts filtered by language, sorted alphabetically
-pub fn get_series_names(posts: &[Post], lang: Lang) -> Vec<String> {
+/// get all series names from posts (all languages), sorted alphabetically
+pub fn get_series_names(posts: &[Post], _lang: Lang) -> Vec<String> {
     let mut series_names: Vec<String> = posts
         .iter()
-        .filter(|p| p.lang == lang)
         .filter_map(|post| post.metadata.series.clone())
         .collect::<std::collections::HashSet<String>>()
         .into_iter()
@@ -274,21 +293,21 @@ pub fn get_series_names(posts: &[Post], lang: Lang) -> Vec<String> {
     series_names
 }
 
-/// get posts by series name filtered by language, sorted by series_order then created_at ascending
+/// get posts by series name with language fallback, sorted by series_order then created_at ascending
 pub fn get_posts_by_series(posts: &[Post], series_name: &str, lang: Lang) -> Vec<Post> {
-    let mut series_posts: Vec<Post> = posts
+    let filtered: Vec<Post> = posts
         .iter()
         .filter(|post| {
-            post.lang == lang
-                && post
-                    .metadata
-                    .series
-                    .as_ref()
-                    .map(|s| s == series_name)
-                    .unwrap_or(false)
+            post.metadata
+                .series
+                .as_ref()
+                .map(|s| s == series_name)
+                .unwrap_or(false)
         })
         .cloned()
         .collect();
+
+    let mut series_posts = dedup_by_translation(filtered, lang);
 
     // Sort by series_order first (if present), then created_at ascending (chronological)
     series_posts.sort_by(
