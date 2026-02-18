@@ -1,7 +1,8 @@
 use axum::{
-    extract::{Path, Query, State},
-    http::StatusCode,
-    response::{IntoResponse, Json},
+    extract::{Path, Query, Request, State},
+    http::{header, StatusCode},
+    middleware::Next,
+    response::{IntoResponse, Json, Redirect},
     routing::{get, post},
     Router,
 };
@@ -22,11 +23,16 @@ use blog::{
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tower_http::services::{ServeDir, ServeFile};
+use tower_http::{
+    compression::CompressionLayer,
+    services::{ServeDir, ServeFile},
+    set_header::{SetResponseHeader, SetResponseHeaderLayer},
+};
 use tracing::info;
 
 const SITE_URL: &str = "https://miniex.blog";
-const SITE_DESCRIPTION: &str = "miniex의 개발 블로그 - Rust, JavaScript, App, Server";
+const SITE_DESCRIPTION: &str =
+    "miniex dev blog - Rust development, study notes, tech reviews, and more";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -75,6 +81,13 @@ fn create_router(state: SharedState) -> Router {
             .unwrap_or_else(|_| "/resume/ytm".to_string())
     };
 
+    // Static assets with long-lived cache headers (files use versioned query params like ?v=14)
+    let assets_service = SetResponseHeader::overriding(
+        ServeDir::new("assets"),
+        header::CACHE_CONTROL,
+        header::HeaderValue::from_static("public, max-age=31536000, immutable"),
+    );
+
     Router::new()
         .route("/", get(handle_index))
         .route("/blog", get(handle_blog))
@@ -109,12 +122,48 @@ fn create_router(state: SharedState) -> Router {
             "/api/guestbook/delete/:entry_id",
             axum::routing::delete(delete_guestbook_entry),
         )
-        .nest_service("/assets", ServeDir::new("assets"))
+        .nest_service("/assets", assets_service)
         .nest_service("/favicon.ico", ServeFile::new("assets/favicon/favicon.ico"))
         .nest_service("/robots.txt", ServeFile::new("assets/robots.txt"))
+        .layer(axum::middleware::from_fn(trailing_slash_redirect))
+        .layer(SetResponseHeaderLayer::overriding(
+            header::HeaderName::from_static("x-content-type-options"),
+            header::HeaderValue::from_static("nosniff"),
+        ))
+        .layer(SetResponseHeaderLayer::overriding(
+            header::HeaderName::from_static("x-frame-options"),
+            header::HeaderValue::from_static("DENY"),
+        ))
+        .layer(SetResponseHeaderLayer::overriding(
+            header::HeaderName::from_static("referrer-policy"),
+            header::HeaderValue::from_static("strict-origin-when-cross-origin"),
+        ))
+        .layer(SetResponseHeaderLayer::overriding(
+            header::HeaderName::from_static("strict-transport-security"),
+            header::HeaderValue::from_static("max-age=63072000; includeSubDomains; preload"),
+        ))
+        .layer(CompressionLayer::new())
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .fallback(handle_error)
         .with_state(state)
+}
+
+async fn trailing_slash_redirect(req: Request, next: Next) -> impl IntoResponse {
+    let uri = req.uri().clone();
+    let path = uri.path();
+
+    // Redirect paths with trailing slash (except root "/")
+    if path.len() > 1 && path.ends_with('/') {
+        let new_path = path.trim_end_matches('/');
+        let new_uri = if let Some(query) = uri.query() {
+            format!("{}?{}", new_path, query)
+        } else {
+            new_path.to_string()
+        };
+        return Redirect::permanent(&new_uri).into_response();
+    }
+
+    next.run(req).await.into_response()
 }
 
 #[cfg(debug_assertions)]
@@ -202,7 +251,9 @@ async fn handle_blog(
     BlogTemplate {
         blog: Blog::new()
             .set_title("miniex::blog")
-            .set_description("miniex의 기술 블로그 글 목록")
+            .set_description(
+                "Technical blog posts about Rust, JavaScript, web development, and more",
+            )
             .set_url(&format!("{}/blog", SITE_URL)),
         posts: current_posts,
         categories,
@@ -271,7 +322,7 @@ async fn handle_review(
     ReviewTemplate {
         blog: Blog::new()
             .set_title("miniex::review")
-            .set_description("miniex의 리뷰 글 목록")
+            .set_description("Tech reviews and software analysis")
             .set_url(&format!("{}/review", SITE_URL)),
         posts: current_posts,
         categories,
@@ -340,7 +391,7 @@ async fn handle_diary(
     DiaryTemplate {
         blog: Blog::new()
             .set_title("miniex::diary")
-            .set_description("miniex의 일기 목록")
+            .set_description("Development diary and personal notes")
             .set_url(&format!("{}/diary", SITE_URL)),
         posts: current_posts,
         categories,
@@ -378,7 +429,7 @@ async fn handle_series(
     SeriesTemplate {
         blog: Blog::new()
             .set_title("miniex::series")
-            .set_description("miniex의 시리즈 목록")
+            .set_description("Development tutorial series and in-depth guides")
             .set_url(&format!("{}/series", SITE_URL)),
         series,
         t,

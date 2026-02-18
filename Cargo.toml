@@ -17,7 +17,7 @@ tokio = { version = "=1.40.0", features = ["macros", "rt-multi-thread"] }
 axum = { version = "=0.7.5", features = ["macros", "ws"] }
 askama = { version = "=0.12.1", features = ["with-axum"] }
 askama_axum = "=0.4.0"
-tower-http = { version = "=0.5.2", features = ["fs", "trace"] }
+tower-http = { version = "=0.5.2", features = ["fs", "trace", "compression-gzip", "compression-br", "set-header"] }
 tower-livereload = "=0.9.3"
 
 slug = "=0.1.6"

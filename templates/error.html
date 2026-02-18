@@ -24,17 +24,46 @@
       {{ t.error_title }}
     </h1>
     <p class="text-lg text-base-content/50 mb-2">{{ t.error_subtitle }}</p>
-    <p class="text-sm text-base-content/35 mb-10 max-w-sm mx-auto">
+    <p class="text-sm text-base-content/35 mb-8 max-w-sm mx-auto">
       {{ t.error_message }}
     </p>
 
-    <a
-      href="/"
-      class="btn btn-primary gap-2 rounded-2xl shadow-md shadow-primary/20"
+    <div class="flex flex-wrap items-center justify-center gap-3 mb-6">
+      <a
+        href="/"
+        class="btn btn-primary gap-2 rounded-2xl shadow-md shadow-primary/20"
+      >
+        <i class="ph ph-house text-base"></i>
+        {{ t.error_return_home }}
+      </a>
+      <a
+        href="/blog"
+        class="btn btn-ghost gap-2 rounded-2xl border border-base-300/40"
+      >
+        <i class="ph ph-article text-base"></i>
+        {{ t.nav_blog }}
+      </a>
+    </div>
+
+    <div
+      class="flex flex-wrap items-center justify-center gap-2 text-sm text-base-content/40"
     >
-      <i class="ph ph-house text-base"></i>
-      {{ t.error_return_home }}
-    </a>
+      <a href="/series" class="hover:text-primary transition-colors"
+        >{{ t.nav_series }}</a
+      >
+      <span class="text-base-content/20">|</span>
+      <a href="/guestbook" class="hover:text-primary transition-colors"
+        >{{ t.nav_guestbook }}</a
+      >
+      <span class="text-base-content/20">|</span>
+      <a href="/review" class="hover:text-primary transition-colors"
+        >{{ t.nav_review }}</a
+      >
+      <span class="text-base-content/20">|</span>
+      <a href="/diary" class="hover:text-primary transition-colors"
+        >{{ t.nav_diary }}</a
+      >
+    </div>
   </div>
 </div>
 {% endblock %}

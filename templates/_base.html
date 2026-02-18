@@ -10,10 +10,11 @@
         <script>
             (function(){var t=localStorage.getItem("theme");if(t==="dark"||t==="pastel-dark"||((!t)&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.setAttribute("data-theme","pastel-dark")}})();
         </script>
-        <script src="https://unpkg.com/htmx.org@2.0.2" defer></script>
-        <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preconnect" href="https://unpkg.com" crossorigin>
+        <script src="https://unpkg.com/htmx.org@2.0.2" defer></script>
+        <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
         <link
             href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
             rel="stylesheet"
@@ -26,7 +27,7 @@
             />
         </noscript>
         <link href="/assets/styles/tailwind.output.css?v=14" rel="stylesheet" />
-        <link href="/assets/styles/global.css?v=12" rel="stylesheet" />
+        <link href="/assets/styles/global.css?v=13" rel="stylesheet" />
         <link
             rel="stylesheet"
             href="/assets/styles/print.css?v=2"
@@ -37,81 +38,11 @@
         <!-- each page -->
         {% block head %}{% endblock %}
         <!-- favicon -->
-        <link
-            rel="apple-touch-icon-precomposed"
-            sizes="152x152"
-            href="/assets/favicon/sakura-flower-152-238032.png"
-        />
-        <link
-            rel="apple-touch-icon-precomposed"
-            sizes="144x144"
-            href="/assets/favicon/sakura-flower-152-238032.png"
-        />
-        <link
-            rel="apple-touch-icon-precomposed"
-            sizes="120x120"
-            href="/assets/favicon/sakura-flower-152-238032.png"
-        />
-        <link
-            rel="apple-touch-icon-precomposed"
-            sizes="114x114"
-            href="/assets/favicon/sakura-flower-152-238032.png"
-        />
-        <link
-            rel="apple-touch-icon-precomposed"
-            sizes="72x72"
-            href="/assets/favicon/sakura-flower-152-238032.png"
-        />
-        <link
-            rel="apple-touch-icon-precomposed"
-            href="/assets/favicon/sakura-flower-152-238032.png"
-        />
-        <link
-            rel="icon"
-            href="/assets/favicon/sakura-flower-152-238032.png"
-            sizes="32x32"
-        />
+        <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/sakura-flower-152-238032.png" />
+        <link rel="icon" type="image/png" sizes="152x152" href="/assets/favicon/sakura-flower-152-238032.png" />
         <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
-        <!-- Google tag (gtag.js) -->
-        <script
-            async
-            src="https://www.googletagmanager.com/gtag/js?id=G-XRQ5DNK9X4"
-        ></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag("js", new Date());
-
-            gtag("config", "G-XRQ5DNK9X4");
-        </script>
-        <!-- i18n data for JS -->
-        <script id="i18n-data" type="application/json">
-        {
-            "code_copy": "{{ t.code_copy }}",
-            "code_copied": "{{ t.code_copied }}",
-            "search_placeholder": "{{ t.search_placeholder }}",
-            "search_no_results": "{{ t.search_no_results }}",
-            "search_results_for": "{{ t.search_results_for }}",
-            "card_read_more": "{{ t.card_read_more }}",
-            "post_min_read": "{{ t.post_min_read }}",
-            "comments_enter_both": "{{ t.comments_enter_both }}",
-            "comments_failed_create": "{{ t.comments_failed_create }}",
-            "comments_error": "{{ t.comments_error }}",
-            "comments_be_first": "{{ t.comments_be_first }}",
-            "comments_enter_password_edit": "{{ t.comments_enter_password_edit }}",
-            "comments_edit_prompt": "{{ t.comments_edit_prompt }}",
-            "comments_wrong_password": "{{ t.comments_wrong_password }}",
-            "comments_failed_edit": "{{ t.comments_failed_edit }}",
-            "comments_enter_password_delete": "{{ t.comments_enter_password_delete }}",
-            "comments_confirm_delete": "{{ t.comments_confirm_delete }}",
-            "guestbook_enter_both": "{{ t.guestbook_enter_both }}",
-            "guestbook_failed": "{{ t.guestbook_failed }}",
-            "graph_before": "{{ t.graph_before }}",
-            "graph_after": "{{ t.graph_after }}"
-        }
-        </script>
+        <!-- SEO keywords -->
+        <meta name="keywords" content="Rust, JavaScript, web development, programming, blog, miniex, tutorial, server, app development" />
         <style>
             /* Custom transitions and animations */
             .page-transition {
@@ -450,6 +381,41 @@
             </div>
             <form method="dialog" class="modal-backdrop bg-black/40 backdrop-blur-sm"><button aria-label="Close search">close</button></form>
         </dialog>
+
+        <!-- i18n data for JS -->
+        <script id="i18n-data" type="application/json">
+        {
+            "code_copy": "{{ t.code_copy }}",
+            "code_copied": "{{ t.code_copied }}",
+            "search_placeholder": "{{ t.search_placeholder }}",
+            "search_no_results": "{{ t.search_no_results }}",
+            "search_results_for": "{{ t.search_results_for }}",
+            "card_read_more": "{{ t.card_read_more }}",
+            "post_min_read": "{{ t.post_min_read }}",
+            "comments_enter_both": "{{ t.comments_enter_both }}",
+            "comments_failed_create": "{{ t.comments_failed_create }}",
+            "comments_error": "{{ t.comments_error }}",
+            "comments_be_first": "{{ t.comments_be_first }}",
+            "comments_enter_password_edit": "{{ t.comments_enter_password_edit }}",
+            "comments_edit_prompt": "{{ t.comments_edit_prompt }}",
+            "comments_wrong_password": "{{ t.comments_wrong_password }}",
+            "comments_failed_edit": "{{ t.comments_failed_edit }}",
+            "comments_enter_password_delete": "{{ t.comments_enter_password_delete }}",
+            "comments_confirm_delete": "{{ t.comments_confirm_delete }}",
+            "guestbook_enter_both": "{{ t.guestbook_enter_both }}",
+            "guestbook_failed": "{{ t.guestbook_failed }}",
+            "graph_before": "{{ t.graph_before }}",
+            "graph_after": "{{ t.graph_after }}"
+        }
+        </script>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XRQ5DNK9X4"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag("js", new Date());
+            gtag("config", "G-XRQ5DNK9X4");
+        </script>
 
         <script src="/assets/js/search.js?v=1" defer></script>
 
