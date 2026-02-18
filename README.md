@@ -11,7 +11,10 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 - **Comments & Guestbook** — SQLite-backed. Password-protected edit and delete
 - **Search** — `/api/search` endpoint. Searches title, description, and tags. Open with Ctrl+K
 - **Dark Mode** — DaisyUI pastel/pastel-dark themes. Persisted in localStorage
+- **LaTeX Math** — Inline (`$...$`) and block (`$$...$$`) math rendering via KaTeX
 - **Atom Feed** — `/feed.xml`
+- **Sitemap** — `/sitemap.xml` (dynamically generated)
+- **Robots.txt** — `/robots.txt`
 - **Series** — Group related posts into a series with prev/next navigation
 
 ## Tech Stack
@@ -21,7 +24,7 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 | Backend | Rust, Axum, Tokio |
 | Templates | Askama |
 | Styling | Tailwind CSS 3, DaisyUI, Phosphor Icons |
-| Frontend | HTMX, Highlight.js, Vanilla JS |
+| Frontend | HTMX, Highlight.js, KaTeX, Vanilla JS |
 | Database | SQLite (sqlx) |
 | Build | Cargo, Bun |
 | Deploy | Docker, GitLab CI/CD |
@@ -57,7 +60,8 @@ templates/
 assets/
 ├── js/              # search, code-highlight, post-toc, resume-*
 ├── styles/          # tailwind input/output, global.css, print.css
-└── favicon/         # Sakura flower icons
+├── favicon/         # Sakura flower icons
+└── robots.txt       # Crawler rules
 
 contents/
 ├── blog/            # Blog posts (*.mdx)
