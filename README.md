@@ -10,18 +10,23 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 - **i18n** — Korean, Japanese, English. Language determined by filename suffix (`slug.ko.mdx`). Detection order: Cookie → Accept-Language → default (en). Language fallback for post listings (shows available translation when preferred language is missing)
 - **Comments & Guestbook** — SQLite-backed. Password-protected edit and delete
 - **Search** — `/api/search` endpoint. Searches title, description, and tags. Open with `Ctrl+K` or `/`
-- **Dark Mode** — DaisyUI pastel/pastel-dark themes. Persisted in localStorage
+- **Dark Mode** — DaisyUI pastel/pastel-dark themes. Persisted in localStorage. Flash-free on route change via blocking inline script
 - **LaTeX Math** — Inline (`$...$`) and block (`$$...$$`) math rendering via KaTeX
 - **Code Blocks** — Syntax highlighting via Highlight.js with copy-to-clipboard button
-- **Graph Rendering** — `graph` fenced code block for mathematical function plotting via function-plot
+- **Graph Rendering** — `graph` fenced code block for mathematical function plotting via function-plot. Supports `point2d` and `transform2d` plot types with interactive zoom/pan
 - **Chart Rendering** — `chart` fenced code block for bar, line, pie, doughnut, and radar charts via Chart.js
 - **3D Plot Rendering** — `plot3d` fenced code block for 3D surfaces, vector fields, and scatter plots via Plotly.js
 - **Sort Toggle** — Ascending/descending sort on all list pages (blog, review, diary, series, guestbook) with htmx partial updates
 - **Series** — Group related posts into a series with prev/next navigation, status tracking (Ongoing/Completed), and per-language navigation chains
 - **Resume** — Dynamic resume page with hierarchical TOC, collapsible sections, and print-to-PDF optimization
+- **SEO** — JSON-LD structured data, Open Graph tags, canonical URLs, hreflang alternate links, meta keywords, trailing slash redirect (301), XML sitemap with series pages
+- **Performance** — Gzip/Brotli compression, Cache-Control headers for static assets, font preload, preconnect hints, deferred scripts
+- **Security Headers** — Strict-Transport-Security (HSTS), X-Content-Type-Options, X-Frame-Options, Referrer-Policy
+- **Accessibility** — ARIA labels, keyboard navigation, skip-to-content link, passive event listeners, prefers-reduced-motion support
 - **Atom Feed** — `/feed.xml` (20 recent posts)
-- **Sitemap** — `/sitemap.xml` (dynamically generated)
+- **Sitemap** — `/sitemap.xml` (dynamically generated, includes series pages)
 - **Robots.txt** — `/robots.txt`
+- **Custom 404** — Error page with navigation links to main sections
 
 ## Tech Stack
 
@@ -62,7 +67,7 @@ templates/
 ├── series_detail.html # Series detail (timeline, sort)
 ├── guestbook.html   # Guestbook (sort)
 ├── resume.html      # Resume (hierarchical TOC, print)
-└── error.html       # 404
+└── error.html       # 404 with navigation links
 
 assets/
 ├── js/
@@ -75,7 +80,7 @@ assets/
 ├── styles/
 │   ├── tailwind.input.css # Tailwind source
 │   ├── tailwind.output.css# Compiled output
-│   ├── global.css         # Custom styles (tables, code blocks, graphs)
+│   ├── global.css         # Custom styles (tables, code blocks, graphs, hero animations)
 │   └── print.css          # Print media styles
 ├── favicon/               # Sakura flower icons
 └── robots.txt             # Crawler rules
@@ -164,7 +169,7 @@ cargo run
 ### Development (tmux)
 
 ```bash
-./scripts/dev.sh     # Runs Tailwind watch + cargo watch in tmux
+./scripts/dev.sh     # Runs Tailwind watch + cargo watch in tmux (auto port cleanup on exit)
 ```
 
 ### Docker
