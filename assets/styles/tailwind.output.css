@@ -4025,12 +4025,12 @@ details.collapse summary::-webkit-details-marker {
   padding-right: 0.438rem;
 }
 
-.badge-lg {
-  height: 1.5rem;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  padding-left: 0.688rem;
-  padding-right: 0.688rem;
+.badge-md {
+  height: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  padding-left: 0.563rem;
+  padding-right: 0.563rem;
 }
 
 .btn-xs {
@@ -4732,6 +4732,11 @@ html:has(.drawer-toggle:checked) {
   margin-right: -1.5rem;
 }
 
+.mx-0 {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
 .mx-1 {
   margin-left: 0.25rem;
   margin-right: 0.25rem;
@@ -4745,11 +4750,6 @@ html:has(.drawer-toggle:checked) {
 .mx-3 {
   margin-left: 0.75rem;
   margin-right: 0.75rem;
-}
-
-.mx-6 {
-  margin-left: 1.5rem;
-  margin-right: 1.5rem;
 }
 
 .mx-auto {
@@ -4811,8 +4811,8 @@ html:has(.drawer-toggle:checked) {
   margin-bottom: 2rem;
 }
 
-.ml-12 {
-  margin-left: 3rem;
+.ml-0 {
+  margin-left: 0px;
 }
 
 .ml-2 {
@@ -5845,10 +5845,6 @@ html:has(.drawer-toggle:checked) {
   padding: 1.5rem;
 }
 
-.p-8 {
-  padding: 2rem;
-}
-
 .px-1 {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
@@ -5927,11 +5923,6 @@ html:has(.drawer-toggle:checked) {
 .py-20 {
   padding-top: 5rem;
   padding-bottom: 5rem;
-}
-
-.py-3 {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
 }
 
 .py-3\.5 {
@@ -7058,6 +7049,14 @@ html:has(.drawer-toggle:checked) {
     border-bottom-color: var(--fallback-bc,oklch(var(--bc)/0.2));
   }
 
+  .sm\:badge-lg {
+    height: 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding-left: 0.688rem;
+    padding-right: 0.688rem;
+  }
+
   .sm\:modal-middle {
     place-items: center;
   }
@@ -7664,6 +7663,18 @@ html:has(.drawer-toggle:checked) {
     margin-bottom: 2.5rem;
   }
 
+  .sm\:mb-12 {
+    margin-bottom: 3rem;
+  }
+
+  .sm\:ml-12 {
+    margin-left: 3rem;
+  }
+
+  .sm\:block {
+    display: block;
+  }
+
   .sm\:grid {
     display: grid;
   }
@@ -7688,6 +7699,18 @@ html:has(.drawer-toggle:checked) {
     flex-direction: row;
   }
 
+  .sm\:justify-between {
+    justify-content: space-between;
+  }
+
+  .sm\:gap-2 {
+    gap: 0.5rem;
+  }
+
+  .sm\:gap-3 {
+    gap: 0.75rem;
+  }
+
   .sm\:rounded-3xl {
     border-radius: 1.5rem;
   }
@@ -7700,6 +7723,11 @@ html:has(.drawer-toggle:checked) {
     padding: 2rem;
   }
 
+  .sm\:px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .sm\:px-6 {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
@@ -7708,6 +7736,11 @@ html:has(.drawer-toggle:checked) {
   .sm\:py-20 {
     padding-top: 5rem;
     padding-bottom: 5rem;
+  }
+
+  .sm\:py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
   }
 
   .sm\:py-8 {

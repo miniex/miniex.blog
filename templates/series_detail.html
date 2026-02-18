@@ -16,9 +16,13 @@ block head %}
 {% endblock %} {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
   <!-- Series Header -->
-  <div class="bg-base-100/80 rounded-3xl border border-base-300/25 mb-12 p-8">
+  <div
+    class="bg-base-100/80 rounded-3xl border border-base-300/25 mb-8 sm:mb-12 p-5 sm:p-8"
+  >
     <div class="text-center">
-      <div class="flex items-center justify-center gap-3 mb-4">
+      <div
+        class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-4"
+      >
         <h1 class="text-3xl sm:text-4xl font-bold text-base-content">
           {{ series_name }}
         </h1>
@@ -45,7 +49,7 @@ block head %}
       <div class="flex flex-wrap justify-center gap-2 mb-4">
         {% for author in authors %}
         <div
-          class="badge badge-lg bg-primary/6 border-primary/10 gap-2 py-3 px-4"
+          class="badge badge-md sm:badge-lg bg-primary/6 border-primary/10 gap-1.5 sm:gap-2 py-2 px-3 sm:py-3 sm:px-4"
         >
           <i class="ph ph-user text-sm"></i>
           <span>{{ author }}</span>
@@ -93,10 +97,10 @@ block head %}
     </div>
 
     <!-- Posts Timeline -->
-    <div class="relative mx-6 sm:mx-12">
+    <div class="relative mx-0 sm:mx-12">
       <!-- Timeline center line -->
       <div
-        class="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-primary/20 via-secondary/15 to-primary/10 rounded-full mx-auto right-0"
+        class="hidden sm:block absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-primary/20 via-secondary/15 to-primary/10 rounded-full mx-auto right-0"
       ></div>
 
       <div class="relative z-10">
@@ -104,19 +108,19 @@ block head %}
         <div class="relative mb-12 last:mb-0">
           <!-- Timeline node -->
           <div
-            class="absolute left-0 right-0 mx-auto w-3 h-3 rounded-full bg-primary/20 border-2 border-base-100 top-14 timeline-node transition-colors duration-300"
+            class="hidden sm:block absolute left-0 right-0 mx-auto w-3 h-3 rounded-full bg-primary/20 border-2 border-base-100 top-14 timeline-node transition-colors duration-300"
           ></div>
 
           <!-- Post card with offset -->
           <div
-            class="ml-12 transform transition-all duration-500 timeline-item"
+            class="ml-0 sm:ml-12 transform transition-all duration-500 timeline-item"
           >
             {% call components::post_card(post=post) %}
           </div>
         </div>
         {% endfor %} {% else %}
         <div
-          class="flex flex-col items-center justify-center py-16 bg-base-100/80 rounded-3xl border border-base-300/25 text-center my-8 ml-12"
+          class="flex flex-col items-center justify-center py-16 bg-base-100/80 rounded-3xl border border-base-300/25 text-center my-8 ml-0 sm:ml-12"
         >
           <i class="ph ph-article text-5xl text-base-content/20 mb-4"></i>
           <h3 class="text-lg font-semibold mb-2">{{ t.series_no_posts }}</h3>
