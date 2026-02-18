@@ -92,7 +92,7 @@ impl Database {
         .bind(&comment.post_id)
         .bind(&comment.author)
         .bind(&comment.content)
-        .bind(&comment.created_at.to_rfc3339())
+        .bind(comment.created_at.to_rfc3339())
         .bind(&password_hash)
         .execute(&self.pool)
         .await?;
@@ -214,7 +214,7 @@ impl Database {
         .bind(&entry.id)
         .bind(&entry.author)
         .bind(&entry.content)
-        .bind(&entry.created_at.to_rfc3339())
+        .bind(entry.created_at.to_rfc3339())
         .bind(&password_hash)
         .execute(&self.pool)
         .await?;

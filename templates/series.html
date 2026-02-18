@@ -1,101 +1,155 @@
 {% extends "_base.html" %} {% block head %}
 <title>{{ blog.title }}</title>
+<meta name="description" content="{{ blog.description }}" />
+<meta property="og:title" content="{{ blog.title }}" />
+<meta property="og:description" content="{{ blog.description }}" />
+<meta property="og:type" content="{{ blog.og_type }}" />
+<meta property="og:url" content="{{ blog.url }}" />
+<meta property="og:site_name" content="miniex.blog" />
 {% endblock %} {% block main %}
 <div class="container mx-auto px-4 max-w-4xl">
-    <div class="text-center mb-12">
-        <h1
-            class="text-4xl sm:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary inline-block"
-        >
-            Series
-        </h1>
-        <p class="text-base-content/70 max-w-lg mx-auto">
-            Explore collections of related posts organized into series for
-            in-depth learning and discovery.
-        </p>
-    </div>
+  <div class="text-center mb-12">
+    <h1 class="text-4xl sm:text-5xl font-bold mb-3 text-base-content">
+      {{ t.series_title }}
+    </h1>
+    <p class="text-base-content/50 max-w-lg mx-auto text-sm">
+      {{ t.series_subtitle }}
+    </p>
+  </div>
 
-    <!-- Series List -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% if series.len() > 0 %} {% for s in series %}
+  <!-- Inline Search Bar -->
+  <div
+    class="mb-10 cursor-pointer search-trigger max-w-xl mx-auto"
+    onclick="
+      document.getElementById('search-modal').showModal();
+      setTimeout(function () {
+        document.getElementById('search-input').focus();
+      }, 100);
+    "
+  >
+    <div class="relative group">
+      <div
+        class="absolute -inset-0.5 bg-gradient-to-r from-primary/15 to-secondary/15 rounded-3xl blur opacity-0 group-hover:opacity-100 transition-all duration-500"
+      ></div>
+      <div
+        class="relative flex items-center gap-3 bg-base-100/80 backdrop-blur-sm rounded-3xl px-5 py-3.5 border border-base-300/25 group-hover:border-primary/30 transition-all duration-300 shadow-sm group-hover:shadow-lg"
+      >
         <div
-            class="group relative bg-base-100 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-base-300/10 overflow-hidden h-full flex flex-col"
+          class="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/8 to-secondary/8 flex items-center justify-center group-hover:from-primary/20 group-hover:to-secondary/20 transition-all duration-300"
         >
-            <!-- Decorative top gradient -->
-            <div
-                class="h-1.5 bg-gradient-to-r from-primary to-secondary w-full"
-            ></div>
-
-            <!-- Card content -->
-            <div class="p-5 sm:p-6 flex flex-col flex-grow relative">
-                <!-- Decorative background element -->
-                <div
-                    class="absolute top-0 right-0 w-32 h-32 -mt-12 -mr-12 bg-primary/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                ></div>
-
-                <h2
-                    class="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300"
-                >
-                    {{ s.name }}
-                </h2>
-
-                <div class="flex flex-wrap gap-1.5 mb-3">
-                    {% for author in s.authors %}
-                    <span
-                        class="badge badge-sm bg-base-200 border-base-300/20 text-xs"
-                        >{{ author }}</span
-                    >
-                    {% endfor %}
-                </div>
-
-                <div
-                    class="flex items-center gap-1.5 text-xs text-base-content/60 mt-auto mb-4"
-                >
-                    <i class="ph ph-clock text-base"></i>
-                    <span>Updated: {{ s.updated_at|date }}</span>
-                </div>
-
-                <a
-                    href="/series/{{ s.name }}"
-                    class="btn btn-sm bg-base-200 hover:bg-primary/10 border-none transition-all duration-300 group-hover:bg-primary/20 w-full"
-                >
-                    <span class="flex items-center gap-1.5">
-                        <i class="ph ph-books text-base"></i>
-                        <span>View Series</span>
-                        <i
-                            class="ph ph-arrow-right ml-auto transform group-hover:translate-x-1 transition-transform duration-300"
-                        ></i>
-                    </span>
-                </a>
-            </div>
+          <i
+            class="ph ph-magnifying-glass text-lg text-primary/60 group-hover:text-primary transition-colors duration-300"
+          ></i>
         </div>
-        {% endfor %} {% else %}
+        <span class="flex-1 text-base-content/40 text-sm"
+          >{{ t.search_placeholder }}</span
+        >
         <div
-            class="col-span-full flex flex-col items-center justify-center py-16 bg-base-100 rounded-xl shadow-sm border border-base-300/20 text-center"
+          class="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity duration-300"
         >
-            <i class="ph ph-books text-6xl text-base-content/30 mb-4"></i>
-            <h3 class="text-xl font-bold mb-2">No series available yet</h3>
-            <p class="text-base-content/70 mb-6 max-w-md">
-                Series will appear here once they're created. Check back soon!
-            </p>
+          <kbd
+            class="kbd kbd-sm bg-base-200/80 border-base-300/40 text-[10px] font-medium px-1.5 py-0.5 min-h-0 h-5"
+            >⌘</kbd
+          >
+          <kbd
+            class="kbd kbd-sm bg-base-200/80 border-base-300/40 text-[10px] font-medium px-1.5 py-0.5 min-h-0 h-5"
+            >K</kbd
+          >
         </div>
-        {% endif %}
+      </div>
     </div>
+  </div>
+
+  <!-- Series List -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% if series.len() > 0 %} {% for s in series %}
+    <div
+      class="group bg-base-100/80 rounded-3xl border border-base-300/25 p-6 hover:shadow-lg hover:shadow-primary/8 transition-all duration-300 h-full flex flex-col"
+    >
+      <div class="flex items-center justify-between mb-3">
+        <h2
+          class="text-lg font-semibold group-hover:text-primary transition-colors duration-300"
+        >
+          {{ s.name }}
+        </h2>
+        {% match s.status %} {% when crate::post::SeriesStatus::Completed %}
+        <span class="badge badge-sm badge-success gap-1">
+          <i class="ph ph-check-circle text-xs"></i>
+          {{ t.series_completed }}
+        </span>
+        {% when crate::post::SeriesStatus::Ongoing %}
+        <span class="badge badge-sm badge-info gap-1">
+          <i class="ph ph-spinner text-xs"></i>
+          {{ t.series_ongoing }}
+        </span>
+        {% endmatch %}
+      </div>
+
+      {% if let Some(desc) = s.description %}
+      <p class="text-sm text-base-content/60 mb-3 line-clamp-2">{{ desc }}</p>
+      {% endif %}
+
+      <div class="flex flex-wrap gap-1.5 mb-3">
+        {% for author in s.authors %}
+        <span
+          class="badge badge-sm bg-primary/6 border-primary/10 text-primary/80 text-xs"
+          >{{ author }}</span
+        >
+        {% endfor %}
+      </div>
+
+      <div
+        class="flex items-center gap-4 text-xs text-base-content/45 mt-auto mb-4"
+      >
+        <div class="flex items-center gap-1.5">
+          <i class="ph ph-article text-sm"></i>
+          <span>{{ s.post_count }} {{ t.series_posts_count }}</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <i class="ph ph-clock text-sm"></i>
+          <span>{{ t.series_updated }} {{ s.updated_at|date }}</span>
+        </div>
+      </div>
+
+      <a
+        href="/series/{{ s.name }}"
+        class="btn btn-sm btn-ghost border border-base-300/30 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 w-full gap-2"
+      >
+        <i class="ph ph-books text-sm"></i>
+        <span>{{ t.series_view }}</span>
+        <i
+          class="ph ph-arrow-right ml-auto text-sm transform group-hover:translate-x-0.5 transition-transform duration-200"
+        ></i>
+      </a>
+    </div>
+    {% endfor %} {% else %}
+    <div
+      class="col-span-full flex flex-col items-center justify-center py-16 bg-base-100/80 rounded-3xl border border-base-300/25 text-center"
+    >
+      <i class="ph ph-books text-5xl text-primary/15 mb-4"></i>
+      <h3 class="text-lg font-semibold mb-2">{{ t.series_no_series }}</h3>
+      <p class="text-sm text-base-content/50 max-w-md">
+        {{ t.series_no_series_message }}
+      </p>
+    </div>
+    {% endif %}
+  </div>
 </div>
 
 <style>
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
     }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-    .grid {
-        animation: fadeIn 0.5s ease-out forwards;
-    }
+  .grid {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
 </style>
 {% endblock %}

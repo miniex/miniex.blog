@@ -22,7 +22,7 @@ export default {
               marginTop: "2.5em",
               marginBottom: "1em",
               paddingBottom: "0.3em",
-              borderBottom: "2px solid hsl(var(--bc) / 0.1)",
+              borderBottom: "2px solid hsl(var(--bc) / 0.08)",
             },
             h3: {
               fontWeight: "600",
@@ -86,7 +86,7 @@ export default {
 
             // Pre code block styling
             pre: {
-              backgroundColor: "#f5f5f5",
+              backgroundColor: "#f5f0f2",
               padding: "1.5rem",
               borderRadius: "1.5rem",
               marginTop: "1.5rem",
@@ -98,30 +98,30 @@ export default {
               padding: "0",
               fontSize: "0.875em",
               lineHeight: "1.7",
-              color: "#1a1a1a",
+              color: "#3d353a",
               fontWeight: "500",
             },
 
             // Syntax highlighting for light mode
             "pre code .hljs-keyword, pre code .hljs-selector-tag, pre code .hljs-type":
               {
-                color: "#c7254e",
+                color: "#a8707e",
                 fontWeight: "600",
               },
             "pre code .hljs-string, pre code .hljs-attr": {
-              color: "#0066cc",
+              color: "#8a7090",
               fontWeight: "600",
             },
             "pre code .hljs-function, pre code .hljs-title": {
-              color: "#7928ca",
+              color: "#96707e",
               fontWeight: "600",
             },
             "pre code .hljs-number, pre code .hljs-literal": {
-              color: "#0070f3",
+              color: "#c08888",
               fontWeight: "600",
             },
             "pre code .hljs-comment": {
-              color: "#6a737d",
+              color: "#a89098",
               fontStyle: "italic",
             },
 
@@ -175,6 +175,47 @@ export default {
   },
   plugins: [typography, daisyui],
   daisyui: {
-    themes: ["cupcake", "dark"],
+    themes: [
+      {
+        pastel: {
+          primary: "#c9899e",
+          "primary-content": "#ffffff",
+          secondary: "#b096b8",
+          "secondary-content": "#ffffff",
+          accent: "#d4a89e",
+          "accent-content": "#ffffff",
+          neutral: "#3d353a",
+          "neutral-content": "#e8e2e5",
+          "base-100": "#fcfafb",
+          "base-200": "#f5f0f2",
+          "base-300": "#ebe4e7",
+          "base-content": "#3d353a",
+          info: "#b096b8",
+          success: "#8db8a0",
+          warning: "#d4c098",
+          error: "#c98a8a",
+        },
+      },
+      {
+        "pastel-dark": {
+          primary: "#d0a0b0",
+          "primary-content": "#1c181a",
+          secondary: "#baa0c0",
+          "secondary-content": "#1c181a",
+          accent: "#d4b0a8",
+          "accent-content": "#1c181a",
+          neutral: "#e0d8dc",
+          "neutral-content": "#1c181a",
+          "base-100": "#1c181a",
+          "base-200": "#242022",
+          "base-300": "#332d30",
+          "base-content": "#e0d8dc",
+          info: "#baa0c0",
+          success: "#a0c0a8",
+          warning: "#d4c8a0",
+          error: "#c89090",
+        },
+      },
+    ],
   },
 };

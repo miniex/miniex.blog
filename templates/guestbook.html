@@ -1,314 +1,303 @@
 {% extends "_base.html" %} {% block head %}
 <title>miniex::guestbook</title>
-<meta name="description" content="Leave a message in the guestbook" />
+<meta name="description" content="{{ t.guestbook_subtitle }}" />
 {% endblock %} {% block main %}
 <div class="container mx-auto px-4 py-6 max-w-4xl">
-    <!-- Header Section -->
-    <div class="mb-8 text-center">
-        <h1
-            class="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
-        >
-            Guestbook
-        </h1>
-        <p class="text-lg text-base-content/80 max-w-2xl mx-auto">
-            Leave a message, share your thoughts, or just say hello! Your words
-            are always welcome here.
-        </p>
-        <div
-            class="mt-6 w-24 h-1 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto"
-        ></div>
-    </div>
+  <!-- Header Section -->
+  <div class="mb-10 text-center">
+    <h1 class="text-3xl md:text-4xl font-bold mb-3 text-base-content">
+      {{ t.guestbook_title }}
+    </h1>
+    <p class="text-base-content/50 max-w-2xl mx-auto text-sm">
+      {{ t.guestbook_subtitle }}
+    </p>
+  </div>
 
-    <!-- Write New Entry Section -->
-    <div
-        class="card bg-base-100 shadow-lg rounded-xl overflow-hidden border border-base-300/20 mb-8"
-    >
-        <div class="card-body p-6 sm:p-8">
-            <div class="flex items-center gap-4 mb-6">
-                <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center"
-                >
-                    <i class="ph ph-pencil text-primary text-xl"></i>
-                </div>
-                <h2 class="text-xl sm:text-2xl font-bold">Write a New Entry</h2>
-            </div>
+  <!-- Write New Entry Section -->
+  <div class="bg-base-100/80 rounded-3xl border border-base-300/25 mb-8">
+    <div class="p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-6">
+        <i class="ph ph-pencil text-primary/40 text-lg"></i>
+        <h2 class="text-lg font-semibold">{{ t.guestbook_write_new }}</h2>
+      </div>
 
-            <form id="guestbook-form" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium text-base"
-                                >Name</span
-                            >
-                        </label>
-                        <input
-                            type="text"
-                            id="author"
-                            name="author"
-                            placeholder="Enter your name"
-                            class="input input-bordered w-full rounded-lg"
-                            required
-                            autocomplete="off"
-                        />
-                    </div>
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium text-base"
-                                >Password</span
-                            >
-                            <span class="label-text-alt text-xs opacity-70"
-                                >(optional, for editing later)</span
-                            >
-                        </label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Set password to edit later"
-                            class="input input-bordered w-full rounded-lg"
-                            autocomplete="new-password"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label class="label">
-                        <span class="label-text font-medium text-base"
-                            >Message</span
-                        >
-                    </label>
-                    <textarea
-                        id="content"
-                        name="content"
-                        placeholder="Write your message here..."
-                        class="textarea textarea-bordered w-full h-32 resize-none rounded-lg p-4"
-                        required
-                    ></textarea>
-                </div>
-
-                <div class="flex justify-end pt-4">
-                    <button
-                        type="submit"
-                        class="btn btn-primary shadow-md hover:shadow-lg transition-all duration-300 gap-2"
-                    >
-                        <i class="ph ph-paper-plane-right text-base"></i>
-                        Post Entry
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Entries Section -->
-    <div class="mb-6">
-        <div class="flex items-center gap-4 mb-6">
-            <div
-                class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center"
-            >
-                <i class="ph ph-chat-circle text-primary text-xl"></i>
-            </div>
-            <h2 class="text-xl sm:text-2xl font-bold">Recent Entries</h2>
+      <form id="guestbook-form" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="label">
+              <span class="label-text font-medium text-base"
+                >{{ t.guestbook_name }}</span
+              >
+            </label>
+            <input
+              type="text"
+              id="author"
+              name="author"
+              placeholder="{{ t.guestbook_name_placeholder }}"
+              class="input input-bordered w-full rounded-2xl"
+              required
+              autocomplete="off"
+            />
+          </div>
+          <div>
+            <label class="label">
+              <span class="label-text font-medium text-base"
+                >{{ t.guestbook_password }}</span
+              >
+              <span class="label-text-alt text-xs opacity-70"
+                >{{ t.guestbook_password_hint }}</span
+              >
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="{{ t.guestbook_password_placeholder }}"
+              class="input input-bordered w-full rounded-2xl"
+              autocomplete="new-password"
+            />
+          </div>
         </div>
 
-        <div id="guestbook-entries" class="space-y-6">
-            {% if entries.len() > 0 %} {% for entry in entries %}
-            <div
-                class="group relative p-6 bg-gradient-to-br from-base-100 to-base-200 rounded-xl border border-base-300/20 shadow-sm hover:shadow-md transition-all duration-300"
+        <div>
+          <label class="label">
+            <span class="label-text font-medium text-base"
+              >{{ t.guestbook_message }}</span
             >
-                <div
-                    class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary/60 to-secondary/60 rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                ></div>
+          </label>
+          <textarea
+            id="content"
+            name="content"
+            placeholder="{{ t.guestbook_message_placeholder }}"
+            class="textarea textarea-bordered w-full h-32 resize-none rounded-2xl p-4"
+            required
+          ></textarea>
+        </div>
 
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="font-semibold text-base-content text-lg">
-                            {{ entry.author }}
-                        </h3>
-                        <p
-                            class="text-sm text-base-content/60 flex items-center gap-1"
-                        >
-                            <i class="ph ph-clock text-xs"></i>
-                            {{ entry.created_at.format("%Y-%m-%d %H:%M") }}
-                        </p>
-                    </div>
+        <div class="flex justify-end">
+          <button type="submit" class="btn btn-primary btn-sm gap-2">
+            <i class="ph ph-paper-plane-right text-sm"></i>
+            {{ t.guestbook_submit }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-                    <div
-                        class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    >
-                        {% if entry.password_hash.is_some() %}
-                        <button
-                            class="btn btn-sm btn-ghost btn-circle edit-btn hover:bg-primary/10 hover:text-primary transition-colors duration-300"
-                            data-id="{{ entry.id }}"
-                        >
-                            <i class="ph ph-pencil text-base"></i>
-                        </button>
-                        {% endif %}
-                        <button
-                            class="btn btn-sm btn-ghost btn-circle delete-btn hover:bg-error/10 hover:text-error transition-colors duration-300"
-                            data-id="{{ entry.id }}"
-                        >
-                            <i class="ph ph-trash text-base"></i>
-                        </button>
-                    </div>
-                </div>
+  <!-- Entries Section -->
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-6">
+      <i class="ph ph-chat-circle text-primary/40 text-lg"></i>
+      <h2 class="text-lg font-semibold">{{ t.guestbook_recent }}</h2>
+    </div>
 
-                <div>
-                    <p
-                        class="text-base-content/90 whitespace-pre-wrap leading-relaxed"
-                    >
-                        {{ entry.content }}
-                    </p>
-                </div>
-            </div>
-            {% endfor %} {% else %}
-            <div class="text-center py-12">
-                <div
-                    class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center"
-                >
-                    <i class="ph ph-chat-circle text-primary text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2">No entries yet</h3>
-                <p class="text-base-content/60">
-                    Be the first to leave a message!
-                </p>
-            </div>
+    <div id="guestbook-entries" class="space-y-4">
+      {% if entries.len() > 0 %} {% for entry in entries %}
+      <div
+        class="group bg-base-100/80 rounded-3xl border border-base-300/25 p-5 hover:shadow-sm hover:shadow-primary/5 transition-all duration-300"
+      >
+        <div class="flex justify-between items-start mb-3">
+          <div class="flex items-baseline gap-3">
+            <h3 class="font-medium text-base-content">{{ entry.author }}</h3>
+            <span class="text-xs text-base-content/40">
+              {{ entry.created_at.format("%Y-%m-%d %H:%M") }}
+            </span>
+          </div>
+
+          <div
+            class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          >
+            {% if entry.password_hash.is_some() %}
+            <button
+              class="btn btn-xs btn-ghost btn-circle edit-btn hover:bg-primary/8 hover:text-primary transition-colors duration-200"
+              data-id="{{ entry.id }}"
+            >
+              <i class="ph ph-pencil text-sm"></i>
+            </button>
             {% endif %}
+            <button
+              class="btn btn-xs btn-ghost btn-circle delete-btn hover:bg-error/8 hover:text-error transition-colors duration-200"
+              data-id="{{ entry.id }}"
+            >
+              <i class="ph ph-trash text-sm"></i>
+            </button>
+          </div>
         </div>
+
+        <div>
+          <p
+            class="text-base-content/80 whitespace-pre-wrap leading-relaxed text-sm"
+          >
+            {{ entry.content }}
+          </p>
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <div class="text-center py-16">
+        <i class="ph ph-chat-circle text-5xl text-primary/15 mb-4"></i>
+        <h3 class="text-lg font-semibold mb-2">{{ t.guestbook_no_entries }}</h3>
+        <p class="text-sm text-base-content/50">
+          {{ t.guestbook_no_entries_message }}
+        </p>
+      </div>
+      {% endif %}
     </div>
+  </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Guestbook form submission
-        document
-            .getElementById("guestbook-form")
-            .addEventListener("submit", async function (e) {
-                e.preventDefault();
+  var i18nEl = document.getElementById("i18n-data");
+  var i18n = i18nEl ? JSON.parse(i18nEl.textContent) : {};
 
-                const author = document.getElementById("author").value;
-                const content = document.getElementById("content").value;
-                const password = document.getElementById("password").value;
+  document.addEventListener("DOMContentLoaded", function () {
+    // Guestbook form submission
+    document
+      .getElementById("guestbook-form")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-                if (!author.trim() || !content.trim()) {
-                    alert("Please enter both name and message.");
-                    return;
-                }
+        const author = document.getElementById("author").value;
+        const content = document.getElementById("content").value;
+        const password = document.getElementById("password").value;
 
-                try {
-                    const response = await fetch("/api/guestbook", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            author,
-                            content,
-                            password: password || null,
-                        }),
-                    });
+        if (!author.trim() || !content.trim()) {
+          alert(
+            i18n.guestbook_enter_both || "Please enter both name and message.",
+          );
+          return;
+        }
 
-                    if (response.ok) {
-                        // Clear form
-                        document.getElementById("author").value = "";
-                        document.getElementById("content").value = "";
-                        document.getElementById("password").value = "";
+        try {
+          const response = await fetch("/api/guestbook", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              author,
+              content,
+              password: password || null,
+            }),
+          });
 
-                        // Reload page to show new entry
-                        location.reload();
-                    } else {
-                        alert("Failed to post entry. Please try again.");
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    alert("An error occurred. Please try again.");
-                }
-            });
+          if (response.ok) {
+            // Clear form
+            document.getElementById("author").value = "";
+            document.getElementById("content").value = "";
+            document.getElementById("password").value = "";
 
-        // Edit entry functionality
-        document.querySelectorAll(".edit-btn").forEach((btn) => {
-            btn.addEventListener("click", async function () {
-                const entryId = this.dataset.id;
-                const entryContainer = this.closest(".group");
-                const currentContent = entryContainer.querySelector(
-                    ".whitespace-pre-wrap",
-                ).textContent;
+            // Reload page to show new entry
+            location.reload();
+          } else {
+            alert(
+              i18n.guestbook_failed ||
+                "Failed to post entry. Please try again.",
+            );
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert(i18n.comments_error || "An error occurred. Please try again.");
+        }
+      });
 
-                const password = prompt("Enter password to edit entry:");
-                if (!password) return;
+    // Edit entry functionality
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", async function () {
+        const entryId = this.dataset.id;
+        const entryContainer = this.closest(".group");
+        const currentContent = entryContainer.querySelector(
+          ".whitespace-pre-wrap",
+        ).textContent;
 
-                const newContent = prompt("Edit your entry:", currentContent);
-                if (!newContent || newContent === currentContent) return;
+        const password = prompt(
+          i18n.comments_enter_password_edit || "Enter password to edit entry:",
+        );
+        if (!password) return;
 
-                try {
-                    const response = await fetch(
-                        `/api/guestbook/edit/${entryId}`,
-                        {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                content: newContent,
-                                password,
-                            }),
-                        },
-                    );
+        const newContent = prompt(
+          i18n.comments_edit_prompt || "Edit your entry:",
+          currentContent,
+        );
+        if (!newContent || newContent === currentContent) return;
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        if (result.success) {
-                            location.reload();
-                        } else {
-                            alert("Wrong password or entry not found.");
-                        }
-                    } else {
-                        alert("Failed to edit entry.");
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    alert("An error occurred.");
-                }
-            });
-        });
+        try {
+          const response = await fetch(`/api/guestbook/edit/${entryId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: newContent,
+              password,
+            }),
+          });
 
-        // Delete entry functionality
-        document.querySelectorAll(".delete-btn").forEach((btn) => {
-            btn.addEventListener("click", async function () {
-                const entryId = this.dataset.id;
-
-                const password = prompt("Enter password to delete this entry:");
-                if (!password) return;
-
-                if (confirm("Are you sure you want to delete this entry?")) {
-                    try {
-                        const response = await fetch(
-                            `/api/guestbook/delete/${entryId}`,
-                            {
-                                method: "DELETE",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({ password }),
-                            },
-                        );
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            if (result.success) {
-                                location.reload();
-                            } else {
-                                alert("Wrong password or entry not found.");
-                            }
-                        } else {
-                            alert("Failed to delete entry.");
-                        }
-                    } catch (error) {
-                        console.error("Error:", error);
-                        alert("An error occurred.");
-                    }
-                }
-            });
-        });
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+              location.reload();
+            } else {
+              alert(
+                i18n.comments_wrong_password ||
+                  "Wrong password or entry not found.",
+              );
+            }
+          } else {
+            alert(i18n.comments_failed_edit || "Failed to edit entry.");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert(i18n.comments_error || "An error occurred.");
+        }
+      });
     });
+
+    // Delete entry functionality
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async function () {
+        const entryId = this.dataset.id;
+
+        const password = prompt(
+          i18n.comments_enter_password_delete ||
+            "Enter password to delete this entry:",
+        );
+        if (!password) return;
+
+        if (
+          confirm(
+            i18n.comments_confirm_delete ||
+              "Are you sure you want to delete this entry?",
+          )
+        ) {
+          try {
+            const response = await fetch(`/api/guestbook/delete/${entryId}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ password }),
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success) {
+                location.reload();
+              } else {
+                alert(
+                  i18n.comments_wrong_password ||
+                    "Wrong password or entry not found.",
+                );
+              }
+            } else {
+              alert(i18n.comments_failed_edit || "Failed to delete entry.");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert(i18n.comments_error || "An error occurred.");
+          }
+        }
+      });
+    });
+  });
 </script>
 {% endblock %}

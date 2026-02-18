@@ -1,15 +1,16 @@
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
-    response::Json,
+    response::{IntoResponse, Json},
     routing::{get, post},
     Router,
 };
 use blog::{
     db::{Comment, Database, Guestbook},
+    i18n::{Lang, LangExtractor, Translations},
     post::{
-        get_posts_by_category, get_posts_by_series, get_recent_posts, get_series, load_posts,
-        PostType,
+        get_available_translations, get_posts_by_category, get_posts_by_series, get_recent_posts,
+        get_series, get_series_nav_info, load_posts, Post, PostType,
     },
     templates::{
         BlogTemplate, DiaryTemplate, ErrorTemplate, GuestbookTemplate, IndexTemplate, PostTemplate,
@@ -23,6 +24,9 @@ use tokio::sync::RwLock;
 use tower_http::services::{ServeDir, ServeFile};
 use tracing::info;
 
+const SITE_URL: &str = "https://miniex.blog";
+const SITE_DESCRIPTION: &str = "miniex의 개발 블로그 - Rust, JavaScript, App, Server";
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
@@ -33,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
         // Ensure data directory exists
         std::fs::create_dir_all("./data").unwrap_or_default();
-        "sqlite:./data/blog.db".to_string()
+        "sqlite:./data/blog.db?mode=rwc".to_string()
     });
     let db = Database::new(&database_url).await?;
 
@@ -80,6 +84,9 @@ fn create_router(state: SharedState) -> Router {
         .route("/post/:id", get(handle_post))
         .route(&resume_route, get(handle_resume))
         .route("/guestbook", get(handle_guestbook))
+        .route("/feed.xml", get(handle_feed))
+        .route("/api/search", get(handle_search))
+        .route("/api/set-lang", get(handle_set_lang))
         .route("/api/comments/:post_id", get(get_comments))
         .route("/api/comments", post(create_comment))
         .route(
@@ -124,13 +131,22 @@ fn add_live_reload(app: Router) -> Router {
     app.layer(livereload)
 }
 
-async fn handle_index(State(state): State<SharedState>) -> IndexTemplate {
+async fn handle_index(
+    State(state): State<SharedState>,
+    LangExtractor(lang): LangExtractor,
+) -> IndexTemplate {
     let posts = state.posts.read().await;
-    let recent_posts = get_recent_posts(&posts);
+    let recent_posts = get_recent_posts(&posts, lang);
+    let t = Translations::for_lang(lang);
 
     IndexTemplate {
-        blog: Blog::new().set_title("miniex"),
+        blog: Blog::new()
+            .set_title("miniex")
+            .set_description(SITE_DESCRIPTION)
+            .set_url(SITE_URL),
         recent_posts,
+        t,
+        lang,
     }
 }
 
@@ -142,14 +158,16 @@ struct BlogQuery {
 
 async fn handle_blog(
     State(state): State<SharedState>,
+    LangExtractor(lang): LangExtractor,
     Query(query): Query<BlogQuery>,
 ) -> BlogTemplate {
     let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
     let posts_per_page = 10;
+    let t = Translations::for_lang(lang);
 
-    let filtered_posts = get_posts_by_category(&posts, PostType::Blog, category);
+    let filtered_posts = get_posts_by_category(&posts, PostType::Blog, category, lang);
     let total_posts = filtered_posts.len();
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
@@ -162,7 +180,7 @@ async fn handle_blog(
 
     let categories = posts
         .iter()
-        .filter(|p| matches!(p.post_type, PostType::Blog))
+        .filter(|p| matches!(p.post_type, PostType::Blog) && p.lang == lang)
         .flat_map(|p| p.metadata.tags.clone())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
@@ -177,7 +195,10 @@ async fn handle_blog(
     };
 
     BlogTemplate {
-        blog: Blog::new().set_title("miniex::blog"),
+        blog: Blog::new()
+            .set_title("miniex::blog")
+            .set_description("miniex의 기술 블로그 글 목록")
+            .set_url(&format!("{}/blog", SITE_URL)),
         posts: current_posts,
         categories,
         current_page: page,
@@ -189,6 +210,8 @@ async fn handle_blog(
             None
         },
         page_numbers,
+        t,
+        lang,
     }
 }
 
@@ -200,14 +223,16 @@ struct ReviewQuery {
 
 async fn handle_review(
     State(state): State<SharedState>,
+    LangExtractor(lang): LangExtractor,
     Query(query): Query<ReviewQuery>,
 ) -> ReviewTemplate {
     let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
     let posts_per_page = 10;
+    let t = Translations::for_lang(lang);
 
-    let filtered_posts = get_posts_by_category(&posts, PostType::Review, category);
+    let filtered_posts = get_posts_by_category(&posts, PostType::Review, category, lang);
     let total_posts = filtered_posts.len();
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
@@ -220,7 +245,7 @@ async fn handle_review(
 
     let categories = posts
         .iter()
-        .filter(|p| matches!(p.post_type, PostType::Review))
+        .filter(|p| matches!(p.post_type, PostType::Review) && p.lang == lang)
         .flat_map(|p| p.metadata.tags.clone())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
@@ -235,7 +260,10 @@ async fn handle_review(
     };
 
     ReviewTemplate {
-        blog: Blog::new().set_title("miniex::review"),
+        blog: Blog::new()
+            .set_title("miniex::review")
+            .set_description("miniex의 리뷰 글 목록")
+            .set_url(&format!("{}/review", SITE_URL)),
         posts: current_posts,
         categories,
         current_page: page,
@@ -247,6 +275,8 @@ async fn handle_review(
             None
         },
         page_numbers,
+        t,
+        lang,
     }
 }
 
@@ -258,14 +288,16 @@ struct DiaryQuery {
 
 async fn handle_diary(
     State(state): State<SharedState>,
+    LangExtractor(lang): LangExtractor,
     Query(query): Query<DiaryQuery>,
 ) -> DiaryTemplate {
     let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
     let posts_per_page = 10;
+    let t = Translations::for_lang(lang);
 
-    let filtered_posts = get_posts_by_category(&posts, PostType::Diary, category);
+    let filtered_posts = get_posts_by_category(&posts, PostType::Diary, category, lang);
     let total_posts = filtered_posts.len();
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
@@ -278,7 +310,7 @@ async fn handle_diary(
 
     let categories = posts
         .iter()
-        .filter(|p| matches!(p.post_type, PostType::Diary))
+        .filter(|p| matches!(p.post_type, PostType::Diary) && p.lang == lang)
         .flat_map(|p| p.metadata.tags.clone())
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
@@ -293,7 +325,10 @@ async fn handle_diary(
     };
 
     DiaryTemplate {
-        blog: Blog::new().set_title("miniex::diary"),
+        blog: Blog::new()
+            .set_title("miniex::diary")
+            .set_description("miniex의 일기 목록")
+            .set_url(&format!("{}/diary", SITE_URL)),
         posts: current_posts,
         categories,
         current_page: page,
@@ -305,47 +340,111 @@ async fn handle_diary(
             None
         },
         page_numbers,
+        t,
+        lang,
     }
 }
 
-async fn handle_series(State(state): State<SharedState>) -> SeriesTemplate {
+async fn handle_series(
+    State(state): State<SharedState>,
+    LangExtractor(lang): LangExtractor,
+) -> SeriesTemplate {
     let posts = state.posts.read().await;
-    let series = get_series(&posts);
+    let series = get_series(&posts, lang);
+    let t = Translations::for_lang(lang);
 
     SeriesTemplate {
-        blog: Blog::new().set_title("miniex::series"),
+        blog: Blog::new()
+            .set_title("miniex::series")
+            .set_description("miniex의 시리즈 목록")
+            .set_url(&format!("{}/series", SITE_URL)),
         series,
+        t,
+        lang,
     }
 }
 
 async fn handle_series_detail(
     Path(series_name): Path<String>,
     State(state): State<SharedState>,
+    LangExtractor(lang): LangExtractor,
 ) -> SeriesDetailTemplate {
     let posts = state.posts.read().await;
-    let series_posts = get_posts_by_series(&posts, &series_name);
+    let series_posts = get_posts_by_series(&posts, &series_name, lang);
+    let t = Translations::for_lang(lang);
 
-    let series = get_series(&posts)
+    let series = get_series(&posts, lang)
         .into_iter()
         .find(|s| s.name == series_name)
         .expect("Series should exist");
 
     SeriesDetailTemplate {
-        blog: Blog::new().set_title(&format!("miniex::series::{}", series_name)),
+        blog: Blog::new()
+            .set_title(&format!("miniex::series::{}", series_name))
+            .set_description(
+                &series
+                    .description
+                    .clone()
+                    .unwrap_or_else(|| format!("{} 시리즈", series_name)),
+            )
+            .set_url(&format!("{}/series/{}", SITE_URL, series_name)),
+        series_description: series.description,
+        series_status: series.status,
         series_name,
         posts: series_posts,
         authors: series.authors,
         updated_at: series.updated_at,
+        t,
+        lang,
     }
 }
 
-async fn handle_post(Path(id): Path<String>, State(state): State<SharedState>) -> PostTemplate {
+async fn handle_post(
+    Path(id): Path<String>,
+    State(state): State<SharedState>,
+    LangExtractor(lang): LangExtractor,
+) -> PostTemplate {
     let posts = state.posts.read().await;
-    let current_post = posts.iter().find(|p| p.slug == id).cloned();
-    PostTemplate { current_post }
+    let t = Translations::for_lang(lang);
+
+    // 1. Try slug + lang match first
+    let current_post = posts
+        .iter()
+        .find(|p| p.slug == id && p.lang == lang)
+        .cloned()
+        // 2. Fallback: slug-only match (any language)
+        .or_else(|| posts.iter().find(|p| p.slug == id).cloned());
+
+    let available_langs = current_post
+        .as_ref()
+        .map(|p| get_available_translations(&posts, &p.translation_key))
+        .unwrap_or_default();
+
+    let series_nav = current_post
+        .as_ref()
+        .and_then(|p| get_series_nav_info(&posts, p));
+
+    let blog = if let Some(ref p) = current_post {
+        Blog::new()
+            .set_title(&p.metadata.title)
+            .set_description(&p.metadata.description)
+            .set_url(&format!("{}/post/{}", SITE_URL, p.slug))
+            .set_og_type("article")
+    } else {
+        Blog::new().set_title("Post Not Found")
+    };
+
+    PostTemplate {
+        blog,
+        current_post,
+        series_nav,
+        t,
+        lang,
+        available_langs,
+    }
 }
 
-async fn handle_resume() -> Result<ResumeTemplate, StatusCode> {
+async fn handle_resume(LangExtractor(lang): LangExtractor) -> Result<ResumeTemplate, StatusCode> {
     use gray_matter::{engine::YAML, Matter};
     use pulldown_cmark::{html, Options, Parser};
     use tokio::fs;
@@ -373,24 +472,238 @@ async fn handle_resume() -> Result<ResumeTemplate, StatusCode> {
     let resume_title =
         std::env::var("RESUME_TITLE").unwrap_or_else(|_| "miniex::resume".to_string());
 
+    let t = Translations::for_lang(lang);
     Ok(ResumeTemplate {
         blog: Blog::new().set_title(&resume_title),
         content: html_output,
+        t,
+        lang,
     })
 }
 
 async fn handle_guestbook(
     State(state): State<SharedState>,
+    LangExtractor(lang): LangExtractor,
 ) -> Result<GuestbookTemplate, StatusCode> {
     let guestbook_entries = match state.db.get_guestbook_entries(Some(20)).await {
         Ok(entries) => entries,
         Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
     };
+    let t = Translations::for_lang(lang);
 
     Ok(GuestbookTemplate {
         entries: guestbook_entries,
+        t,
+        lang,
     })
 }
+
+// --- Search API ---
+
+#[derive(Deserialize)]
+struct SearchQuery {
+    q: String,
+    lang: String,
+}
+
+#[derive(Serialize)]
+struct SearchResult {
+    slug: String,
+    title: String,
+    description: String,
+    post_type: String,
+    tags: Vec<String>,
+    created_at: String,
+    reading_time_min: u32,
+    lang: String,
+}
+
+async fn handle_search(
+    State(state): State<SharedState>,
+    Query(query): Query<SearchQuery>,
+) -> Json<Vec<SearchResult>> {
+    let posts = state.posts.read().await;
+    let search_lang = Lang::parse(&query.lang);
+    let q = query.q.to_lowercase();
+
+    let results: Vec<SearchResult> = posts
+        .iter()
+        .filter(|post| {
+            post.lang == search_lang
+                && (post.metadata.title.to_lowercase().contains(&q)
+                    || post.metadata.description.to_lowercase().contains(&q)
+                    || post
+                        .metadata
+                        .tags
+                        .iter()
+                        .any(|tag| tag.to_lowercase().contains(&q)))
+        })
+        .take(20)
+        .map(|post| SearchResult {
+            slug: post.slug.clone(),
+            title: post.metadata.title.clone(),
+            description: post.metadata.description.clone(),
+            post_type: post.post_type.to_string().to_lowercase(),
+            tags: post.metadata.tags.clone(),
+            created_at: post.metadata.created_at.format("%Y/%m/%d").to_string(),
+            reading_time_min: post.reading_time_min,
+            lang: post.lang.as_str().to_string(),
+        })
+        .collect();
+
+    Json(results)
+}
+
+// --- Language Switch ---
+
+#[derive(Deserialize)]
+struct SetLangQuery {
+    lang: String,
+}
+
+async fn handle_set_lang(
+    Query(query): Query<SetLangQuery>,
+    headers: axum::http::HeaderMap,
+) -> impl IntoResponse {
+    let lang = Lang::parse(&query.lang);
+    let cookie = format!(
+        "lang={}; Path=/; Max-Age=31536000; SameSite=Lax",
+        lang.as_str()
+    );
+
+    let referer = headers
+        .get(axum::http::header::REFERER)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("/");
+
+    (
+        StatusCode::SEE_OTHER,
+        [
+            (axum::http::header::SET_COOKIE, cookie),
+            (axum::http::header::LOCATION, referer.to_string()),
+        ],
+    )
+}
+
+// --- Atom Feed ---
+
+fn html_escape(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&apos;")
+}
+
+#[derive(Deserialize)]
+struct FeedQuery {
+    lang: Option<String>,
+}
+
+async fn handle_feed(
+    State(state): State<SharedState>,
+    Query(query): Query<FeedQuery>,
+) -> impl IntoResponse {
+    let posts = state.posts.read().await;
+    let lang_filter = query.lang.as_deref().map(Lang::parse);
+
+    let mut recent_posts: Vec<&Post> = posts
+        .iter()
+        .filter(|p| lang_filter.map(|l| p.lang == l).unwrap_or(true))
+        .collect();
+    recent_posts.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
+    let recent_posts: Vec<_> = recent_posts.into_iter().take(20).collect();
+
+    let updated = recent_posts
+        .first()
+        .map(|p| {
+            p.metadata
+                .updated_at
+                .format("%Y-%m-%dT%H:%M:%SZ")
+                .to_string()
+        })
+        .unwrap_or_else(|| "2024-01-01T00:00:00Z".to_string());
+
+    let mut xml = String::new();
+    xml.push_str("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+    xml.push_str("<feed xmlns=\"http://www.w3.org/2005/Atom\">\n");
+    xml.push_str(&format!(
+        "  <title>{}</title>\n",
+        html_escape("miniex.blog")
+    ));
+    xml.push_str(&format!(
+        "  <subtitle>{}</subtitle>\n",
+        html_escape(SITE_DESCRIPTION)
+    ));
+    xml.push_str(&format!(
+        "  <link href=\"{}/feed.xml\" rel=\"self\" type=\"application/atom+xml\"/>\n",
+        SITE_URL
+    ));
+    xml.push_str(&format!(
+        "  <link href=\"{}\" rel=\"alternate\" type=\"text/html\"/>\n",
+        SITE_URL
+    ));
+    xml.push_str(&format!("  <id>{}/</id>\n", SITE_URL));
+    xml.push_str(&format!("  <updated>{}</updated>\n", updated));
+    xml.push_str("  <author>\n");
+    xml.push_str("    <name>Han Damin</name>\n");
+    xml.push_str("  </author>\n");
+
+    for post in &recent_posts {
+        let post_url = format!("{}/post/{}", SITE_URL, post.slug);
+        let published = post
+            .metadata
+            .created_at
+            .format("%Y-%m-%dT%H:%M:%SZ")
+            .to_string();
+        let post_updated = post
+            .metadata
+            .updated_at
+            .format("%Y-%m-%dT%H:%M:%SZ")
+            .to_string();
+
+        xml.push_str("  <entry>\n");
+        xml.push_str(&format!(
+            "    <title>{}</title>\n",
+            html_escape(&post.metadata.title)
+        ));
+        xml.push_str(&format!(
+            "    <link href=\"{}\" rel=\"alternate\" type=\"text/html\"/>\n",
+            post_url
+        ));
+        xml.push_str(&format!("    <id>{}</id>\n", post_url));
+        xml.push_str(&format!("    <published>{}</published>\n", published));
+        xml.push_str(&format!("    <updated>{}</updated>\n", post_updated));
+        xml.push_str("    <author>\n");
+        xml.push_str(&format!(
+            "      <name>{}</name>\n",
+            html_escape(&post.metadata.author)
+        ));
+        xml.push_str("    </author>\n");
+        xml.push_str(&format!(
+            "    <summary>{}</summary>\n",
+            html_escape(&post.metadata.description)
+        ));
+        xml.push_str(&format!(
+            "    <category term=\"{}\"/>\n",
+            html_escape(&post.post_type.to_string().to_lowercase())
+        ));
+        for tag in &post.metadata.tags {
+            xml.push_str(&format!("    <category term=\"{}\"/>\n", html_escape(tag)));
+        }
+        xml.push_str("  </entry>\n");
+    }
+
+    xml.push_str("</feed>\n");
+
+    (
+        StatusCode::OK,
+        [("content-type", "application/atom+xml; charset=utf-8")],
+        xml,
+    )
+}
+
+// --- Comments & Guestbook API ---
 
 #[derive(Deserialize)]
 struct CreateCommentRequest {
@@ -586,6 +899,7 @@ async fn delete_guestbook_entry(
     }
 }
 
-async fn handle_error() -> ErrorTemplate {
-    ErrorTemplate {}
+async fn handle_error(LangExtractor(lang): LangExtractor) -> ErrorTemplate {
+    let t = Translations::for_lang(lang);
+    ErrorTemplate { t, lang }
 }

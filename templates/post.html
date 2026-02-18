@@ -3,482 +3,676 @@
 <title>{{ post.metadata.title }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="{{ post.metadata.description }}" />
+<!-- OG Tags -->
+<meta property="og:title" content="{{ post.metadata.title }}" />
+<meta property="og:description" content="{{ post.metadata.description }}" />
+<meta property="og:type" content="{{ blog.og_type }}" />
+<meta property="og:url" content="{{ blog.url }}" />
+<meta property="og:site_name" content="miniex.blog" />
+<meta property="article:author" content="{{ post.metadata.author }}" />
+<meta
+  property="article:published_time"
+  content="{{ post.metadata.created_at }}"
+/>
+{% for tag in post.metadata.tags %}
+<meta property="article:tag" content="{{ tag }}" />
+{% endfor %}
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="{{ post.metadata.title }}" />
+<meta name="twitter:description" content="{{ post.metadata.description }}" />
+<!-- Canonical -->
+<link rel="canonical" href="{{ blog.url }}" />
 {% else %}
-<title>Post Not Found</title>
+<title>{{ t.post_not_found_subtitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 {% endif %} {% endblock %} {% block main %} {% if let Some(post) = current_post
 %}
-<div class="container mx-auto px-4 py-6 max-w-4xl">
-    <!-- Post header with gradient accent -->
-    <div class="mb-8">
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+  <div class="flex flex-col xl:flex-row gap-8">
+    <!-- Main content column -->
+    <div class="flex-1 max-w-4xl mx-auto xl:mx-0">
+      <!-- Back link -->
+      <div class="mb-8">
         <a
-            href="javascript:history.back()"
-            class="inline-flex items-center gap-2 mb-6 text-sm text-base-content/70 hover:text-primary transition-colors duration-300 group"
+          href="javascript:history.back()"
+          class="inline-flex items-center gap-1.5 text-sm text-base-content/40 hover:text-primary transition-colors duration-200"
         >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-4 h-4 transform group-hover:-translate-x-1 transition-all duration-300"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-            >
-                <path
-                    fill-rule="evenodd"
-                    d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                    clip-rule="evenodd"
-                />
-            </svg>
-            <span>Back</span>
+          <i class="ph ph-arrow-left text-sm"></i>
+          <span>{{ t.post_back }}</span>
         </a>
+      </div>
 
-        <!-- Post type & series indicator -->
-        <div class="flex flex-wrap gap-2 mb-4">
-            <span
-                class="bg-primary/80 text-primary-content text-xs sm:text-sm font-medium px-3 py-1 rounded-full shadow-sm"
-            >
-                {{ post.post_type }}
-            </span>
-            {% if let Some(series) = post.metadata.series %}
-            <span
-                class="bg-secondary/80 text-secondary-content text-xs sm:text-sm font-medium px-3 py-1 rounded-full shadow-sm flex items-center gap-1"
-            >
-                <i class="ph ph-books text-sm"></i>
-                {{ series }}
-            </span>
-            {% endif %}
+      <!-- Post header -->
+      <header class="mb-10">
+        <!-- Post type & series badge -->
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span
+            class="text-xs font-medium text-primary bg-primary/8 px-2.5 py-1 rounded-full"
+          >
+            {{ post.post_type }}
+          </span>
+          {% if let Some(series) = post.metadata.series %}
+          <a
+            href="/series/{{ series }}"
+            class="text-xs font-medium text-secondary bg-secondary/8 px-2.5 py-1 rounded-full inline-flex items-center gap-1 hover:bg-secondary/20 transition-colors"
+          >
+            <i class="ph ph-books text-xs"></i>
+            {{ series }}
+          </a>
+          {% endif %}
         </div>
 
-        <!-- Title with subtle gradient background -->
+        <!-- Title -->
+        <h1
+          class="text-3xl sm:text-4xl font-bold leading-tight text-base-content"
+        >
+          {{ post.metadata.title }}
+        </h1>
+
+        <!-- Description -->
+        <p class="text-lg text-base-content/55 mt-3 leading-relaxed">
+          {{ post.metadata.description }}
+        </p>
+
+        <!-- Meta row -->
         <div
-            class="relative py-6 px-4 sm:px-8 rounded-xl bg-gradient-to-br from-base-100 to-base-200 shadow-sm border border-base-300/20 mb-6"
+          class="flex flex-wrap items-center text-sm text-base-content/45 mt-5 gap-x-1.5 gap-y-1"
         >
-            <div
-                class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary rounded-t-xl"
-            ></div>
+          <span>{{ post.metadata.author }}</span>
+          <span class="text-base-content/30">&middot;</span>
+          <time>{{ post.metadata.created_at|date }}</time>
+          <span class="text-base-content/30">&middot;</span>
+          <span>{{ post.reading_time_min }} {{ t.post_min_read }}</span>
+        </div>
 
-            <h1
-                class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight"
-            >
-                {{ post.metadata.title }}
-            </h1>
+        <!-- Translation switcher -->
+        {% if available_langs.len() > 1 %}
+        <div class="flex flex-wrap items-center gap-2 mt-4">
+          <i class="ph ph-translate text-sm text-base-content/40"></i>
+          {% for al in available_langs %} {% if al.as_str() ==
+          post.lang.as_str() %}
+          <span class="text-xs text-primary font-medium">{{ al.label() }}</span>
+          {% else %}
+          <a
+            href="/post/{{ post.translation_key }}?lang={{ al.as_str() }}"
+            class="text-xs text-base-content/40 hover:text-primary transition-colors"
+            >{{ al.label() }}</a
+          >
+          {% endif %} {% endfor %}
+        </div>
+        {% endif %}
 
-            <p
-                class="text-base sm:text-lg text-base-content/80 mb-4 leading-relaxed"
-            >
-                {{ post.metadata.description }}
-            </p>
+        <!-- Tags -->
+        <div class="flex flex-wrap gap-1.5 mt-4">
+          {% for tag in post.metadata.tags %}
+          <span
+            class="px-2.5 py-0.5 bg-primary/6 text-primary/70 rounded-full text-xs transition-colors duration-200 hover:text-primary"
+          >
+            #{{ tag }}
+          </span>
+          {% endfor %}
+        </div>
+      </header>
 
-            <div
-                class="flex flex-wrap items-center text-sm text-base-content/70 gap-x-6 gap-y-3 mt-6"
-            >
-                <!-- Author with icon -->
-                <div class="flex items-center gap-1.5">
-                    <i class="ph ph-user text-base"></i>
-                    <span>{{ post.metadata.author }}</span>
-                </div>
+      <!-- Article content -->
+      <div
+        class="bg-base-100/60 backdrop-blur-sm rounded-3xl p-6 sm:p-8 md:p-10 border border-base-300/15"
+      >
+        <article
+          class="prose prose-sm sm:prose lg:prose-lg !max-w-none prose-headings:font-bold prose-headings:text-base-content prose-a:text-primary hover:prose-a:text-primary-focus prose-a:no-underline hover:prose-a:underline prose-a:transition-colors prose-img:rounded-lg prose-pre:bg-base-200 prose-pre:text-base-content prose-pre:shadow-inner"
+        >
+          {{ post.content|safe }}
+        </article>
+      </div>
 
-                <!-- Publication date with icon -->
-                <div class="flex items-center gap-1.5">
-                    <i class="ph ph-calendar text-base"></i>
-                    <time>{{ post.metadata.created_at|date }}</time>
-                </div>
+      <!-- Series Navigation -->
+      {% if let Some(nav) = series_nav %}
+      <div
+        class="mt-10 bg-base-100/80 backdrop-blur-sm rounded-3xl p-5 sm:p-6 border border-base-300/20"
+      >
+        <!-- Series header -->
+        <div class="flex items-center justify-between mb-4">
+          <a
+            href="/series/{{ nav.series_name }}"
+            class="flex items-center gap-2 font-semibold text-base-content hover:text-primary transition-colors"
+          >
+            <i class="ph ph-books text-lg"></i>
+            {{ nav.series_name }}
+          </a>
+          <span class="text-xs text-base-content/50"
+            >{{ nav.current_index }} / {{ nav.total_count }}</span
+          >
+        </div>
 
-                <!-- Estimated reading time with icon (placeholder) -->
-                <div class="flex items-center gap-1.5">
-                    <i class="ph ph-clock text-base"></i>
-                    <span>5 min read</span>
-                </div>
+        <!-- Progress bar -->
+        <div class="w-full bg-base-200 rounded-full h-1 mb-5 overflow-hidden">
+          <div
+            class="bg-gradient-to-r from-primary to-secondary h-1 rounded-full transition-all duration-500"
+            style="width: {{ nav.current_index|percentage(nav.total_count) }}%"
+          ></div>
+        </div>
+
+        <!-- Prev/Next -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          {% if let Some(prev_slug) = nav.prev_slug %}
+          <a
+            href="/post/{{ prev_slug }}"
+            class="flex-1 group flex items-center gap-3 p-3 rounded-2xl hover:bg-primary/5 transition-colors"
+          >
+            <i
+              class="ph ph-arrow-left text-base text-base-content/40 group-hover:text-primary group-hover:-translate-x-0.5 transition-all"
+            ></i>
+            <div class="min-w-0">
+              <div class="text-xs text-base-content/40">
+                {{ t.series_previous }}
+              </div>
+              {% if let Some(prev_title) = nav.prev_title %}
+              <div class="text-sm font-medium truncate">{{ prev_title }}</div>
+              {% endif %}
             </div>
-        </div>
-
-        <!-- Tags with improved styling -->
-        <div class="flex flex-wrap gap-2 mb-6">
-            {% for tag in post.metadata.tags %}
-            <span
-                class="px-3 py-1 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-full text-xs sm:text-sm transition-colors duration-300 flex items-center"
-            >
-                <i class="ph ph-hash text-xs mr-1"></i>
-                {{ tag }}
-            </span>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Main content card with enhanced styling -->
-    <div
-        class="card bg-base-100 shadow-md rounded-xl overflow-hidden border border-base-300/10"
-    >
-        <!-- Article content with typography improvements -->
-        <div class="card-body p-4 sm:p-8 md:p-10">
-            <article
-                class="prose prose-sm sm:prose lg:prose-lg !max-w-none prose-headings:font-bold prose-headings:text-base-content prose-a:text-primary hover:prose-a:text-primary-focus prose-a:no-underline hover:prose-a:underline prose-a:transition-colors prose-img:rounded-lg prose-pre:bg-base-200 prose-pre:text-base-content prose-pre:shadow-inner"
-            >
-                {{ post.content|safe }}
-            </article>
-        </div>
-    </div>
-
-    <!-- Comments section -->
-    <div
-        class="mt-8 card bg-base-100 shadow-md rounded-xl overflow-hidden border border-base-300/10"
-    >
-        <div class="card-body p-4 sm:p-8">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-                <i class="ph ph-chat-circle text-primary"></i>
-                Comments
-            </h2>
-
-            <!-- Comment form -->
-            <div
-                class="mb-8 p-6 bg-base-200/50 rounded-lg border border-base-300/10"
-            >
-                <form id="comment-form" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="label">
-                                <span class="label-text font-medium">Name</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="comment-author"
-                                name="comment-author"
-                                placeholder="Enter your name"
-                                class="input input-bordered w-full"
-                                required
-                                autocomplete="off"
-                            />
-                        </div>
-                        <div>
-                            <label class="label">
-                                <span class="label-text font-medium"
-                                    >Password
-                                    <span class="text-xs text-base-content/60"
-                                        >(optional, for editing)</span
-                                    ></span
-                                >
-                            </label>
-                            <input
-                                type="password"
-                                id="comment-password"
-                                name="comment-password"
-                                placeholder="Set password to edit later"
-                                class="input input-bordered w-full"
-                                autocomplete="new-password"
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">Comment</span>
-                        </label>
-                        <textarea
-                            id="comment-content"
-                            placeholder="Write your comment..."
-                            class="textarea textarea-bordered w-full h-24"
-                            required
-                        ></textarea>
-                    </div>
-                    <div class="flex justify-end">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ph ph-paper-plane-right mr-2"></i>
-                            Post Comment
-                        </button>
-                    </div>
-                </form>
+          </a>
+          {% else %}
+          <div class="flex-1"></div>
+          {% endif %} {% if let Some(next_slug) = nav.next_slug %}
+          <a
+            href="/post/{{ next_slug }}"
+            class="flex-1 group flex items-center justify-end gap-3 p-3 rounded-2xl hover:bg-primary/5 transition-colors text-right"
+          >
+            <div class="min-w-0">
+              <div class="text-xs text-base-content/40">
+                {{ t.series_next }}
+              </div>
+              {% if let Some(next_title) = nav.next_title %}
+              <div class="text-sm font-medium truncate">{{ next_title }}</div>
+              {% endif %}
             </div>
-
-            <!-- Comments list -->
-            <div id="comments-container" class="space-y-4">
-                <!-- Comments will be loaded here -->
-            </div>
+            <i
+              class="ph ph-arrow-right text-base text-base-content/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all"
+            ></i>
+          </a>
+          {% else %}
+          <div class="flex-1"></div>
+          {% endif %}
         </div>
-    </div>
+      </div>
+      {% endif %}
 
-    <!-- Post footer with sharing options and navigation -->
-    <div
-        class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-base-200/50 rounded-xl border border-base-300/10"
-    >
+      <!-- Comments section -->
+      <div
+        class="mt-10 bg-base-100/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-base-300/20"
+      >
+        <h2
+          class="text-lg font-semibold mb-6 flex items-center gap-2 text-base-content/80"
+        >
+          <i class="ph ph-chat-circle text-base text-primary/50"></i>
+          {{ t.comments_title }}
+        </h2>
+
+        <!-- Comment form -->
+        <div class="mb-8">
+          <form id="comment-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="label">
+                  <span class="label-text text-sm text-base-content/60"
+                    >{{ t.comments_name }}</span
+                  >
+                </label>
+                <input
+                  type="text"
+                  id="comment-author"
+                  name="comment-author"
+                  placeholder="{{ t.comments_name }}"
+                  class="input input-bordered w-full input-sm"
+                  required
+                  autocomplete="off"
+                />
+              </div>
+              <div>
+                <label class="label">
+                  <span class="label-text text-sm text-base-content/60"
+                    >{{ t.comments_password }}
+                    <span class="text-xs text-base-content/40"
+                      >{{ t.comments_password_hint }}</span
+                    ></span
+                  >
+                </label>
+                <input
+                  type="password"
+                  id="comment-password"
+                  name="comment-password"
+                  placeholder="{{ t.comments_password_placeholder }}"
+                  class="input input-bordered w-full input-sm"
+                  autocomplete="new-password"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="label">
+                <span class="label-text text-sm text-base-content/60"
+                  >{{ t.comments_comment }}</span
+                >
+              </label>
+              <textarea
+                id="comment-content"
+                placeholder="{{ t.comments_placeholder }}"
+                class="textarea textarea-bordered w-full h-24"
+                required
+              ></textarea>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" class="btn btn-primary btn-sm">
+                <i class="ph ph-paper-plane-right mr-1"></i>
+                {{ t.comments_submit }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Comments list -->
+        <div id="comments-container" class="space-y-4">
+          <!-- Comments will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Post footer -->
+      <div
+        class="mt-10 flex items-center justify-between py-6 border-t border-base-300/15"
+      >
         <!-- Share section -->
-        <div class="flex flex-col items-center sm:items-start">
-            <p class="text-sm font-medium text-base-content/70 mb-2">
-                Share this article
-            </p>
-            <div class="flex gap-2">
-                <button
-                    class="btn btn-circle btn-sm btn-ghost hover:bg-primary/10 transition-colors duration-300"
-                    onclick="navigator.share({title: '{{ post.metadata.title }}', text: '{{ post.metadata.description }}', url: window.location.href})"
-                >
-                    <i class="ph ph-share-network text-lg"></i>
-                </button>
-                <button
-                    class="btn btn-circle btn-sm btn-ghost hover:bg-primary/10 transition-colors duration-300"
-                    onclick="navigator.clipboard.writeText(window.location.href)"
-                >
-                    <i class="ph ph-link text-lg"></i>
-                </button>
-            </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-base-content/35"
+            >{{ t.post_share_article }}</span
+          >
+          <button
+            class="text-base-content/35 hover:text-primary transition-colors duration-200"
+            onclick="navigator.share({title: '{{ post.metadata.title }}', text: '{{ post.metadata.description }}', url: window.location.href})"
+          >
+            <i class="ph ph-share-network text-base"></i>
+          </button>
+          <button
+            class="text-base-content/35 hover:text-primary transition-colors duration-200"
+            onclick="navigator.clipboard.writeText(window.location.href)"
+          >
+            <i class="ph ph-link text-base"></i>
+          </button>
         </div>
 
-        <!-- Back to top button -->
+        <!-- Back to top -->
         <a
-            href="#"
-            class="btn btn-sm bg-base-100 hover:bg-base-300 border-base-300/20 transition-colors duration-300 shadow-sm"
+          href="#"
+          class="text-xs text-base-content/35 hover:text-primary transition-colors duration-200 inline-flex items-center gap-1"
         >
-            <i class="ph ph-arrow-up text-base mr-1"></i>
-            Back to top
+          <i class="ph ph-arrow-up text-sm"></i>
+          {{ t.post_back_to_top }}
         </a>
+      </div>
     </div>
+
+    <!-- TOC Sidebar (desktop only, xl breakpoint) -->
+    {% if post.toc.len() > 0 %}
+    <aside class="hidden xl:block w-64 flex-shrink-0">
+      <nav class="sticky top-24" id="toc-sidebar">
+        <div class="py-4">
+          <h3
+            class="text-xs font-medium text-primary/40 uppercase tracking-wider mb-3 pl-4"
+          >
+            {{ t.post_toc_title }}
+          </h3>
+          <ul class="space-y-0.5 text-sm" id="toc-list">
+            {% for entry in post.toc %}
+            <li>
+              <a
+                href="#{{ entry.id }}"
+                class="toc-link block py-1.5 text-base-content/40 hover:text-primary transition-colors duration-200 border-l-2 border-base-300/20 hover:border-primary {% if entry.level == 3 %}pl-7{% else %}pl-4{% endif %}"
+                data-target="{{ entry.id }}"
+              >
+                {{ entry.text }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </nav>
+    </aside>
+    {% endif %}
+  </div>
+
+  <!-- Mobile TOC floating button + drawer -->
+  {% if post.toc.len() > 0 %}
+  <div class="xl:hidden">
+    <!-- Floating button -->
+    <label
+      for="toc-drawer"
+      class="fixed bottom-6 right-6 z-40 btn btn-circle btn-sm shadow-md shadow-primary/20 bg-gradient-to-r from-primary to-secondary text-white border-none"
+    >
+      <i class="ph ph-list text-base"></i>
+    </label>
+
+    <!-- Drawer -->
+    <div class="drawer drawer-end">
+      <input id="toc-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-side z-50">
+        <label for="toc-drawer" class="drawer-overlay"></label>
+        <div class="p-6 w-72 h-full bg-base-100 text-base-content">
+          <h3
+            class="text-xs font-medium text-primary/40 uppercase tracking-wider mb-4"
+          >
+            {{ t.post_toc_title }}
+          </h3>
+          <ul class="space-y-0.5 text-sm" id="toc-list-mobile">
+            {% for entry in post.toc %}
+            <li>
+              <a
+                href="#{{ entry.id }}"
+                class="toc-link-mobile block py-2 text-base-content/60 hover:text-primary transition-colors duration-200 border-l-2 border-base-300/20 hover:border-primary {% if entry.level == 3 %}pl-7{% else %}pl-4{% endif %}"
+                data-target="{{ entry.id }}"
+              >
+                {{ entry.text }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% else %}
 <!-- Enhanced 404 page -->
 <div class="flex-1 hero min-h-[70vh]">
-    <div class="hero-content text-center">
-        <div class="max-w-md">
-            <!-- Animated 404 icon -->
-            <div class="relative mx-auto w-32 h-32 mb-8">
-                <div
-                    class="absolute inset-0 bg-error/10 rounded-full animate-pulse"
-                ></div>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="mx-auto text-error w-20 h-20 absolute inset-0 m-auto"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path
-                        d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
-                    ></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-            </div>
-
-            <!-- 404 text with gradient effect -->
-            <h1
-                class="text-5xl sm:text-6xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-error to-primary"
-            >
-                404
-            </h1>
-            <p class="text-xl sm:text-2xl font-medium mb-4">Page Not Found</p>
-            <p class="text-base text-base-content/70 mb-8 max-w-sm mx-auto">
-                Sorry, we couldn't find the page you're looking for. Please
-                check the address or return to the homepage.
-            </p>
-
-            <!-- Return button with animation -->
-            <a
-                href="/"
-                class="btn btn-primary shadow-md hover:shadow-lg transition-all duration-300 gap-2"
-            >
-                <i class="ph ph-house"></i>
-                Return to Home
-            </a>
-        </div>
+  <div class="hero-content text-center">
+    <div class="max-w-md">
+      <div class="relative mx-auto w-32 h-32 mb-8">
+        <div
+          class="absolute inset-0 bg-error/10 rounded-full animate-pulse"
+        ></div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="mx-auto text-error w-20 h-20 absolute inset-0 m-auto"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
+          ></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <h1
+        class="text-5xl sm:text-6xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-secondary"
+      >
+        {{ t.post_not_found_title }}
+      </h1>
+      <p class="text-xl sm:text-2xl font-medium mb-4">
+        {{ t.post_not_found_subtitle }}
+      </p>
+      <p class="text-base text-base-content/70 mb-8 max-w-sm mx-auto">
+        {{ t.post_not_found_message }}
+      </p>
+      <a
+        href="/"
+        class="btn btn-primary shadow-md hover:shadow-lg transition-all duration-300 gap-2"
+      >
+        <i class="ph ph-house"></i>
+        {{ t.post_return_home }}
+      </a>
     </div>
+  </div>
 </div>
 {% endif %}
 
 <!-- Scroll progress indicator -->
-<div class="fixed top-0 left-0 w-full h-1 z-50">
-    <div
-        id="progress-bar"
-        class="h-full w-0 bg-gradient-to-r from-primary to-secondary transition-all duration-300"
-    ></div>
+<div class="fixed top-0 left-0 w-full h-0.5 z-50">
+  <div
+    id="progress-bar"
+    class="h-full w-0 bg-gradient-to-r from-primary via-secondary to-primary transition-all duration-300"
+  ></div>
 </div>
 
 <script>
-    // Scroll progress indicator
-    window.addEventListener('scroll', function() {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        document.getElementById('progress-bar').style.width = scrolled + '%';
-    });
+  // Scroll progress indicator
+  window.addEventListener('scroll', function() {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progress-bar').style.width = scrolled + '%';
+  });
 
-    // Comments functionality
-    {% if let Some(post) = current_post %}
-    const postId = '{{ post.slug }}';
+  // i18n strings from server
+  var i18nEl = document.getElementById('i18n-data');
+  var i18n = i18nEl ? JSON.parse(i18nEl.textContent) : {};
 
-    // Load comments when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        loadComments();
-    });
+  // Comments functionality
+  {% if let Some(post) = current_post %}
+  const postId = '{{ post.slug }}';
 
-    // Comment form submission
-    document.getElementById('comment-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
+  document.addEventListener('DOMContentLoaded', function() {
+      loadComments();
+  });
 
-        const author = document.getElementById('comment-author').value;
-        const content = document.getElementById('comment-content').value;
-        const password = document.getElementById('comment-password').value;
+  document.getElementById('comment-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
 
-        if (!author.trim() || !content.trim()) {
-            alert('Please enter both name and comment.');
-            return;
-        }
+      const author = document.getElementById('comment-author').value;
+      const content = document.getElementById('comment-content').value;
+      const password = document.getElementById('comment-password').value;
 
-        try {
-            const response = await fetch('/api/comments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ post_id: postId, author, content, password: password || null })
-            });
+      if (!author.trim() || !content.trim()) {
+          alert(i18n.comments_enter_both || 'Please enter both name and comment.');
+          return;
+      }
 
-            if (response.ok) {
-                document.getElementById('comment-author').value = '';
-                document.getElementById('comment-content').value = '';
-                document.getElementById('comment-password').value = '';
-                loadComments();
-            } else {
-                alert('Failed to create comment.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred.');
-        }
-    });
+      try {
+          const response = await fetch('/api/comments', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ post_id: postId, author, content, password: password || null })
+          });
 
-    // Load comments function
-    async function loadComments() {
-        try {
-            const response = await fetch(`/api/comments/${postId}`);
-            const data = await response.json();
+          if (response.ok) {
+              document.getElementById('comment-author').value = '';
+              document.getElementById('comment-content').value = '';
+              document.getElementById('comment-password').value = '';
+              loadComments();
+          } else {
+              alert(i18n.comments_failed_create || 'Failed to create comment.');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          alert(i18n.comments_error || 'An error occurred.');
+      }
+  });
 
-            const container = document.getElementById('comments-container');
-            if (data.data.length === 0) {
-                container.innerHTML = '<p class="text-center text-base-content/70 py-8">Be the first to comment!</p>';
-                return;
-            }
+  async function loadComments() {
+      try {
+          const response = await fetch(`/api/comments/${postId}`);
+          const data = await response.json();
+          const container = document.getElementById('comments-container');
 
-            container.innerHTML = data.data.map(comment => `
-                <div class="group relative p-6 bg-gradient-to-br from-base-100 to-base-200 rounded-xl border border-base-300/20 shadow-sm hover:shadow-md transition-all duration-300">
-                    <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary/60 to-secondary/60 rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          if (data.data.length === 0) {
+              container.textContent = '';
+              const p = document.createElement('p');
+              p.className = 'text-center text-base-content/70 py-8';
+              p.textContent = i18n.comments_be_first || 'Be the first to comment!';
+              container.appendChild(p);
+              return;
+          }
 
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-base-300/30">
-                                <i class="ph ph-user text-primary text-lg"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-base-content text-lg">${comment.author}</h4>
-                                <p class="text-sm text-base-content/60 flex items-center gap-1">
-                                    <i class="ph ph-clock text-xs"></i>
-                                    ${formatDate(comment.created_at)}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            ${comment.password_hash ? `<button class="btn btn-sm btn-ghost btn-circle edit-comment-btn hover:bg-primary/10 hover:text-primary" data-id="${comment.id}">
-                                <i class="ph ph-pencil text-base"></i>
-                            </button>` : ''}
-                            <button class="btn btn-sm btn-ghost btn-circle delete-comment-btn hover:bg-error/10 hover:text-error" data-id="${comment.id}">
-                                <i class="ph ph-trash text-base"></i>
-                            </button>
-                        </div>
-                    </div>
+          container.textContent = '';
+          data.data.forEach(function(comment) {
+              const card = document.createElement('div');
+              card.className = 'group relative p-6 bg-gradient-to-br from-base-100 to-base-200 rounded-xl border border-base-300/20 shadow-sm hover:shadow-md transition-all duration-300';
 
-                    <div class="pl-13">
-                        <p class="text-base-content/90 whitespace-pre-wrap leading-relaxed">${comment.content}</p>
-                    </div>
-                </div>
-            `).join('');
+              const topBar = document.createElement('div');
+              topBar.className = 'absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary/60 to-secondary/60 rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300';
+              card.appendChild(topBar);
 
-            // Add edit event listeners
-            document.querySelectorAll('.edit-comment-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const commentId = this.dataset.id;
-                    const commentContainer = this.closest('.group');
-                    const currentContent = commentContainer.querySelector('.whitespace-pre-wrap').textContent;
+              const header = document.createElement('div');
+              header.className = 'flex justify-between items-start mb-4';
 
-                    const password = prompt('Enter password to edit comment:');
-                    if (!password) return;
+              const userInfo = document.createElement('div');
+              userInfo.className = 'flex items-center gap-3';
 
-                    const newContent = prompt('Edit your comment:', currentContent);
-                    if (!newContent || newContent === currentContent) return;
+              const avatar = document.createElement('div');
+              avatar.className = 'w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-base-300/30';
+              const avatarIcon = document.createElement('i');
+              avatarIcon.className = 'ph ph-user text-primary text-lg';
+              avatar.appendChild(avatarIcon);
+              userInfo.appendChild(avatar);
 
-                    try {
-                        const response = await fetch(`/api/comments/edit/${commentId}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ content: newContent, password })
-                        });
+              const nameBlock = document.createElement('div');
+              const nameEl = document.createElement('h4');
+              nameEl.className = 'font-semibold text-base-content text-lg';
+              nameEl.textContent = comment.author;
+              nameBlock.appendChild(nameEl);
 
-                        if (response.ok) {
-                            const result = await response.json();
-                            if (result.success) {
-                                loadComments();
-                            } else {
-                                alert('Wrong password or comment not found.');
-                            }
-                        } else {
-                            alert('Failed to edit comment.');
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('An error occurred.');
-                    }
-                });
-            });
+              const dateEl = document.createElement('p');
+              dateEl.className = 'text-sm text-base-content/60 flex items-center gap-1';
+              const clockIcon = document.createElement('i');
+              clockIcon.className = 'ph ph-clock text-xs';
+              dateEl.appendChild(clockIcon);
+              const dateText = document.createTextNode(' ' + formatDate(comment.created_at));
+              dateEl.appendChild(dateText);
+              nameBlock.appendChild(dateEl);
+              userInfo.appendChild(nameBlock);
+              header.appendChild(userInfo);
 
-            // Add delete event listeners
-            document.querySelectorAll('.delete-comment-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const commentId = this.dataset.id;
+              const actions = document.createElement('div');
+              actions.className = 'flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300';
 
-                    const password = prompt('Enter password to delete this comment:');
-                    if (!password) return;
+              if (comment.password_hash) {
+                  const editBtn = document.createElement('button');
+                  editBtn.className = 'btn btn-sm btn-ghost btn-circle edit-comment-btn hover:bg-primary/10 hover:text-primary';
+                  editBtn.dataset.id = comment.id;
+                  const editIcon = document.createElement('i');
+                  editIcon.className = 'ph ph-pencil text-base';
+                  editBtn.appendChild(editIcon);
+                  actions.appendChild(editBtn);
+              }
 
-                    if (confirm('Are you sure you want to delete this comment?')) {
-                        try {
-                            const response = await fetch(`/api/comments/delete/${commentId}`, {
-                                method: 'DELETE',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({ password })
-                            });
+              const deleteBtn = document.createElement('button');
+              deleteBtn.className = 'btn btn-sm btn-ghost btn-circle delete-comment-btn hover:bg-error/10 hover:text-error';
+              deleteBtn.dataset.id = comment.id;
+              const deleteIcon = document.createElement('i');
+              deleteIcon.className = 'ph ph-trash text-base';
+              deleteBtn.appendChild(deleteIcon);
+              actions.appendChild(deleteBtn);
+              header.appendChild(actions);
+              card.appendChild(header);
 
-                            if (response.ok) {
-                                const result = await response.json();
-                                if (result.success) {
-                                    loadComments();
-                                } else {
-                                    alert('Wrong password or comment not found.');
-                                }
-                            } else {
-                                alert('Failed to delete comment.');
-                            }
-                        } catch (error) {
-                            console.error('Error:', error);
-                            alert('An error occurred.');
-                        }
-                    }
-                });
-            });
-        } catch (error) {
-            console.error('Error loading comments:', error);
-            document.getElementById('comments-container').innerHTML = '<p class="text-center text-error py-8">Failed to load comments.</p>';
-        }
-    }
+              const body = document.createElement('div');
+              body.className = 'pl-13';
+              const contentP = document.createElement('p');
+              contentP.className = 'text-base-content/90 whitespace-pre-wrap leading-relaxed';
+              contentP.textContent = comment.content;
+              body.appendChild(contentP);
+              card.appendChild(body);
 
-    // Format date helper
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-    {% endif %}
+              container.appendChild(card);
+          });
+
+          // Add edit event listeners
+          document.querySelectorAll('.edit-comment-btn').forEach(function(btn) {
+              btn.addEventListener('click', async function() {
+                  const commentId = this.dataset.id;
+                  const commentContainer = this.closest('.group');
+                  const currentContent = commentContainer.querySelector('.whitespace-pre-wrap').textContent;
+
+                  const password = prompt(i18n.comments_enter_password_edit || 'Enter password to edit comment:');
+                  if (!password) return;
+
+                  const newContent = prompt(i18n.comments_edit_prompt || 'Edit your comment:', currentContent);
+                  if (!newContent || newContent === currentContent) return;
+
+                  try {
+                      const response = await fetch('/api/comments/edit/' + commentId, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ content: newContent, password: password })
+                      });
+
+                      if (response.ok) {
+                          const result = await response.json();
+                          if (result.success) {
+                              loadComments();
+                          } else {
+                              alert(i18n.comments_wrong_password || 'Wrong password or comment not found.');
+                          }
+                      } else {
+                          alert(i18n.comments_failed_edit || 'Failed to edit comment.');
+                      }
+                  } catch (error) {
+                      console.error('Error:', error);
+                      alert(i18n.comments_error || 'An error occurred.');
+                  }
+              });
+          });
+
+          // Add delete event listeners
+          document.querySelectorAll('.delete-comment-btn').forEach(function(btn) {
+              btn.addEventListener('click', async function() {
+                  const commentId = this.dataset.id;
+
+                  const password = prompt(i18n.comments_enter_password_delete || 'Enter password to delete this comment:');
+                  if (!password) return;
+
+                  if (confirm(i18n.comments_confirm_delete || 'Are you sure you want to delete this comment?')) {
+                      try {
+                          const response = await fetch('/api/comments/delete/' + commentId, {
+                              method: 'DELETE',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ password: password })
+                          });
+
+                          if (response.ok) {
+                              const result = await response.json();
+                              if (result.success) {
+                                  loadComments();
+                              } else {
+                                  alert(i18n.comments_wrong_password || 'Wrong password or comment not found.');
+                              }
+                          } else {
+                              alert(i18n.comments_failed_edit || 'Failed to delete comment.');
+                          }
+                      } catch (error) {
+                          console.error('Error:', error);
+                          alert(i18n.comments_error || 'An error occurred.');
+                      }
+                  }
+              });
+          });
+      } catch (error) {
+          console.error('Error loading comments:', error);
+          var container = document.getElementById('comments-container');
+          container.textContent = '';
+          var p = document.createElement('p');
+          p.className = 'text-center text-error py-8';
+          p.textContent = i18n.comments_error || 'Failed to load comments.';
+          container.appendChild(p);
+      }
+  }
+
+  function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('ko-KR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+      });
+  }
+  {% endif %}
 </script>
+
+<!-- TOC interaction script -->
+<script src="/assets/js/post-toc.js?v=1"></script>
 {% endblock %}

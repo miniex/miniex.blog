@@ -1,35 +1,39 @@
 {% extends "_base.html" %} {% block head %}
 <title>miniex::error</title>
 {% endblock %} {% block main %}
-<div class="flex-1 hero bg-base-200">
-    <div class="hero-content text-center">
-        <div class="max-w-md">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="mx-auto text-error"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <path
-                    d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
-                ></path>
-                <line x1="12" y1="9" x2="12" y2="13"></line>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            <h1 class="text-5xl font-bold mt-6">404</h1>
-            <p class="text-2xl mt-2">Page Not Found</p>
-            <p class="py-6">
-                Sorry, we couldn't find the page you're looking for. Please
-                check the address or return to the homepage.
-            </p>
-            <a href="/" class="btn btn-primary">Return to Home</a>
-        </div>
+<div class="flex-1 flex items-center justify-center min-h-[60vh]">
+  <div class="text-center px-4 max-w-lg">
+    <!-- Large 404 number with gradient -->
+    <div class="relative mb-8">
+      <span
+        class="text-[10rem] sm:text-[12rem] font-black leading-none bg-clip-text text-transparent bg-gradient-to-br from-primary via-accent to-secondary select-none"
+      >
+        404
+      </span>
+      <!-- Subtle glow effect behind the number -->
+      <div
+        class="absolute inset-0 text-[10rem] sm:text-[12rem] font-black leading-none text-primary/8 blur-3xl select-none flex items-center justify-center"
+        aria-hidden="true"
+      >
+        404
+      </div>
     </div>
+
+    <h1 class="text-2xl sm:text-3xl font-bold mb-3 text-base-content">
+      {{ t.error_title }}
+    </h1>
+    <p class="text-lg text-base-content/50 mb-2">{{ t.error_subtitle }}</p>
+    <p class="text-sm text-base-content/35 mb-10 max-w-sm mx-auto">
+      {{ t.error_message }}
+    </p>
+
+    <a
+      href="/"
+      class="btn btn-primary gap-2 rounded-2xl shadow-md shadow-primary/20"
+    >
+      <i class="ph ph-house text-base"></i>
+      {{ t.error_return_home }}
+    </a>
+  </div>
 </div>
 {% endblock %}

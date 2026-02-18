@@ -5,110 +5,110 @@
 <script src="/assets/js/resume-print.js?v=1" defer></script>
 {% endblock %} {% block header %}
 <header
-    class="bg-base-300/90 text-base-content backdrop-blur-sm nav-shadow sticky top-0 z-30 transition-all duration-300"
+  class="bg-base-300/90 text-base-content backdrop-blur-sm nav-shadow sticky top-0 z-30 transition-all duration-300"
 >
-    <div class="navbar container mx-auto px-4">
-        <div class="flex-1 justify-center">
-            <span
-                class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
-            >
-                {{ blog.title }}
-            </span>
-        </div>
-        <div class="flex-none">
-            <button
-                id="theme-toggle"
-                class="btn btn-circle btn-ghost transition-all duration-300 hover:bg-primary/10"
-            >
-                <i class="ph ph-sun text-lg theme-light"></i>
-                <i class="ph ph-moon text-lg theme-dark hidden"></i>
-            </button>
-        </div>
+  <div class="navbar container mx-auto px-4">
+    <div class="flex-1 justify-center">
+      <span
+        class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
+      >
+        {{ blog.title }}
+      </span>
     </div>
+    <div class="flex-none">
+      <button
+        id="theme-toggle"
+        class="btn btn-circle btn-ghost transition-all duration-300 hover:bg-primary/10"
+      >
+        <i class="ph ph-sun text-lg theme-light"></i>
+        <i class="ph ph-moon text-lg theme-dark hidden"></i>
+      </button>
+    </div>
+  </div>
 </header>
 {% endblock %} {% block main %}
 <div class="container mx-auto px-4 py-6 max-w-7xl">
-    <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Main Content -->
-        <div class="flex-1 w-full max-w-5xl mx-auto lg:mx-0">
-            <!-- Content Section -->
-            <article id="resume-content" class="prose prose-lg max-w-none">
-                {{ content|safe }}
-            </article>
-        </div>
-
-        <!-- Table of Contents - Sticky on right (Desktop) -->
-        <aside class="hidden xl:block w-80 flex-shrink-0">
-            <div class="sticky top-24 space-y-4">
-                <div
-                    class="card bg-base-100 shadow-md rounded-xl border border-base-300/20 p-6"
-                >
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                        <i class="ph ph-list text-primary"></i>
-                        TOC
-                    </h2>
-                    <nav id="toc" class="space-y-1">
-                        <!-- TOC will be generated here -->
-                    </nav>
-                </div>
-
-                <!-- Print to PDF Button -->
-                <button
-                    onclick="window.print()"
-                    class="btn btn-primary w-full gap-2 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-                >
-                    <i class="ph ph-file-pdf text-lg"></i>
-                    Print to PDF
-                </button>
-            </div>
-        </aside>
+  <div class="flex flex-col lg:flex-row gap-8">
+    <!-- Main Content -->
+    <div class="flex-1 w-full max-w-5xl mx-auto lg:mx-0">
+      <!-- Content Section -->
+      <article id="resume-content" class="prose prose-lg max-w-none">
+        {{ content|safe }}
+      </article>
     </div>
 
-    <!-- Mobile TOC & Print Buttons (Floating) -->
-    <div class="xl:hidden fixed bottom-6 right-4 z-40 flex flex-col gap-3">
-        <!-- Print to PDF Button (Mobile) -->
+    <!-- Table of Contents - Sticky on right (Desktop) -->
+    <aside class="hidden xl:block w-80 flex-shrink-0">
+      <div class="sticky top-24 space-y-4">
+        <div
+          class="card bg-base-100 shadow-md rounded-xl border border-base-300/20 p-6"
+        >
+          <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <i class="ph ph-list text-primary"></i>
+            TOC
+          </h2>
+          <nav id="toc" class="space-y-1">
+            <!-- TOC will be generated here -->
+          </nav>
+        </div>
+
+        <!-- Print to PDF Button -->
         <button
-            onclick="window.print()"
-            class="btn btn-primary btn-circle btn-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
-            title="Print to PDF"
+          onclick="window.print()"
+          class="btn btn-primary w-full gap-2 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
         >
-            <i class="ph ph-file-pdf text-2xl"></i>
+          <i class="ph ph-file-pdf text-lg"></i>
+          Print to PDF
         </button>
+      </div>
+    </aside>
+  </div>
 
-        <!-- TOC Button (Mobile) -->
-        <label
+  <!-- Mobile TOC & Print Buttons (Floating) -->
+  <div class="xl:hidden fixed bottom-6 right-4 z-40 flex flex-col gap-3">
+    <!-- Print to PDF Button (Mobile) -->
+    <button
+      onclick="window.print()"
+      class="btn btn-primary btn-circle btn-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+      title="Print to PDF"
+    >
+      <i class="ph ph-file-pdf text-2xl"></i>
+    </button>
+
+    <!-- TOC Button (Mobile) -->
+    <label
+      for="mobile-toc-drawer"
+      class="btn btn-secondary btn-circle btn-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 cursor-pointer"
+      title="Table of Contents"
+    >
+      <i class="ph ph-list text-2xl"></i>
+    </label>
+  </div>
+
+  <!-- Mobile TOC Drawer -->
+  <div class="drawer drawer-end xl:hidden">
+    <input id="mobile-toc-drawer" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-side z-50">
+      <label for="mobile-toc-drawer" class="drawer-overlay"></label>
+      <div class="w-80 min-h-full bg-base-100 p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <i class="ph ph-list text-primary"></i>
+            Table of Contents
+          </h2>
+          <label
             for="mobile-toc-drawer"
-            class="btn btn-secondary btn-circle btn-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 cursor-pointer"
-            title="Table of Contents"
-        >
-            <i class="ph ph-list text-2xl"></i>
-        </label>
-    </div>
-
-    <!-- Mobile TOC Drawer -->
-    <div class="drawer drawer-end xl:hidden">
-        <input id="mobile-toc-drawer" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-side z-50">
-            <label for="mobile-toc-drawer" class="drawer-overlay"></label>
-            <div class="w-80 min-h-full bg-base-100 p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold flex items-center gap-2">
-                        <i class="ph ph-list text-primary"></i>
-                        Table of Contents
-                    </h2>
-                    <label
-                        for="mobile-toc-drawer"
-                        class="btn btn-circle btn-ghost btn-sm"
-                    >
-                        <i class="ph ph-x text-xl"></i>
-                    </label>
-                </div>
-                <nav id="toc-mobile" class="space-y-1">
-                    <!-- TOC will be generated here by JS -->
-                </nav>
-            </div>
+            class="btn btn-circle btn-ghost btn-sm"
+          >
+            <i class="ph ph-x text-xl"></i>
+          </label>
         </div>
+        <nav id="toc-mobile" class="space-y-1">
+          <!-- TOC will be generated here by JS -->
+        </nav>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %} {% block footer %}
 <!-- No footer for resume page -->

@@ -33,6 +33,7 @@ notify = "6.1.1"
 
 anyhow = "1.0"
 async-recursion = "1.0"
+async-trait = "0.1"
 
 # SQLite dependencies
 sqlx = { version = "0.8.6", features = ["runtime-tokio-native-tls", "sqlite", "chrono", "uuid"] }
