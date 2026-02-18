@@ -583,7 +583,7 @@
       if (idx === -1) return;
       var k = line.substring(0, idx).trim().toLowerCase();
       var v = line.substring(idx + 1).trim();
-      if (k === "vec" || k === "dataset") {
+      if (k === "vec" || k === "dataset" || k === "point") {
         (c[k] = c[k] || []).push(v);
       } else {
         c[k] = v;
@@ -950,6 +950,101 @@
     if (legendItems.length) el.appendChild(mkLegend(legendItems));
   }
 
+  function renderPlot3dPoint2d(el, cfg, p) {
+    var xRange = cfg.x ? parseRange(cfg.x) : [-1, 4];
+    var yRange = cfg.y ? parseRange(cfg.y) : [-1, 4];
+    var points = cfg.point || [];
+
+    var traces = [];
+    var legendItems = [];
+
+    points.forEach(function (entry, idx) {
+      var parts = entry.split("|");
+      var coords = parts[0]
+        .trim()
+        .split(",")
+        .map(function (v) {
+          return parseFloat(v.trim());
+        });
+      var colorStr = parts[1] ? parts[1].trim() : "";
+      var color = pickColor(colorStr || null, idx, p);
+      var label = parts[2] ? parts[2].trim() : "";
+
+      var px = coords[0] || 0;
+      var py = coords[1] || 0;
+
+      legendItems.push({
+        label: label || "(" + px + "," + py + ")",
+        color: color,
+        katex: label || null,
+      });
+
+      traces.push({
+        type: "scatter",
+        x: [px],
+        y: [py],
+        mode: "markers",
+        marker: {
+          size: 8,
+          color: color,
+          opacity: 0.9,
+          line: { width: 1, color: isDark() ? "#1c181a" : "#fcfafb" },
+        },
+      });
+    });
+
+    var layout = plotlyBaseLayout(cfg, p);
+    layout.xaxis = plotlyAxis2d(p);
+    layout.yaxis = plotlyAxis2d(p);
+    layout.xaxis.range = xRange;
+    layout.yaxis.range = yRange;
+    layout.xaxis.scaleanchor = "y";
+    layout.xaxis.scaleratio = 1;
+    layout.dragmode = "pan";
+
+    var graphWrap = document.createElement("div");
+    graphWrap.className = "graph-plot-wrap";
+    el.appendChild(graphWrap);
+
+    var wrap = document.createElement("div");
+    graphWrap.appendChild(wrap);
+    Plotly.newPlot(wrap, traces, layout, PLOTLY_CFG_2D);
+
+    var curX = xRange.slice();
+    var curY = yRange.slice();
+
+    function relayout2d(newX, newY) {
+      curX = newX;
+      curY = newY;
+      Plotly.relayout(wrap, {
+        "xaxis.range": curX,
+        "yaxis.range": curY,
+      });
+    }
+
+    addPlotlyControls(graphWrap, {
+      zoomIn: function () {
+        var cx = (curX[0] + curX[1]) / 2;
+        var cy = (curY[0] + curY[1]) / 2;
+        var xH = ((curX[1] - curX[0]) / 2) * 0.6;
+        var yH = ((curY[1] - curY[0]) / 2) * 0.6;
+        relayout2d([cx - xH, cx + xH], [cy - yH, cy + yH]);
+      },
+      zoomOut: function () {
+        var cx = (curX[0] + curX[1]) / 2;
+        var cy = (curY[0] + curY[1]) / 2;
+        var xH = ((curX[1] - curX[0]) / 2) * 1.6;
+        var yH = ((curY[1] - curY[0]) / 2) * 1.6;
+        relayout2d([cx - xH, cx + xH], [cy - yH, cy + yH]);
+      },
+      reset: function () {
+        relayout2d(xRange.slice(), yRange.slice());
+      },
+    });
+
+    if (legendItems.length) el.appendChild(mkLegend(legendItems));
+  }
+
   function renderPlot3dVector3d(el, cfg, p) {
     var vecs = cfg.vec || [];
     var traces = [];
@@ -1149,6 +1244,8 @@
       renderPlot3dSurface(el, cfg, p);
     } else if (type === "vector2d") {
       renderPlot3dVector2d(el, cfg, p);
+    } else if (type === "point2d") {
+      renderPlot3dPoint2d(el, cfg, p);
     } else if (type === "vector3d") {
       renderPlot3dVector3d(el, cfg, p);
     } else if (type === "scatter3d") {
