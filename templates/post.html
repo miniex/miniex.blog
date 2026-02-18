@@ -1,6 +1,11 @@
 {% extends "_base.html" %} {% block head %}
 <!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" media="print" onload="this.media='all'">
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" media="print" onload="this.media='all'" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js" defer></script>
+<script src="/assets/js/code-highlight.js?v=3" defer></script>
 {% if let Some(post) = current_post
 %}
 <title>{{ post.metadata.title }}</title>
