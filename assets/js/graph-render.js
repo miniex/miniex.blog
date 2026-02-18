@@ -11,11 +11,11 @@
   // ── Pastel palettes (light / dark) ──
 
   var PALETTE_LIGHT = {
-    text: "#3d353a",
-    textMuted: "rgba(61,53,58,0.4)",
-    grid: "rgba(61,53,58,0.05)",
+    text: "#1a1a1a",
+    textMuted: "rgba(0,0,0,0.7)",
+    grid: "rgba(0,0,0,0.12)",
     gridDash: "3,3",
-    border: "rgba(61,53,58,0.1)",
+    border: "rgba(0,0,0,0.2)",
     tooltipBg: "rgba(252,250,251,0.96)",
     series: [
       "#c9899e",
@@ -31,10 +31,10 @@
 
   var PALETTE_DARK = {
     text: "#e0d8dc",
-    textMuted: "rgba(224,216,220,0.38)",
-    grid: "rgba(208,160,176,0.06)",
+    textMuted: "rgba(224,216,220,0.65)",
+    grid: "rgba(208,160,176,0.12)",
     gridDash: "3,3",
-    border: "rgba(208,160,176,0.12)",
+    border: "rgba(208,160,176,0.2)",
     tooltipBg: "rgba(28,24,26,0.94)",
     series: [
       "#d0a0b0",
@@ -485,7 +485,7 @@
           color: p.textMuted,
           font: {
             family: "'JetBrains Mono', monospace",
-            size: 10,
+            size: 12,
             weight: "400",
           },
           padding: 6,
@@ -496,8 +496,7 @@
           drawTicks: false,
         },
         border: {
-          color: p.border,
-          dash: type === "radar" ? undefined : [3, 3],
+          display: false,
         },
       };
       if (type === "radar") {
@@ -505,13 +504,13 @@
           ticks: {
             color: p.textMuted,
             backdropColor: "transparent",
-            font: { family: "'JetBrains Mono', monospace", size: 9 },
+            font: { family: "'JetBrains Mono', monospace", size: 12 },
           },
           grid: { color: p.grid, lineWidth: 1 },
           angleLines: { color: p.grid },
           pointLabels: {
             color: p.text,
-            font: { size: 11, weight: "500" },
+            font: { size: 12, weight: "500" },
           },
         };
       } else {
@@ -536,7 +535,7 @@
             position: isPie ? "bottom" : "top",
             labels: {
               color: p.text,
-              font: { size: 11, weight: "500" },
+              font: { size: 12, weight: "500" },
               padding: 14,
               usePointStyle: true,
               pointStyleWidth: 8,
@@ -551,8 +550,8 @@
             borderWidth: 1,
             cornerRadius: 10,
             padding: { top: 10, bottom: 10, left: 14, right: 14 },
-            bodyFont: { size: 11, family: "'JetBrains Mono', monospace" },
-            titleFont: { size: 11, weight: "600" },
+            bodyFont: { size: 12, family: "'JetBrains Mono', monospace" },
+            titleFont: { size: 12, weight: "600" },
             boxPadding: 4,
             caretSize: 5,
             displayColors: true,
@@ -632,7 +631,7 @@
             text: cfg.title,
             font: {
               family: "'Nunito', 'Gowun Dodum', sans-serif",
-              size: 13,
+              size: 15,
               color: p.text,
               weight: 600,
             },
@@ -642,7 +641,7 @@
       plot_bgcolor: "rgba(0,0,0,0)",
       font: {
         family: "'JetBrains Mono', monospace",
-        size: 10,
+        size: 12,
         color: p.textMuted,
       },
       margin: { l: 50, r: 30, t: cfg.title ? 50 : 20, b: 50 },
@@ -654,11 +653,12 @@
   function plotlyAxis2d(p) {
     var dark = isDark();
     return {
-      gridcolor: dark ? p.grid : "rgba(61,53,58,0.3)",
-      zerolinecolor: dark ? p.border : "rgba(61,53,58,0.4)",
-      zerolinewidth: 1,
-      linecolor: dark ? p.border : "rgba(61,53,58,0.4)",
-      tickfont: { size: 10, color: p.textMuted },
+      gridcolor: dark ? p.grid : "rgba(0,0,0,0.15)",
+      gridwidth: 1.5,
+      zerolinecolor: dark ? p.border : "rgba(0,0,0,0.4)",
+      zerolinewidth: 2,
+      showline: false,
+      tickfont: { size: 12, color: p.textMuted },
     };
   }
 
@@ -666,10 +666,13 @@
     var dark = isDark();
     return {
       backgroundcolor: "rgba(0,0,0,0)",
-      gridcolor: dark ? p.grid : "rgba(61,53,58,0.7)",
-      zerolinecolor: dark ? p.border : "rgba(61,53,58,0.8)",
-      showbackground: true,
-      tickfont: { size: 9, color: p.textMuted },
+      gridcolor: dark ? p.grid : "rgba(0,0,0,0.2)",
+      gridwidth: 2,
+      zerolinecolor: dark ? p.border : "rgba(0,0,0,0.4)",
+      zerolinewidth: 2,
+      showbackground: false,
+      showline: false,
+      tickfont: { size: 12, color: dark ? p.textMuted : "rgba(0,0,0,0.7)" },
     };
   }
 
@@ -800,7 +803,10 @@
           ],
       showscale: true,
       colorbar: {
-        tickfont: { size: 9, color: p.textMuted },
+        tickfont: {
+          size: 12,
+          color: isDark() ? p.textMuted : "rgba(0,0,0,0.7)",
+        },
         thickness: 15,
         len: 0.6,
       },
@@ -989,10 +995,13 @@
         y: [py],
         mode: "markers",
         marker: {
-          size: 8,
+          size: 9,
           color: color,
-          opacity: 0.9,
-          line: { width: 1, color: isDark() ? "#1c181a" : "#fcfafb" },
+          opacity: 1,
+          line: {
+            width: 1,
+            color: isDark() ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+          },
         },
       });
     });
@@ -1073,9 +1082,10 @@
       }
     }
 
+    var dark = isDark();
     var beforeColor = p.series[2];
     var afterColor = p.series[0];
-    var lineColor = toRgba(p.series[1], 0.35);
+    var lineColor = toRgba(p.series[1], dark ? 0.6 : 0.7);
 
     var traces = [];
 
@@ -1087,7 +1097,7 @@
         y: [pt.y0, pt.y1],
         z: [0, 1],
         mode: "lines",
-        line: { color: lineColor, width: 2 },
+        line: { color: lineColor, width: 3 },
         showlegend: false,
       });
     });
@@ -1106,10 +1116,13 @@
       }),
       mode: "markers",
       marker: {
-        size: 4,
+        size: 6,
         color: beforeColor,
-        opacity: 0.85,
-        line: { width: 0.5, color: isDark() ? "#1c181a" : "#fcfafb" },
+        opacity: 1,
+        line: {
+          width: 0.5,
+          color: dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+        },
       },
       showlegend: false,
     });
@@ -1128,10 +1141,13 @@
       }),
       mode: "markers",
       marker: {
-        size: 4,
+        size: 6,
         color: afterColor,
-        opacity: 0.9,
-        line: { width: 0.5, color: isDark() ? "#1c181a" : "#fcfafb" },
+        opacity: 1,
+        line: {
+          width: 0.5,
+          color: dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+        },
       },
       showlegend: false,
     });
@@ -1331,10 +1347,13 @@
         y: ys,
         z: zs,
         marker: {
-          size: 5,
+          size: 7,
           color: color,
-          opacity: 0.85,
-          line: { width: 0.5, color: isDark() ? "#1c181a" : "#fcfafb" },
+          opacity: 1,
+          line: {
+            width: 0.5,
+            color: isDark() ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+          },
         },
       });
     });
