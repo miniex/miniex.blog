@@ -53,22 +53,6 @@ block head %}
         <i class="ph ph-clock text-sm"></i>
         <span>{{ t.series_last_updated }} {{ updated_at|date }}</span>
       </div>
-
-      <!-- Progress indicator -->
-      <div class="mt-6 max-w-sm mx-auto">
-        <div
-          class="w-full bg-base-200/60 rounded-full h-1.5 mb-2 overflow-hidden"
-        >
-          <div
-            class="bg-gradient-to-r from-primary to-secondary h-1.5 rounded-full transition-all duration-500"
-            style="width: 100%"
-          ></div>
-        </div>
-        <div class="flex justify-between text-xs text-base-content/50">
-          <span>{{ t.series_part }} 1</span>
-          <span>{{ posts.len() }} {{ t.series_posts_count }}</span>
-        </div>
-      </div>
     </div>
   </div>
 
