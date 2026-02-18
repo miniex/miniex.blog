@@ -996,6 +996,7 @@ html {
   background-color: transparent;
   padding: 0.2em 0.4em;
   border-radius: 0.25rem;
+  font-family: "JetBrains Mono", "Consolas", "Monaco", monospace;
 }
 
 .prose :where(code):not(:where([class~="not-prose"],[class~="not-prose"] *))::before {
@@ -1061,7 +1062,7 @@ html {
   font-weight: 500;
   color: #3d353a;
   font-size: 0.875em;
-  font-family: inherit;
+  font-family: "JetBrains Mono", "Consolas", "Monaco", monospace;
   line-height: 1.7;
 }
 
@@ -5835,8 +5836,8 @@ html:has(.drawer-toggle:checked) {
   text-align: right;
 }
 
-.font-\[\'Inter\'\2c system-ui\2c sans-serif\] {
-  font-family: 'Inter',system-ui,sans-serif;
+.font-\[\'Nunito\'\2c \'Gowun_Dodum\'\2c \'Zen_Maru_Gothic\'\2c system-ui\2c sans-serif\] {
+  font-family: 'Nunito','Gowun Dodum','Zen Maru Gothic',system-ui,sans-serif;
 }
 
 .text-2xl {
@@ -6519,6 +6520,7 @@ html:has(.drawer-toggle:checked) {
     background-color: transparent;
     padding: 0.2em 0.4em;
     border-radius: 0.25rem;
+    font-family: "JetBrains Mono", "Consolas", "Monaco", monospace;
   }
 
   .sm\:prose :where(code):not(:where([class~="not-prose"],[class~="not-prose"] *))::before {
@@ -6584,7 +6586,7 @@ html:has(.drawer-toggle:checked) {
     font-weight: 500;
     color: #3d353a;
     font-size: 0.875em;
-    font-family: inherit;
+    font-family: "JetBrains Mono", "Consolas", "Monaco", monospace;
     line-height: 1.7;
   }
 

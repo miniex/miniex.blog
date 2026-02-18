@@ -68,7 +68,7 @@
   body {
     background: white !important;
     color: #1a1a1a !important;
-    font-family: "GangwonEdu_OTFBoldA", sans-serif;
+    font-family: "Nunito", "Gowun Dodum", "Zen Maru Gothic", sans-serif;
     border: none !important;
   }
 
@@ -234,7 +234,8 @@
     font-size: 0.85em !important;
     font-weight: 400 !important;
     border: 1px solid #d0d0d0 !important;
-    font-family: "Consolas", "Monaco", "Courier New", monospace !important;
+    font-family:
+      "JetBrains Mono", "Consolas", "Monaco", "Courier New", monospace !important;
   }
 
   article pre {
@@ -259,7 +260,8 @@
     line-height: 1.3 !important;
     font-weight: 400 !important;
     border: none !important;
-    font-family: "Consolas", "Monaco", "Courier New", monospace !important;
+    font-family:
+      "JetBrains Mono", "Consolas", "Monaco", "Courier New", monospace !important;
   }
 
   /* Syntax highlighting for print - all black */

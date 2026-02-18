@@ -76,6 +76,7 @@ export default {
               borderRadius: "0.25rem",
               fontSize: "0.9em",
               fontWeight: "500",
+              fontFamily: '"JetBrains Mono", "Consolas", "Monaco", monospace',
             },
             "code::before": {
               content: "none",
@@ -100,6 +101,7 @@ export default {
               lineHeight: "1.7",
               color: "#3d353a",
               fontWeight: "500",
+              fontFamily: '"JetBrains Mono", "Consolas", "Monaco", monospace',
             },
 
             // Syntax highlighting for light mode

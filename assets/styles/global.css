@@ -1,10 +1,5 @@
-@font-face {
-  font-family: "GangwonEdu_OTFBoldA";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff")
-    format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
+/* Fonts loaded via Google Fonts in _base.html:
+   Nunito (Latin), Gowun Dodum (Korean), Zen Maru Gothic (Japanese), JetBrains Mono (code) */
 
 html {
   scroll-behavior: smooth;
