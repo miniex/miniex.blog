@@ -4407,6 +4407,18 @@ html:has(.drawer-toggle:checked) {
   border-bottom-left-radius: 0px;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .visible {
   visibility: visible;
 }
@@ -4876,6 +4888,10 @@ html:has(.drawer-toggle:checked) {
 
 .grid {
   display: grid;
+}
+
+.contents {
+  display: contents;
 }
 
 .hidden {
@@ -7478,6 +7494,52 @@ html:has(.drawer-toggle:checked) {
 .hover\:shadow-primary\/5:hover {
   --tw-shadow-color: var(--fallback-p,oklch(var(--p)/0.05));
   --tw-shadow: var(--tw-shadow-colored);
+}
+
+.focus\:not-sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+.focus\:absolute:focus {
+  position: absolute;
+}
+
+.focus\:left-2:focus {
+  left: 0.5rem;
+}
+
+.focus\:top-2:focus {
+  top: 0.5rem;
+}
+
+.focus\:z-50:focus {
+  z-index: 50;
+}
+
+.focus\:rounded:focus {
+  border-radius: 0.25rem;
+}
+
+.focus\:bg-base-100:focus {
+  --tw-bg-opacity: 1;
+  background-color: var(--fallback-b1,oklch(var(--b1)/var(--tw-bg-opacity)));
+}
+
+.focus\:px-4:focus {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.focus\:py-2:focus {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .group:hover .group-hover\:-translate-x-0\.5 {

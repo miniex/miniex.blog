@@ -7,13 +7,15 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script src="https://unpkg.com/htmx.org@2.0.2"></script>
-        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+        <script src="https://unpkg.com/htmx.org@2.0.2" defer></script>
+        <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link
             href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
             rel="stylesheet"
         />
-        <link href="/assets/styles/tailwind.output.css?v=10" rel="stylesheet" />
+        <link href="/assets/styles/tailwind.output.css?v=11" rel="stylesheet" />
         <link href="/assets/styles/global.css?v=12" rel="stylesheet" />
         <link
             rel="stylesheet"
@@ -24,10 +26,11 @@
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css"
+            media="print" onload="this.media='all'"
         />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
-        <script src="/assets/js/code-highlight.js?v=3"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js" defer></script>
+        <script src="/assets/js/code-highlight.js?v=3" defer></script>
         <!-- Atom feed autodiscovery -->
         <link rel="alternate" type="application/atom+xml" title="miniex.blog" href="/feed.xml" />
         <!-- each page -->
@@ -153,6 +156,7 @@
     <body
         class="flex flex-col min-h-screen bg-base-100 font-['Nunito','Gowun_Dodum','Zen_Maru_Gothic',system-ui,sans-serif] text-base-content antialiased selection:bg-primary/15 selection:text-base-content"
     >
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-base-100 focus:px-4 focus:py-2 focus:rounded">Skip to content</a>
         {% block header %}
         <header
             class="bg-base-100/70 backdrop-blur-xl border-b border-base-300/30 nav-shadow sticky top-0 z-30 transition-all duration-300"
@@ -197,6 +201,7 @@
                             id="search-btn"
                             class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
                             onclick="document.getElementById('search-modal').showModal()"
+                            aria-label="Search"
                         >
                             <i class="ph ph-magnifying-glass text-lg"></i>
                         </button>
@@ -204,6 +209,8 @@
                             <label
                                 tabindex="0"
                                 class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
+                                aria-label="Change language"
+                                role="button"
                             >
                                 <i class="ph ph-translate text-lg"></i>
                             </label>
@@ -219,6 +226,7 @@
                         <button
                             id="theme-toggle"
                             class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
+                            aria-label="Toggle theme"
                         >
                             <i class="ph ph-sun text-lg theme-light"></i>
                             <i class="ph ph-moon text-lg theme-dark hidden"></i>
@@ -229,12 +237,14 @@
                     <button
                         class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
                         onclick="document.getElementById('search-modal').showModal()"
+                        aria-label="Search"
                     >
                         <i class="ph ph-magnifying-glass text-lg"></i>
                     </button>
                     <label
                         for="drawer"
                         class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
+                        aria-label="Open menu"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -255,6 +265,7 @@
         </header>
         {% endblock %}
         <main
+            id="main-content"
             class="container mx-auto flex-grow py-6 sm:py-8 md:py-10 px-4 sm:px-6 page-transition"
         >
             {% block main %}{% endblock %}
@@ -436,7 +447,7 @@
             <form method="dialog" class="modal-backdrop bg-black/40 backdrop-blur-sm"><button>close</button></form>
         </dialog>
 
-        <script src="/assets/js/search.js?v=1"></script>
+        <script src="/assets/js/search.js?v=1" defer></script>
 
         <script>
             // Add shadow to header on scroll
