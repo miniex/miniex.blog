@@ -14,8 +14,15 @@
         <link
             href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
             rel="stylesheet"
+            media="print" onload="this.media='all'"
         />
-        <link href="/assets/styles/tailwind.output.css?v=11" rel="stylesheet" />
+        <noscript>
+            <link
+                href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+                rel="stylesheet"
+            />
+        </noscript>
+        <link href="/assets/styles/tailwind.output.css?v=12" rel="stylesheet" />
         <link href="/assets/styles/global.css?v=12" rel="stylesheet" />
         <link
             rel="stylesheet"
@@ -372,18 +379,21 @@
                             <a
                                 href="https://github.com/miniex"
                                 class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors duration-200"
+                                aria-label="GitHub"
                             >
                                 <i class="ph ph-github-logo text-base"></i>
                             </a>
                             <a
                                 href="mailto:miniex@daminstudio.net"
                                 class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors duration-200"
+                                aria-label="Email"
                             >
                                 <i class="ph ph-envelope text-base"></i>
                             </a>
                             <a
                                 href="https://miniex.info"
                                 class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors duration-200"
+                                aria-label="Website"
                             >
                                 <i class="ph ph-globe text-base"></i>
                             </a>
@@ -444,7 +454,7 @@
                     </form>
                 </div>
             </div>
-            <form method="dialog" class="modal-backdrop bg-black/40 backdrop-blur-sm"><button>close</button></form>
+            <form method="dialog" class="modal-backdrop bg-black/40 backdrop-blur-sm"><button aria-label="Close search">close</button></form>
         </dialog>
 
         <script src="/assets/js/search.js?v=1" defer></script>
@@ -458,7 +468,7 @@
                 } else {
                     header.classList.remove("shadow-md");
                 }
-            });
+            }, { passive: true });
 
             // Theme toggle functionality
             document.addEventListener("DOMContentLoaded", function () {

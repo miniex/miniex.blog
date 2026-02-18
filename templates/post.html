@@ -498,7 +498,7 @@
       const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       const scrolled = (winScroll / height) * 100;
       document.getElementById('progress-bar').style.width = scrolled + '%';
-  });
+  }, { passive: true });
 
   // i18n strings from server
   var i18nEl = document.getElementById('i18n-data');

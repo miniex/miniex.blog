@@ -21,11 +21,23 @@ block head %}
   <!-- Inline Search Bar -->
   <div
     class="mb-8 cursor-pointer search-trigger"
+    role="button"
+    tabindex="0"
+    aria-label="Search posts"
     onclick="
       document.getElementById('search-modal').showModal();
       setTimeout(function () {
         document.getElementById('search-input').focus();
       }, 100);
+    "
+    onkeydown="
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        document.getElementById('search-modal').showModal();
+        setTimeout(function () {
+          document.getElementById('search-input').focus();
+        }, 100);
+      }
     "
   >
     <div class="relative group">
