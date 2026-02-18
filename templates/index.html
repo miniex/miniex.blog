@@ -10,28 +10,67 @@ block head %}
 {% endblock %} {% block main %}
 <!-- Hero Section -->
 <div
-  class="relative overflow-hidden mb-16 rounded-[2rem] min-h-[70vh] sm:min-h-[60vh] flex items-center"
+  class="relative overflow-hidden mb-16 rounded-[2rem] min-h-[500px] max-h-[700px] flex items-center px-10 border border-base-300/50 shadow-xl shadow-base-300/20"
   id="hero"
 >
-  <!-- Multi-layer animated background -->
-  <div
-    class="absolute inset-0 bg-gradient-to-b from-base-200/80 via-base-100 to-base-100"
-  ></div>
+  <!-- Animated gradient background -->
+  <div class="absolute inset-0 hero-bg-shift"></div>
+
+  <!-- Aurora waves -->
+  <div class="absolute inset-0 overflow-hidden">
+    <div
+      class="absolute -top-1/2 left-0 w-[200%] h-full bg-gradient-to-r from-primary/8 via-secondary/6 to-accent/8 hero-aurora-1 blur-[60px]"
+    ></div>
+    <div
+      class="absolute -bottom-1/2 right-0 w-[200%] h-full bg-gradient-to-l from-accent/6 via-primary/5 to-secondary/8 hero-aurora-2 blur-[80px]"
+    ></div>
+  </div>
 
   <!-- Mesh gradient blobs -->
   <div
-    class="absolute -top-20 -left-20 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[100px] hero-blob-1"
+    class="absolute -top-20 -left-20 w-[450px] h-[450px] rounded-full hero-blob-1 blur-[100px]"
+    style="
+      background: radial-gradient(
+        circle,
+        hsl(var(--p) / 0.15),
+        hsl(var(--s) / 0.05)
+      );
+    "
   ></div>
   <div
-    class="absolute -bottom-32 -right-20 w-[400px] h-[400px] rounded-full bg-secondary/10 blur-[80px] hero-blob-2"
+    class="absolute -bottom-32 -right-20 w-[400px] h-[400px] rounded-full hero-blob-2 blur-[90px]"
+    style="
+      background: radial-gradient(
+        circle,
+        hsl(var(--s) / 0.12),
+        hsl(var(--a) / 0.05)
+      );
+    "
   ></div>
   <div
-    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-accent/6 blur-[60px] hero-blob-3"
+    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full hero-blob-3 blur-[70px]"
+    style="
+      background: radial-gradient(
+        circle,
+        hsl(var(--a) / 0.1),
+        hsl(var(--p) / 0.04)
+      );
+    "
+  ></div>
+  <div
+    class="absolute top-[10%] right-[20%] w-[250px] h-[250px] rounded-full hero-blob-4 blur-[80px]"
+    style="
+      background: radial-gradient(
+        circle,
+        hsl(var(--p) / 0.08),
+        hsl(var(--s) / 0.03)
+      );
+    "
   ></div>
 
   <!-- Grain texture overlay -->
   <div
-    class="absolute inset-0 opacity-[0.015] mix-blend-multiply"
+    class="absolute inset-0 opacity-[0.02] mix-blend-multiply"
     style="
       background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E&quot;);
     "
@@ -39,49 +78,79 @@ block head %}
 
   <!-- Floating geometric shapes -->
   <div
-    class="absolute top-[15%] left-[10%] w-16 h-16 border border-primary/8 rounded-2xl rotate-12 hero-geo-1"
+    class="absolute top-[12%] left-[8%] w-16 h-16 border border-primary/10 rounded-2xl hero-geo-spin"
   ></div>
   <div
-    class="absolute top-[25%] right-[12%] w-10 h-10 border border-secondary/10 rounded-full hero-geo-2"
+    class="absolute top-[22%] right-[10%] w-10 h-10 border border-secondary/12 rounded-full hero-geo-float"
   ></div>
   <div
-    class="absolute bottom-[20%] left-[18%] w-6 h-6 bg-primary/6 rounded-lg rotate-45 hero-geo-3"
+    class="absolute bottom-[18%] left-[15%] w-7 h-7 bg-gradient-to-br from-primary/8 to-secondary/8 rounded-lg hero-geo-drift"
   ></div>
   <div
-    class="absolute bottom-[30%] right-[8%] w-12 h-12 border border-accent/8 rounded-xl -rotate-12 hero-geo-1"
+    class="absolute bottom-[28%] right-[6%] w-14 h-14 border border-accent/10 rounded-xl hero-geo-spin-reverse"
   ></div>
   <div
-    class="absolute top-[60%] left-[5%] w-3 h-3 bg-secondary/10 rounded-full hero-geo-4"
+    class="absolute top-[55%] left-[4%] w-3 h-3 bg-secondary/15 rounded-full hero-geo-pulse"
   ></div>
   <div
-    class="absolute top-[10%] right-[30%] w-2 h-2 bg-primary/15 rounded-full hero-geo-4"
+    class="absolute top-[8%] right-[28%] w-2 h-2 bg-primary/20 rounded-full hero-geo-pulse-delayed"
   ></div>
   <div
-    class="absolute bottom-[15%] right-[25%] w-4 h-4 border border-primary/6 rounded-md rotate-[30deg] hero-geo-2"
+    class="absolute bottom-[12%] right-[22%] w-5 h-5 border border-primary/8 rounded-md hero-geo-float-slow"
+  ></div>
+  <div
+    class="absolute top-[40%] left-[25%] w-2 h-2 bg-accent/15 rounded-full hero-geo-pulse"
+  ></div>
+  <div
+    class="absolute bottom-[40%] left-[45%] w-8 h-[1px] bg-gradient-to-r from-transparent via-primary/15 to-transparent hero-geo-fade"
+  ></div>
+  <div
+    class="absolute top-[70%] right-[35%] w-10 h-[1px] bg-gradient-to-r from-transparent via-secondary/12 to-transparent hero-geo-fade-delayed"
   ></div>
 
-  <!-- Thin decorative lines -->
+  <!-- Sparkle dots -->
+  <div
+    class="absolute top-[18%] left-[40%] w-1 h-1 bg-primary/30 rounded-full hero-sparkle"
+  ></div>
+  <div
+    class="absolute top-[35%] right-[18%] w-1.5 h-1.5 bg-secondary/25 rounded-full hero-sparkle-2"
+  ></div>
+  <div
+    class="absolute bottom-[25%] left-[35%] w-1 h-1 bg-accent/30 rounded-full hero-sparkle-3"
+  ></div>
+  <div
+    class="absolute top-[65%] right-[40%] w-1 h-1 bg-primary/20 rounded-full hero-sparkle"
+  ></div>
+  <div
+    class="absolute bottom-[35%] left-[55%] w-1.5 h-1.5 bg-secondary/20 rounded-full hero-sparkle-2"
+  ></div>
+
+  <!-- Decorative curved lines -->
   <svg
     class="absolute inset-0 w-full h-full opacity-[0.04]"
     xmlns="http://www.w3.org/2000/svg"
+    preserveAspectRatio="none"
   >
-    <line
-      x1="0"
-      y1="30%"
-      x2="100%"
-      y2="70%"
+    <path
+      d="M0,40% Q25%,20% 50%,45% T100%,35%"
+      fill="none"
       stroke="currentColor"
       stroke-width="0.5"
-      class="text-primary"
+      class="text-primary hero-line-draw"
     />
-    <line
-      x1="100%"
-      y1="20%"
-      x2="0"
-      y2="80%"
+    <path
+      d="M100%,25% Q75%,55% 50%,30% T0%,60%"
+      fill="none"
       stroke="currentColor"
       stroke-width="0.5"
-      class="text-secondary"
+      class="text-secondary hero-line-draw-delayed"
+    />
+    <path
+      d="M0,70% Q30%,50% 60%,65% T100%,55%"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="0.3"
+      class="text-accent hero-line-draw"
     />
   </svg>
 
@@ -322,20 +391,97 @@ block head %}
 </div>
 
 <style>
-  /* Mesh gradient blob animations */
+  /* Shifting gradient background */
+  .hero-bg-shift {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--b2) / 0.9) 0%,
+      hsl(var(--b1)) 40%,
+      hsl(var(--b2) / 0.6) 70%,
+      hsl(var(--b1)) 100%
+    );
+    background-size: 400% 400%;
+    animation: bgShift 8s ease-in-out infinite;
+  }
+  @keyframes bgShift {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    25% {
+      background-position: 100% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    75% {
+      background-position: 0% 100%;
+    }
+  }
+
+  /* Aurora wave animations */
+  @keyframes aurora1 {
+    0%,
+    100% {
+      transform: translateX(0) translateY(0) rotate(-5deg);
+      opacity: 0.7;
+    }
+    25% {
+      transform: translateX(-12%) translateY(15px) rotate(2deg);
+      opacity: 1;
+    }
+    50% {
+      transform: translateX(8%) translateY(-10px) rotate(-8deg);
+      opacity: 0.5;
+    }
+    75% {
+      transform: translateX(-5%) translateY(5px) rotate(-3deg);
+      opacity: 0.9;
+    }
+  }
+  @keyframes aurora2 {
+    0%,
+    100% {
+      transform: translateX(0) translateY(0) rotate(3deg);
+      opacity: 0.6;
+    }
+    25% {
+      transform: translateX(10%) translateY(-15px) rotate(8deg);
+      opacity: 0.9;
+    }
+    50% {
+      transform: translateX(-8%) translateY(12px) rotate(-2deg);
+      opacity: 0.4;
+    }
+    75% {
+      transform: translateX(5%) translateY(-5px) rotate(5deg);
+      opacity: 1;
+    }
+  }
+  .hero-aurora-1 {
+    animation: aurora1 7s ease-in-out infinite;
+  }
+  .hero-aurora-2 {
+    animation: aurora2 9s ease-in-out infinite 1s;
+  }
+
+  /* Blob animations */
   @keyframes blobMove1 {
     0%,
     100% {
       transform: translate(0, 0) scale(1);
     }
-    25% {
-      transform: translate(30px, -20px) scale(1.1);
+    20% {
+      transform: translate(60px, -50px) scale(1.2);
     }
-    50% {
-      transform: translate(-10px, 20px) scale(0.95);
+    40% {
+      transform: translate(-30px, 40px) scale(0.85);
     }
-    75% {
-      transform: translate(20px, 10px) scale(1.05);
+    60% {
+      transform: translate(45px, 20px) scale(1.15);
+    }
+    80% {
+      transform: translate(-40px, -25px) scale(0.9);
     }
   }
   @keyframes blobMove2 {
@@ -344,87 +490,291 @@ block head %}
       transform: translate(0, 0) scale(1);
     }
     25% {
-      transform: translate(-20px, 15px) scale(1.05);
+      transform: translate(-50px, 35px) scale(1.2);
     }
     50% {
-      transform: translate(15px, -25px) scale(1.1);
+      transform: translate(35px, -55px) scale(0.8);
     }
     75% {
-      transform: translate(-25px, -10px) scale(0.95);
+      transform: translate(-20px, -25px) scale(1.1);
     }
   }
   @keyframes blobMove3 {
     0%,
     100% {
-      transform: translate(-50%, -50%) scale(1);
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
     }
-    33% {
-      transform: translate(-45%, -55%) scale(1.08);
+    25% {
+      transform: translate(-38%, -60%) scale(1.2) rotate(10deg);
     }
-    66% {
-      transform: translate(-55%, -45%) scale(0.92);
+    50% {
+      transform: translate(-62%, -40%) scale(0.8) rotate(-10deg);
+    }
+    75% {
+      transform: translate(-45%, -55%) scale(1.1) rotate(5deg);
+    }
+  }
+  @keyframes blobMove4 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.6;
+    }
+    25% {
+      transform: translate(-35px, 25px) scale(1.25);
+      opacity: 1;
+    }
+    50% {
+      transform: translate(25px, -35px) scale(0.75);
+      opacity: 0.3;
+    }
+    75% {
+      transform: translate(-15px, -10px) scale(1.1);
+      opacity: 0.8;
     }
   }
   .hero-blob-1 {
-    animation: blobMove1 15s ease-in-out infinite;
+    animation: blobMove1 8s ease-in-out infinite;
   }
   .hero-blob-2 {
-    animation: blobMove2 18s ease-in-out infinite;
+    animation: blobMove2 10s ease-in-out infinite 0.5s;
   }
   .hero-blob-3 {
-    animation: blobMove3 12s ease-in-out infinite;
+    animation: blobMove3 7s ease-in-out infinite 1s;
+  }
+  .hero-blob-4 {
+    animation: blobMove4 9s ease-in-out infinite 2s;
   }
 
-  /* Geometric shape animations */
-  @keyframes geoFloat1 {
-    0%,
-    100% {
-      transform: rotate(12deg) translateY(0);
+  /* Geometric shapes */
+  @keyframes geoSpin {
+    0% {
+      transform: rotate(0deg) translateY(0);
+      opacity: 0.5;
     }
-    50% {
-      transform: rotate(20deg) translateY(-8px);
+    100% {
+      transform: rotate(360deg) translateY(-10px);
+      opacity: 0.5;
     }
   }
-  @keyframes geoFloat2 {
-    0%,
-    100% {
-      transform: rotate(0deg) translateY(0) scale(1);
+  @keyframes geoSpinReverse {
+    0% {
+      transform: rotate(0deg) translateY(0);
+      opacity: 0.5;
     }
-    50% {
-      transform: rotate(10deg) translateY(-6px) scale(1.1);
+    100% {
+      transform: rotate(-360deg) translateY(-8px);
+      opacity: 0.5;
     }
   }
-  @keyframes geoFloat3 {
+  @keyframes geoFloat {
     0%,
     100% {
-      transform: rotate(45deg) translateY(0);
+      transform: translateY(0) scale(1);
+      opacity: 0.6;
     }
-    50% {
-      transform: rotate(50deg) translateY(-10px);
+    30% {
+      transform: translateY(-18px) scale(1.15);
+      opacity: 1;
+    }
+    70% {
+      transform: translateY(8px) scale(0.9);
+      opacity: 0.4;
+    }
+  }
+  @keyframes geoFloatSlow {
+    0%,
+    100% {
+      transform: rotate(30deg) translateY(0) translateX(0);
+      opacity: 0.4;
+    }
+    33% {
+      transform: rotate(50deg) translateY(-12px) translateX(5px);
+      opacity: 0.8;
+    }
+    66% {
+      transform: rotate(20deg) translateY(5px) translateX(-8px);
+      opacity: 0.5;
+    }
+  }
+  @keyframes geoDrift {
+    0%,
+    100% {
+      transform: rotate(45deg) translate(0, 0);
+    }
+    20% {
+      transform: rotate(65deg) translate(10px, -15px);
+    }
+    40% {
+      transform: rotate(35deg) translate(-8px, -20px);
+    }
+    60% {
+      transform: rotate(55deg) translate(12px, -8px);
+    }
+    80% {
+      transform: rotate(40deg) translate(-5px, -5px);
     }
   }
   @keyframes geoPulse {
     0%,
     100% {
-      opacity: 0.3;
-      transform: scale(1);
+      opacity: 0.1;
+      transform: scale(0.5);
     }
     50% {
-      opacity: 0.7;
-      transform: scale(1.3);
+      opacity: 1;
+      transform: scale(2);
     }
   }
-  .hero-geo-1 {
-    animation: geoFloat1 7s ease-in-out infinite;
+  @keyframes geoFade {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scaleX(0.3);
+    }
+    50% {
+      opacity: 1;
+      transform: scaleX(1.5);
+    }
   }
-  .hero-geo-2 {
-    animation: geoFloat2 9s ease-in-out infinite 1s;
+  .hero-geo-spin {
+    animation: geoSpin 6s linear infinite;
   }
-  .hero-geo-3 {
-    animation: geoFloat3 6s ease-in-out infinite 0.5s;
+  .hero-geo-spin-reverse {
+    animation: geoSpinReverse 8s linear infinite;
   }
-  .hero-geo-4 {
-    animation: geoPulse 4s ease-in-out infinite;
+  .hero-geo-float {
+    animation: geoFloat 4s ease-in-out infinite;
+  }
+  .hero-geo-float-slow {
+    animation: geoFloatSlow 5s ease-in-out infinite 1s;
+  }
+  .hero-geo-drift {
+    animation: geoDrift 4.5s ease-in-out infinite;
+  }
+  .hero-geo-pulse {
+    animation: geoPulse 2s ease-in-out infinite;
+  }
+  .hero-geo-pulse-delayed {
+    animation: geoPulse 2.5s ease-in-out infinite 0.8s;
+  }
+  .hero-geo-fade {
+    animation: geoFade 3s ease-in-out infinite;
+  }
+  .hero-geo-fade-delayed {
+    animation: geoFade 3.5s ease-in-out infinite 1.5s;
+  }
+
+  /* Sparkle animations */
+  @keyframes sparkle {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0) rotate(0deg);
+    }
+    15% {
+      opacity: 1;
+      transform: scale(1.5) rotate(120deg);
+    }
+    30% {
+      opacity: 0.4;
+      transform: scale(0.6) rotate(200deg);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.3) rotate(300deg);
+    }
+    70% {
+      opacity: 0.2;
+      transform: scale(0.4) rotate(400deg);
+    }
+    85% {
+      opacity: 0.8;
+      transform: scale(1) rotate(500deg);
+    }
+  }
+  @keyframes sparkle2 {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    20% {
+      opacity: 1;
+      transform: scale(1.8);
+    }
+    40% {
+      opacity: 0.3;
+      transform: scale(0.5);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.4);
+    }
+    80% {
+      opacity: 0.2;
+      transform: scale(0.3);
+    }
+  }
+  @keyframes sparkle3 {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0.5) translateY(0);
+    }
+    25% {
+      opacity: 1;
+      transform: scale(1.5) translateY(-8px);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(0.8) translateY(-3px);
+    }
+    75% {
+      opacity: 0.9;
+      transform: scale(1.2) translateY(-10px);
+    }
+  }
+  .hero-sparkle {
+    animation: sparkle 2.5s ease-in-out infinite;
+  }
+  .hero-sparkle-2 {
+    animation: sparkle2 3s ease-in-out infinite 0.5s;
+  }
+  .hero-sparkle-3 {
+    animation: sparkle3 2s ease-in-out infinite 1s;
+  }
+
+  /* SVG line draw */
+  .hero-line-draw {
+    stroke-dasharray: 800;
+    stroke-dashoffset: 800;
+    animation: lineDraw 5s ease-in-out infinite;
+  }
+  .hero-line-draw-delayed {
+    stroke-dasharray: 800;
+    stroke-dashoffset: 800;
+    animation: lineDraw 6s ease-in-out infinite 2s;
+  }
+  @keyframes lineDraw {
+    0% {
+      stroke-dashoffset: 800;
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    50% {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      stroke-dashoffset: -800;
+      opacity: 0;
+    }
   }
 
   /* Orbiting rings */
@@ -437,10 +787,10 @@ block head %}
     }
   }
   .hero-orbit {
-    animation: orbit 30s linear infinite;
+    animation: orbit 15s linear infinite;
   }
   .hero-orbit-reverse {
-    animation: orbit 45s linear infinite reverse;
+    animation: orbit 20s linear infinite reverse;
   }
 
   /* Content fade-in */
@@ -460,6 +810,35 @@ block head %}
   .hero-fade-in-delayed {
     opacity: 0;
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-blob-1,
+    .hero-blob-2,
+    .hero-blob-3,
+    .hero-blob-4,
+    .hero-aurora-1,
+    .hero-aurora-2,
+    .hero-bg-shift,
+    .hero-geo-spin,
+    .hero-geo-spin-reverse,
+    .hero-geo-float,
+    .hero-geo-float-slow,
+    .hero-geo-drift,
+    .hero-geo-pulse,
+    .hero-geo-pulse-delayed,
+    .hero-geo-fade,
+    .hero-geo-fade-delayed,
+    .hero-sparkle,
+    .hero-sparkle-2,
+    .hero-sparkle-3,
+    .hero-line-draw,
+    .hero-line-draw-delayed,
+    .hero-orbit,
+    .hero-orbit-reverse {
+      animation: none;
+    }
   }
 </style>
 {% endblock %}
