@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 # Install Node.js, Bun, and other necessary tools
 RUN apt-get update && apt-get install -y curl unzip && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
     curl -fsSL https://bun.sh/install | bash && \
     apt-get clean && \
