@@ -1,0 +1,233 @@
+---
+title: "양자역학 입문기 — [선형대수학] 02 선형변환과 행렬"
+description: "선형변환의 기하학적 의미, 기저 벡터의 추적, 행렬 표현, 그리고 행렬-벡터 곱셈의 직관까지"
+author: "Han Damin <miniex@daminstudio.net>"
+tags:
+  - physics
+  - quantum-mechanics
+  - linear-algebra
+  - series
+series: "양자역학 입문기"
+series_order: 2
+series_status: ongoing
+created_at: "2026/02/18 23:00"
+updated_at: "2026/02/18 23:00"
+lang: ko
+---
+
+## 변환(Transformation)이라는 시점
+
+"변환"이란 본질적으로 **함수(function)** 다. 입력을 받아 출력을 내놓는다. 선형대수학에서의 변환은 벡터를 입력으로 받아 다른 벡터를 출력한다.
+
+$$L : \mathbb{R}^n \to \mathbb{R}^m, \quad L(\vec{v}) = \vec{w}$$
+
+$$L\!\left(\begin{bmatrix} 5 \\ 7 \end{bmatrix}\right) = \begin{bmatrix} 2 \\ -3 \end{bmatrix}$$
+
+그런데 왜 "함수" 대신 **"변환(transformation)"** 이라는 단어를 사용하는가? 이 명칭은 입출력 관계에 대한 특정 시각화 방식을 내포하기 때문이다 — 벡터가 한 위치에서 다른 위치로 **움직이는** 것으로 받아들이는 것이다.
+
+## 변환의 시각화 — 점의 이동
+
+변환 전체를 이해할 때에는, 가능한 모든 입력 벡터가 그에 대응하는 출력 벡터로 움직이는 것을 상상하면 좋다.
+
+01장에서 다룬 것처럼, 무한히 많은 벡터를 동시에 시각화할 때에는 화살표가 아닌 **점**으로 나타내는 것이 편리하다. 변환은 곧 **공간 내 점이 다른 점으로 이동하는 것**이 된다.
+
+다음은 $\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ (90° 반시계 회전)을 격자점에 적용한 모습이다. 아래 평면(z=0)이 변환 전, 위 평면(z=1)이 변환 후이며, 각 점의 이동 경로가 선으로 연결되어 있다.
+
+```plot3d
+type: transform2d
+title: 90° 회전 — 격자점의 이동
+matrix: 0, -1, 1, 0
+grid: -2, 2
+step: 1
+```
+
+2차원에서의 변환의 경우, 이 움직임은 무한한 격자 위의 **모든 점**에 대해 적용된다. 격자 전체가 일제히 움직이는 것을 상상해야 한다.
+
+## 선형변환의 조건
+
+그런데 선형대수학에서는 임의의 변환이 아닌, **선형변환(linear transformation)** 만을 대상으로 한다. 시각적으로, 선형인 변환은 다음 두 성질을 만족한다.
+
+> 1. 모든 직선은 휘지 않고 **직선 상태를 유지**한다
+> 2. **원점은 제자리에 고정**된다
+
+이 두 조건은 곧 **격자선이 변환 후에도 평행하고 균등한 간격을 유지**한다는 것을 의미한다.
+
+형식적으로는 다음 두 성질로 정의한다.
+
+$$L(\vec{v} + \vec{w}) = L(\vec{v}) + L(\vec{w}) \quad \text{(가법성)}$$
+
+$$L(c\vec{v}) = cL(\vec{v}) \quad \text{(동차성)}$$
+
+다음은 선형인 변환과 선형이 아닌 변환의 비교다.
+
+| 변환 | 직선 보존 | 원점 고정 | 선형 여부 |
+|---|---|---|---|
+| 회전(rotation) | O | O | **선형** |
+| 전단(shear) | O | O | **선형** |
+| 균등 스케일링 | O | O | **선형** |
+| 평행이동(translation) | O | X | 비선형 |
+| 곡선으로 휘는 변환 | X | — | 비선형 |
+
+## 기저 벡터만 추적하면 된다
+
+선형변환의 핵심 통찰: **변환 전체를 기술하려면 기저 벡터의 도달점만 알면 충분하다.**
+
+왜 그런가? 임의의 벡터 $\vec{v}$는 기저 벡터의 선형 결합이다.
+
+$$\vec{v} = a\hat{i} + b\hat{j}$$
+
+선형성에 의해, 변환된 벡터는 **변환된 기저 벡터의 같은 선형 결합**이 된다.
+
+$$L(\vec{v}) = aL(\hat{i}) + bL(\hat{j})$$
+
+따라서 $L(\hat{i})$와 $L(\hat{j})$, 이 두 벡터만 알면 **공간 내 모든 벡터의 변환 결과**를 계산할 수 있다.
+
+### 예시: 구체적인 변환
+
+$\hat{i}$가 $(1, -2)$로, $\hat{j}$가 $(3, 0)$으로 변환되는 경우를 살펴보자.
+
+```plot3d
+type: vector2d
+title: 변환 전 — 표준 기저
+x: -2, 4
+y: -2, 4
+vec: 1, 0 | | \hat{i} = (1, 0)
+vec: 0, 1 | | \hat{j} = (0, 1)
+vec: -1, 2 | | \vec{v} = -1\hat{i} + 2\hat{j}
+```
+
+```plot3d
+type: vector2d
+title: 변환 후 — 기저의 도달점
+x: -2, 7
+y: -3, 3
+vec: 1, -2 | | L(\hat{i}) = (1, -2)
+vec: 3, 0 | | L(\hat{j}) = (3, 0)
+vec: 5, 2 | | L(\vec{v}) = -1(1, -2) + 2(3, 0)
+```
+
+$\vec{v} = -1\hat{i} + 2\hat{j}$의 변환 결과를 계산하면:
+
+$$L(\vec{v}) = -1 \cdot L(\hat{i}) + 2 \cdot L(\hat{j}) = -1\begin{bmatrix} 1 \\ -2 \end{bmatrix} + 2\begin{bmatrix} 3 \\ 0 \end{bmatrix} = \begin{bmatrix} -1 + 6 \\ 2 + 0 \end{bmatrix} = \begin{bmatrix} 5 \\ 2 \end{bmatrix}$$
+
+기저 벡터의 변환 결과 $(1, -2)$와 $(3, 0)$만으로, 임의의 벡터에 대한 변환을 완전히 기술할 수 있다.
+
+## 행렬 — 선형변환의 수치적 표현
+
+위의 계산을 일반화하자. 입력 벡터 $\begin{bmatrix} x \\ y \end{bmatrix}$에 대해:
+
+$$L\!\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = x \cdot L(\hat{i}) + y \cdot L(\hat{j}) = x\begin{bmatrix} 1 \\ -2 \end{bmatrix} + y\begin{bmatrix} 3 \\ 0 \end{bmatrix} = \begin{bmatrix} 1x + 3y \\ -2x + 0y \end{bmatrix}$$
+
+이 변환은 **네 개의 숫자** $1, 3, -2, 0$으로 완벽히 기술된다. 이 숫자들을 $2 \times 2$ 격자로 묶은 것이 **행렬(matrix)** 이다.
+
+$$A = \begin{bmatrix} 1 & 3 \\ -2 & 0 \end{bmatrix}$$
+
+- **첫 번째 열** $\begin{bmatrix} 1 \\ -2 \end{bmatrix}$ — $\hat{i}$의 도달점 $L(\hat{i})$
+- **두 번째 열** $\begin{bmatrix} 3 \\ 0 \end{bmatrix}$ — $\hat{j}$의 도달점 $L(\hat{j})$
+
+> 행렬의 각 열(column)은 변환된 기저 벡터다.
+
+## 행렬-벡터 곱셈
+
+행렬 $A$와 벡터 $\vec{v}$의 곱은 다음과 같이 정의된다.
+
+$$A\vec{v} = \begin{bmatrix} a & b \\ c & d \end{bmatrix}\begin{bmatrix} x \\ y \end{bmatrix} = x\begin{bmatrix} a \\ c \end{bmatrix} + y\begin{bmatrix} b \\ d \end{bmatrix} = \begin{bmatrix} ax + by \\ cx + dy \end{bmatrix}$$
+
+이것은 단순한 기계적 연산이 아니다. 그 기하학적 의미는 다음과 같다.
+
+> **행렬-벡터 곱셈은 선형변환을 적용하는 것이다.**
+
+벡터 $\vec{v}$의 성분 $x$, $y$는 "기저 벡터에 대한 가중치"이며, 행렬은 그 기저 벡터가 변환 후 **어디로 가는지**를 기록한 것이다.
+
+## 선형변환의 다양한 예시
+
+### 회전 (90° 반시계)
+
+$\hat{i} = (1, 0) \to (0, 1)$, $\hat{j} = (0, 1) \to (-1, 0)$
+
+$$R_{90°} = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$$
+
+```plot3d
+type: vector2d
+title: 90° 반시계 회전
+x: -3, 3
+y: -3, 3
+vec: 1, 0 | | \hat{i}
+vec: 0, 1 | | \hat{j}
+vec: 0, 1 | | L(\hat{i}) = (0, 1)
+vec: -1, 0 | | L(\hat{j}) = (-1, 0)
+```
+
+### 전단 (Shear)
+
+$\hat{i}$는 고정, $\hat{j}$만 기울어진다.
+
+$$S = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$$
+
+```plot3d
+type: vector2d
+title: 전단 변환
+x: -1, 4
+y: -1, 4
+vec: 1, 0 | | L(\hat{i}) = (1, 0)
+vec: 1, 1 | | L(\hat{j}) = (1, 1)
+vec: 2, 3 | | L(\vec{v}), \quad \vec{v} = (1, 3)
+```
+
+여기서 $\vec{v} = (1, 3)$의 변환 결과는:
+
+$$S\begin{bmatrix} 1 \\ 3 \end{bmatrix} = 1\begin{bmatrix} 1 \\ 0 \end{bmatrix} + 3\begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 4 \\ 3 \end{bmatrix}$$
+
+### 스케일링
+
+$$D = \begin{bmatrix} 2 & 0 \\ 0 & 3 \end{bmatrix}$$
+
+```plot3d
+type: vector2d
+title: 비균등 스케일링
+x: -1, 5
+y: -1, 5
+vec: 2, 0 | | L(\hat{i}) = (2, 0)
+vec: 0, 3 | | L(\hat{j}) = (0, 3)
+vec: 1, 0 | | \hat{i}
+vec: 0, 1 | | \hat{j}
+```
+
+$x$축 방향으로 2배, $y$축 방향으로 3배 늘린다.
+
+## 열이 선형 종속인 경우 — 차원 축소
+
+행렬의 두 열 벡터가 **선형 종속(linearly dependent)** 이면 어떻게 되는가?
+
+$$M = \begin{bmatrix} 2 & -1 \\ 4 & -2 \end{bmatrix}$$
+
+두 열 $\begin{bmatrix} 2 \\ 4 \end{bmatrix}$과 $\begin{bmatrix} -1 \\ -2 \end{bmatrix}$는 평행하다 — 하나가 다른 하나의 스칼라 배다.
+
+```plot3d
+type: vector2d
+title: 열이 선형 종속 — 직선으로 압축
+x: -4, 4
+y: -4, 5
+vec: 2, 4 | | L(\hat{i}) = (2, 4)
+vec: -1, -2 | | L(\hat{j}) = (-1, -2)
+```
+
+두 기저 벡터가 같은 직선 위로 도달하므로, $\mathbb{R}^2$ 전체가 하나의 **직선**으로 압축된다. 2차원 공간이 1차원으로 **찌그러지는** 것이다.
+
+이는 01장에서 다룬 생성 공간의 논의와 정확히 대응한다 — $L(\hat{i})$와 $L(\hat{j})$가 선형 종속이면, $\text{span}(L(\hat{i}), L(\hat{j}))$는 $\mathbb{R}^2$가 아닌 직선에 불과하다.
+
+## 요약
+
+| 개념 | 정의 |
+|---|---|
+| **변환** | 벡터를 입력으로 받아 벡터를 출력하는 함수 |
+| **선형변환** | 직선 보존 + 원점 고정을 만족하는 변환 |
+| **행렬** | 선형변환의 수치적 표현; 각 열은 변환된 기저 벡터 |
+| **행렬-벡터 곱셈** | 선형변환의 적용; $A\vec{v} = x \cdot L(\hat{i}) + y \cdot L(\hat{j})$ |
+| **열의 선형 종속** | 변환이 공간을 더 낮은 차원으로 압축함 |
+
+---
+
+*참고자료: [3Blue1Brown — 선형대수학의 본질](https://www.youtube.com/playlist?list=PLkoaXOTFHiqhVDo0nWybNmihCP_4BjOFR)*
+
+*학습 중인 내용을 정리한 글이므로, 용어 선택이나 설명의 전달이 부정확할 수 있다.*
