@@ -12,9 +12,14 @@ ssh-add ~/.ssh/gitlab
 ssh-keyscan gitlab.daminstudio.com >> ~/.ssh/known_hosts
 
 cd $REPO_PATH
+# Save current HEAD before updating
+OLD_HEAD=$(git rev-parse HEAD)
+
 # Fetch latest changes and reset to match remote main branch
 git fetch origin main
 git reset --hard origin/main
+
+NEW_HEAD=$(git rev-parse HEAD)
 
 # Ensure data directory exists with proper permissions
 mkdir -p data
@@ -30,14 +35,21 @@ fi
 : ${RESUME_TAG:=default-secret-tag}
 : ${RESUME_TITLE:=miniex::resume}
 
-# Force rebuild of Docker images
-RESUME_TAG=$RESUME_TAG RESUME_TITLE=$RESUME_TITLE docker compose -f $COMPOSE_FILE build --no-cache
+# Check if any files outside content/assets/templates/docs changed
+CODE_CHANGED=$(git diff --name-only "$OLD_HEAD" "$NEW_HEAD" -- \
+  ':!contents/' ':!assets/' ':!templates/' ':!*.md' ':!LICENSE' | head -1)
 
-# Start the services
-RESUME_TAG=$RESUME_TAG RESUME_TITLE=$RESUME_TITLE docker compose -f $COMPOSE_FILE up -d
-
-# Remove old, unused images
-docker image prune -f
+if [ -n "$CODE_CHANGED" ]; then
+  # Code changed: full rebuild
+  echo "Code files changed, rebuilding Docker images..."
+  RESUME_TAG=$RESUME_TAG RESUME_TITLE=$RESUME_TITLE docker compose -f $COMPOSE_FILE build --no-cache
+  RESUME_TAG=$RESUME_TAG RESUME_TITLE=$RESUME_TITLE docker compose -f $COMPOSE_FILE up -d
+  docker image prune -f
+else
+  # Content-only change: restart to pick up volume-mounted files
+  echo "Content-only change, restarting containers..."
+  RESUME_TAG=$RESUME_TAG RESUME_TITLE=$RESUME_TITLE docker compose -f $COMPOSE_FILE restart
+fi
 
 # Remove the key from the agent and kill the agent
 ssh-add -D
