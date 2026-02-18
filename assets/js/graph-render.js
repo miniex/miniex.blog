@@ -648,20 +648,22 @@
   }
 
   function plotlyAxis2d(p) {
+    var dark = isDark();
     return {
-      gridcolor: p.grid,
-      zerolinecolor: p.border,
+      gridcolor: dark ? p.grid : "rgba(61,53,58,0.3)",
+      zerolinecolor: dark ? p.border : "rgba(61,53,58,0.4)",
       zerolinewidth: 1,
-      linecolor: p.border,
+      linecolor: dark ? p.border : "rgba(61,53,58,0.4)",
       tickfont: { size: 10, color: p.textMuted },
     };
   }
 
   function plotlyAxis3d(p) {
+    var dark = isDark();
     return {
       backgroundcolor: "rgba(0,0,0,0)",
-      gridcolor: p.grid,
-      zerolinecolor: p.border,
+      gridcolor: dark ? p.grid : "rgba(61,53,58,0.7)",
+      zerolinecolor: dark ? p.border : "rgba(61,53,58,0.8)",
       showbackground: true,
       tickfont: { size: 9, color: p.textMuted },
     };
