@@ -5,7 +5,7 @@ pub mod post;
 pub mod templates;
 
 use db::Database;
-use post::Post;
+use post::{Post, Series};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -15,6 +15,7 @@ pub type AppState = Arc<RwLock<Vec<Post>>>;
 pub struct SharedState {
     pub posts: AppState,
     pub db: Database,
+    pub series_cache: Arc<RwLock<Vec<Series>>>,
 }
 
 #[derive(Default)]

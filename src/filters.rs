@@ -4,7 +4,7 @@ pub fn date<T: std::fmt::Display>(s: T) -> ::askama::Result<String> {
     let s = s.to_string();
 
     let dt = NaiveDateTime::parse_from_str(&s, "%Y-%m-%d %H:%M:%S UTC")
-        .expect("Failed to parse datetime");
+        .map_err(|e| ::askama::Error::Custom(Box::new(e)))?;
 
     let formatted = dt.format("%Y/%m/%d %H:%M").to_string();
 

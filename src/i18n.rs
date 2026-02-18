@@ -3,6 +3,7 @@ use axum::{
     extract::FromRequestParts,
     http::{header, request::Parts},
 };
+use chrono::{Datelike, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -246,7 +247,7 @@ pub struct Translations {
     pub error_return_home: &'static str,
 
     // Footer
-    pub footer_copyright: &'static str,
+    pub footer_copyright: String,
 
     // Search
     pub search_placeholder: &'static str,
@@ -282,6 +283,14 @@ impl Translations {
             Lang::Ja => Self::ja(),
             Lang::En => Self::en(),
         }
+    }
+
+    fn copyright() -> String {
+        let year = Utc::now().year();
+        format!(
+            "Copyright \u{00a9} 2024 - {} All rights reserved by Han Damin",
+            year
+        )
     }
 
     fn en() -> Self {
@@ -387,7 +396,7 @@ impl Translations {
             error_return_home: "Go Home",
 
             // Footer
-            footer_copyright: "Copyright \u{00a9} 2024 - All rights reserved by Han Damin",
+            footer_copyright: Self::copyright(),
 
             // Search
             search_placeholder: "Search...",
@@ -523,7 +532,7 @@ impl Translations {
             error_return_home: "홈으로 돌아가기",
 
             // Footer
-            footer_copyright: "Copyright \u{00a9} 2024 - All rights reserved by Han Damin",
+            footer_copyright: Self::copyright(),
 
             // Search
             search_placeholder: "글 검색...",
@@ -656,7 +665,7 @@ impl Translations {
             error_return_home: "ホームへ戻る",
 
             // Footer
-            footer_copyright: "Copyright \u{00a9} 2024 - All rights reserved by Han Damin",
+            footer_copyright: Self::copyright(),
 
             // Search
             search_placeholder: "記事を検索...",

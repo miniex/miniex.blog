@@ -41,6 +41,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app_state: AppState = Arc::new(RwLock::new(Vec::new()));
     load_posts(Arc::clone(&app_state)).await?;
 
+    // Pre-compute series cache from loaded posts
+    let series_cache = {
+        let posts = app_state.read().await;
+        get_series(&posts, Lang::En, false)
+    };
+
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
         // Ensure data directory exists
         std::fs::create_dir_all("./data").unwrap_or_default();
@@ -51,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let shared_state = SharedState {
         posts: app_state,
         db,
+        series_cache: Arc::new(RwLock::new(series_cache)),
     };
 
     let app = create_router(shared_state);
@@ -421,9 +428,11 @@ async fn handle_series(
     LangExtractor(lang): LangExtractor,
     Query(query): Query<SeriesQuery>,
 ) -> SeriesTemplate {
-    let posts = state.posts.read().await;
     let sort_asc = query.sort.as_deref() == Some("asc");
-    let series = get_series(&posts, lang, sort_asc);
+    let mut series = state.series_cache.read().await.clone();
+    if sort_asc {
+        series.sort_by(|a, b| a.updated_at.cmp(&b.updated_at));
+    }
     let t = Translations::for_lang(lang);
 
     SeriesTemplate {
@@ -448,36 +457,45 @@ async fn handle_series_detail(
     State(state): State<SharedState>,
     LangExtractor(lang): LangExtractor,
     Query(query): Query<SeriesDetailQuery>,
-) -> SeriesDetailTemplate {
-    let posts = state.posts.read().await;
+) -> impl IntoResponse {
     let sort_asc = query.sort.as_deref() == Some("asc");
-    let series_posts = get_posts_by_series(&posts, &series_name, lang, sort_asc);
     let t = Translations::for_lang(lang);
 
-    let series = get_series(&posts, lang, false)
-        .into_iter()
+    let series = state
+        .series_cache
+        .read()
+        .await
+        .iter()
         .find(|s| s.name == series_name)
-        .expect("Series should exist");
+        .cloned();
 
-    SeriesDetailTemplate {
-        blog: Blog::new()
-            .set_title(&format!("miniex::series::{}", series_name))
-            .set_description(
-                &series
-                    .description
-                    .clone()
-                    .unwrap_or_else(|| format!("{} 시리즈", series_name)),
-            )
-            .set_url(&format!("{}/series/{}", SITE_URL, series_name)),
-        series_description: series.description,
-        series_status: series.status,
-        series_name,
-        posts: series_posts,
-        authors: series.authors,
-        updated_at: series.updated_at,
-        t,
-        lang,
-        sort_asc,
+    match series {
+        Some(series) => {
+            let posts = state.posts.read().await;
+            let series_posts = get_posts_by_series(&posts, &series_name, lang, sort_asc);
+            SeriesDetailTemplate {
+                blog: Blog::new()
+                    .set_title(&format!("miniex::series::{}", series_name))
+                    .set_description(
+                        &series
+                            .description
+                            .clone()
+                            .unwrap_or_else(|| format!("{} 시리즈", series_name)),
+                    )
+                    .set_url(&format!("{}/series/{}", SITE_URL, series_name)),
+                series_description: series.description,
+                series_status: series.status,
+                series_name,
+                posts: series_posts,
+                authors: series.authors,
+                updated_at: series.updated_at,
+                t,
+                lang,
+                sort_asc,
+            }
+            .into_response()
+        }
+        None => (StatusCode::NOT_FOUND, ErrorTemplate { t, lang }).into_response(),
     }
 }
 
@@ -820,21 +838,27 @@ async fn handle_sitemap(State(state): State<SharedState>) -> impl IntoResponse {
     }
 
     // Series pages
-    let series_list = get_series(&posts, Lang::En, false);
-    for s in &series_list {
-        let lastmod = s.updated_at.format("%Y-%m-%d").to_string();
-        xml.push_str("  <url>\n");
-        xml.push_str(&format!("    <loc>{}/series/{}</loc>\n", SITE_URL, s.name));
-        xml.push_str(&format!("    <lastmod>{}</lastmod>\n", lastmod));
-        xml.push_str("    <changefreq>weekly</changefreq>\n");
-        xml.push_str("  </url>\n");
+    {
+        let series_list = state.series_cache.read().await;
+        for s in series_list.iter() {
+            let lastmod = s.updated_at.format("%Y-%m-%d").to_string();
+            xml.push_str("  <url>\n");
+            xml.push_str(&format!("    <loc>{}/series/{}</loc>\n", SITE_URL, s.name));
+            xml.push_str(&format!("    <lastmod>{}</lastmod>\n", lastmod));
+            xml.push_str("    <changefreq>weekly</changefreq>\n");
+            xml.push_str("  </url>\n");
+        }
     }
 
-    // Post pages
+    // Post pages (deduplicated by translation_key for canonical URLs)
     let mut sorted_posts: Vec<&Post> = posts.iter().collect();
     sorted_posts.sort_by(|a, b| b.metadata.updated_at.cmp(&a.metadata.updated_at));
 
+    let mut seen_keys = std::collections::HashSet::new();
     for post in &sorted_posts {
+        if !seen_keys.insert(&post.translation_key) {
+            continue;
+        }
         let lastmod = post.metadata.updated_at.format("%Y-%m-%d").to_string();
         xml.push_str("  <url>\n");
         xml.push_str(&format!("    <loc>{}/post/{}</loc>\n", SITE_URL, post.slug));
