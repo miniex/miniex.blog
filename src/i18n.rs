@@ -260,6 +260,10 @@ pub struct Translations {
     pub code_copy: &'static str,
     pub code_copied: &'static str,
 
+    // Graph
+    pub graph_before: &'static str,
+    pub graph_after: &'static str,
+
     // Sort
     pub sort_newest_first: &'static str,
     pub sort_oldest_first: &'static str,
@@ -393,6 +397,10 @@ impl Translations {
             code_copy: "Copy",
             code_copied: "Copied!",
 
+            // Graph
+            graph_before: "Before",
+            graph_after: "After",
+
             // Sort
             sort_newest_first: "Newest first",
             sort_oldest_first: "Oldest first",
@@ -521,6 +529,10 @@ impl Translations {
             code_copy: "복사",
             code_copied: "복사 완료!",
 
+            // Graph
+            graph_before: "변환 전",
+            graph_after: "변환 후",
+
             // Sort
             sort_newest_first: "최신순",
             sort_oldest_first: "오래된순",
@@ -645,6 +657,10 @@ impl Translations {
             // Code highlight
             code_copy: "コピー",
             code_copied: "コピーしました！",
+
+            // Graph
+            graph_before: "変換前",
+            graph_after: "変換後",
 
             // Sort
             sort_newest_first: "新しい順",

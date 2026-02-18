@@ -4,6 +4,10 @@
 (function () {
   "use strict";
 
+  // i18n strings (populated from #i18n-data if available)
+  var _i18nEl = document.getElementById("i18n-data");
+  var _i18n = _i18nEl ? JSON.parse(_i18nEl.textContent) : {};
+
   // ── Pastel palettes (light / dark) ──
 
   var PALETTE_LIGHT = {
@@ -1045,6 +1049,151 @@
     if (legendItems.length) el.appendChild(mkLegend(legendItems));
   }
 
+  function renderPlot3dTransform2d(el, cfg, p) {
+    // Parse 2x2 matrix: "a, b, c, d" → [[a, b], [c, d]]
+    var m = (cfg.matrix || "1,0,0,1").split(",").map(function (v) {
+      return parseFloat(v.trim());
+    });
+    var a = m[0] || 0,
+      b = m[1] || 0,
+      c = m[2] || 0,
+      d = m[3] || 0;
+
+    // Parse grid range and step
+    var gr = cfg.grid ? parseRange(cfg.grid) : [-2, 2];
+    var step = cfg.step ? parseFloat(cfg.step) : 1;
+
+    // Generate grid points: before (z=0) → after (z=1)
+    var pts = [];
+    for (var gx = gr[0]; gx <= gr[1]; gx += step) {
+      for (var gy = gr[0]; gy <= gr[1]; gy += step) {
+        var tx = a * gx + b * gy;
+        var ty = c * gx + d * gy;
+        pts.push({ x0: gx, y0: gy, x1: tx, y1: ty });
+      }
+    }
+
+    var beforeColor = p.series[2];
+    var afterColor = p.series[0];
+    var lineColor = toRgba(p.series[1], 0.35);
+
+    var traces = [];
+
+    // Connection lines (before z=0 → after z=1)
+    pts.forEach(function (pt) {
+      traces.push({
+        type: "scatter3d",
+        x: [pt.x0, pt.x1],
+        y: [pt.y0, pt.y1],
+        z: [0, 1],
+        mode: "lines",
+        line: { color: lineColor, width: 2 },
+        showlegend: false,
+      });
+    });
+
+    // Before points (z=0)
+    traces.push({
+      type: "scatter3d",
+      x: pts.map(function (pt) {
+        return pt.x0;
+      }),
+      y: pts.map(function (pt) {
+        return pt.y0;
+      }),
+      z: pts.map(function () {
+        return 0;
+      }),
+      mode: "markers",
+      marker: {
+        size: 4,
+        color: beforeColor,
+        opacity: 0.85,
+        line: { width: 0.5, color: isDark() ? "#1c181a" : "#fcfafb" },
+      },
+      showlegend: false,
+    });
+
+    // After points (z=1)
+    traces.push({
+      type: "scatter3d",
+      x: pts.map(function (pt) {
+        return pt.x1;
+      }),
+      y: pts.map(function (pt) {
+        return pt.y1;
+      }),
+      z: pts.map(function () {
+        return 1;
+      }),
+      mode: "markers",
+      marker: {
+        size: 4,
+        color: afterColor,
+        opacity: 0.9,
+        line: { width: 0.5, color: isDark() ? "#1c181a" : "#fcfafb" },
+      },
+      showlegend: false,
+    });
+
+    var layout = plotlyBaseLayout(cfg, p);
+    layout.scene = {
+      xaxis: plotlyAxis3d(p),
+      yaxis: plotlyAxis3d(p),
+      zaxis: Object.assign({}, plotlyAxis3d(p), {
+        tickvals: [0, 1],
+        ticktext: [
+          _i18n.graph_before || "Before",
+          _i18n.graph_after || "After",
+        ],
+      }),
+      camera: { eye: { x: 1.6, y: -1.6, z: 1.0 } },
+    };
+
+    var graphWrap = document.createElement("div");
+    graphWrap.className = "graph-plot-wrap";
+    el.appendChild(graphWrap);
+
+    var wrap = document.createElement("div");
+    graphWrap.appendChild(wrap);
+    Plotly.newPlot(wrap, traces, layout, PLOTLY_CFG_3D);
+    blockPlotlyWheelZoom(wrap);
+
+    addPlotlyControls(graphWrap, {
+      zoomIn: function () {
+        var cam = wrap._fullLayout.scene._scene.getCamera();
+        cam.eye.x *= 0.75;
+        cam.eye.y *= 0.75;
+        cam.eye.z *= 0.75;
+        Plotly.relayout(wrap, { "scene.camera": cam });
+      },
+      zoomOut: function () {
+        var cam = wrap._fullLayout.scene._scene.getCamera();
+        cam.eye.x *= 1.35;
+        cam.eye.y *= 1.35;
+        cam.eye.z *= 1.35;
+        Plotly.relayout(wrap, { "scene.camera": cam });
+      },
+      reset: function () {
+        Plotly.relayout(wrap, {
+          "scene.camera": { eye: { x: 1.6, y: -1.6, z: 1.0 } },
+        });
+      },
+    });
+
+    // Legend
+    el.appendChild(
+      mkLegend([
+        {
+          label: _i18n.graph_before || "Before",
+          color: beforeColor,
+          katex: null,
+        },
+        { label: _i18n.graph_after || "After", color: afterColor, katex: null },
+      ]),
+    );
+  }
+
   function renderPlot3dVector3d(el, cfg, p) {
     var vecs = cfg.vec || [];
     var traces = [];
@@ -1246,6 +1395,8 @@
       renderPlot3dVector2d(el, cfg, p);
     } else if (type === "point2d") {
       renderPlot3dPoint2d(el, cfg, p);
+    } else if (type === "transform2d") {
+      renderPlot3dTransform2d(el, cfg, p);
     } else if (type === "vector3d") {
       renderPlot3dVector3d(el, cfg, p);
     } else if (type === "scatter3d") {
