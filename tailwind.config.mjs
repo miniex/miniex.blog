@@ -134,14 +134,14 @@ export default {
               backgroundColor: "hsl(var(--b2) / 0.5)",
               borderLeftColor: "hsl(var(--p))",
               borderLeftWidth: "4px",
-              padding: "1em 1.5em",
+              padding: "0.1em 1.25em",
               borderRadius: "0.375rem",
-              marginTop: "1.5em",
-              marginBottom: "1.5em",
+              marginTop: "0.4em",
+              marginBottom: "0.4em",
             },
             "blockquote p": {
-              marginTop: "0.5em",
-              marginBottom: "0.5em",
+              marginTop: "0",
+              marginBottom: "0",
               color: "hsl(var(--bc) / 0.9)",
             },
             "blockquote p:first-of-type::before": {
@@ -169,6 +169,66 @@ export default {
               marginLeft: "auto",
               marginRight: "auto",
               borderRadius: "25px",
+            },
+          },
+        },
+        sm: {
+          css: {
+            blockquote: {
+              marginTop: "0.4em",
+              marginBottom: "0.4em",
+            },
+            "blockquote p": {
+              marginTop: "0",
+              marginBottom: "0",
+            },
+          },
+        },
+        base: {
+          css: {
+            blockquote: {
+              marginTop: "0.4em",
+              marginBottom: "0.4em",
+            },
+            "blockquote p": {
+              marginTop: "0",
+              marginBottom: "0",
+            },
+          },
+        },
+        lg: {
+          css: {
+            blockquote: {
+              marginTop: "0.4em",
+              marginBottom: "0.4em",
+            },
+            "blockquote p": {
+              marginTop: "0",
+              marginBottom: "0",
+            },
+          },
+        },
+        xl: {
+          css: {
+            blockquote: {
+              marginTop: "0.4em",
+              marginBottom: "0.4em",
+            },
+            "blockquote p": {
+              marginTop: "0",
+              marginBottom: "0",
+            },
+          },
+        },
+        "2xl": {
+          css: {
+            blockquote: {
+              marginTop: "0.4em",
+              marginBottom: "0.4em",
+            },
+            "blockquote p": {
+              marginTop: "0",
+              marginBottom: "0",
             },
           },
         },
