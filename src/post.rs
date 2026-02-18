@@ -174,9 +174,7 @@ pub fn get_recent_posts(posts: &[Post], lang: Lang) -> Vec<Post> {
     let all_posts: Vec<Post> = posts.to_vec();
     let mut deduped = dedup_by_translation(all_posts, lang);
     deduped.sort();
-    let mut recent: Vec<Post> = deduped.into_iter().take(5).collect();
-    recent.reverse();
-    recent
+    deduped.into_iter().take(5).collect()
 }
 
 /// get posts by category with language fallback
