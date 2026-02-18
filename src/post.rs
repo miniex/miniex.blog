@@ -5,7 +5,7 @@ use crate::AppState;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use gray_matter::{engine::YAML, Matter};
-use pulldown_cmark::{html, Event, Options, Parser, Tag, TagEnd};
+use pulldown_cmark::{html, CodeBlockKind, Event, Options, Parser, Tag, TagEnd};
 use serde::{Deserialize, Serialize};
 use slug::slugify;
 use std::{
@@ -491,6 +491,11 @@ async fn process_mdx_file(
     let mut current_heading_level: u8 = 0;
     let mut current_heading_text = String::new();
 
+    // State for graph/chart code block processing
+    let mut in_graph_block = false;
+    let mut in_chart_block = false;
+    let mut block_content = String::new();
+
     // Collect events and process headings
     let events: Vec<Event> = parser.collect();
     let mut processed_events: Vec<Event> = Vec::new();
@@ -498,6 +503,52 @@ async fn process_mdx_file(
     let mut i = 0;
     while i < events.len() {
         match &events[i] {
+            // Intercept graph/chart fenced code blocks
+            Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(lang))) => {
+                let lang_str = lang.trim().to_lowercase();
+                if lang_str == "graph" {
+                    in_graph_block = true;
+                    block_content.clear();
+                    i += 1;
+                    continue;
+                } else if lang_str == "chart" {
+                    in_chart_block = true;
+                    block_content.clear();
+                    i += 1;
+                    continue;
+                } else {
+                    processed_events.push(events[i].clone());
+                }
+            }
+            Event::End(TagEnd::CodeBlock) => {
+                if in_graph_block {
+                    in_graph_block = false;
+                    let escaped = block_content
+                        .replace('&', "&amp;")
+                        .replace('<', "&lt;")
+                        .replace('>', "&gt;");
+                    processed_events.push(Event::Html(
+                        format!("<div class=\"function-plot-target\">{}</div>", escaped).into(),
+                    ));
+                    block_content.clear();
+                    i += 1;
+                    continue;
+                } else if in_chart_block {
+                    in_chart_block = false;
+                    let escaped = block_content
+                        .replace('&', "&amp;")
+                        .replace('<', "&lt;")
+                        .replace('>', "&gt;");
+                    processed_events.push(Event::Html(
+                        format!("<div class=\"chart-js-target\">{}</div>", escaped).into(),
+                    ));
+                    block_content.clear();
+                    i += 1;
+                    continue;
+                } else {
+                    processed_events.push(events[i].clone());
+                }
+            }
             Event::Start(Tag::Heading { level, .. }) => {
                 let lvl = *level as u8;
                 if lvl == 2 || lvl == 3 {
@@ -552,6 +603,11 @@ async fn process_mdx_file(
                 }
             }
             Event::Text(text) => {
+                if in_graph_block || in_chart_block {
+                    block_content.push_str(text);
+                    i += 1;
+                    continue;
+                }
                 if in_heading {
                     current_heading_text.push_str(text);
                 }
@@ -562,6 +618,11 @@ async fn process_mdx_file(
                 }
             }
             Event::Code(code) => {
+                if in_graph_block || in_chart_block {
+                    block_content.push_str(code);
+                    i += 1;
+                    continue;
+                }
                 if in_heading {
                     current_heading_text.push_str(code);
                 }
@@ -571,6 +632,10 @@ async fn process_mdx_file(
                 }
             }
             _ => {
+                if in_graph_block || in_chart_block {
+                    i += 1;
+                    continue;
+                }
                 if !in_heading {
                     processed_events.push(events[i].clone());
                 }

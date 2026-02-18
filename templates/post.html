@@ -1,6 +1,6 @@
 {% extends "_base.html" %} {% block head %}
 <!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
 {% if let Some(post) = current_post
 %}
 <title>{{ post.metadata.title }}</title>
@@ -680,7 +680,7 @@
 <script src="/assets/js/post-toc.js?v=1"></script>
 
 <!-- KaTeX rendering -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.math').forEach(function(el) {
@@ -689,4 +689,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Graph & Chart rendering -->
+<script src="/assets/js/graph-render.js?v=1"></script>
 {% endblock %}
