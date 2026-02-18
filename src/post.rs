@@ -479,6 +479,7 @@ async fn process_mdx_file(
     // Parse the markdown with event interception for TOC and reading time
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_MATH);
     let parser = Parser::new_ext(parsed.content.as_str(), options);
 
     let mut toc: Vec<TocEntry> = Vec::new();
