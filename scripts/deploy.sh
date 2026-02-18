@@ -37,7 +37,7 @@ fi
 
 # Check if any files outside content/assets/templates/docs changed
 CODE_CHANGED=$(git diff --name-only "$OLD_HEAD" "$NEW_HEAD" -- \
-  ':!contents/' ':!assets/' ':!templates/' ':!*.md' ':!LICENSE' | head -1)
+  ':!contents/' ':!assets/' ':!*.md' ':!LICENSE' | head -1)
 
 if [ -n "$CODE_CHANGED" ]; then
   # Code changed: full rebuild
