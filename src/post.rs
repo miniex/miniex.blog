@@ -174,7 +174,9 @@ pub fn get_recent_posts(posts: &[Post], lang: Lang) -> Vec<Post> {
     let all_posts: Vec<Post> = posts.to_vec();
     let mut deduped = dedup_by_translation(all_posts, lang);
     deduped.sort();
-    deduped.into_iter().take(5).collect()
+    let mut recent: Vec<Post> = deduped.into_iter().take(5).collect();
+    recent.reverse();
+    recent
 }
 
 /// get posts by category with language fallback
@@ -183,6 +185,7 @@ pub fn get_posts_by_category(
     post_type: PostType,
     category: Option<&str>,
     lang: Lang,
+    sort_asc: bool,
 ) -> Vec<Post> {
     let filtered: Vec<Post> = posts
         .iter()
@@ -196,7 +199,11 @@ pub fn get_posts_by_category(
         .collect();
 
     let mut deduped = dedup_by_translation(filtered, lang);
-    deduped.sort();
+    if sort_asc {
+        deduped.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
+    } else {
+        deduped.sort();
+    }
     deduped
 }
 
@@ -212,8 +219,8 @@ pub async fn load_posts(state: AppState) -> Result<()> {
     Ok(())
 }
 
-/// get all series information from posts (all languages), sorted by name
-pub fn get_series(posts: &[Post], _lang: Lang) -> Vec<Series> {
+/// get all series information from posts (all languages), sorted by updated_at DESC
+pub fn get_series(posts: &[Post], _lang: Lang, sort_asc: bool) -> Vec<Series> {
     let mut series_map: HashMap<String, Vec<String>> = HashMap::new();
     let mut latest_updates: HashMap<String, DateTime<Utc>> = HashMap::new();
     let mut descriptions: HashMap<String, Option<String>> = HashMap::new();
@@ -276,7 +283,11 @@ pub fn get_series(posts: &[Post], _lang: Lang) -> Vec<Series> {
         })
         .collect();
 
-    series.sort_by(|a, b| a.name.cmp(&b.name));
+    if sort_asc {
+        series.sort_by(|a, b| a.updated_at.cmp(&b.updated_at));
+    } else {
+        series.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+    }
     series
 }
 
@@ -293,8 +304,13 @@ pub fn get_series_names(posts: &[Post], _lang: Lang) -> Vec<String> {
     series_names
 }
 
-/// get posts by series name with language fallback, sorted by series_order then created_at ascending
-pub fn get_posts_by_series(posts: &[Post], series_name: &str, lang: Lang) -> Vec<Post> {
+/// get posts by series name with language fallback, sorted by created_at DESC by default
+pub fn get_posts_by_series(
+    posts: &[Post],
+    series_name: &str,
+    lang: Lang,
+    sort_asc: bool,
+) -> Vec<Post> {
     let filtered: Vec<Post> = posts
         .iter()
         .filter(|post| {
@@ -309,22 +325,19 @@ pub fn get_posts_by_series(posts: &[Post], series_name: &str, lang: Lang) -> Vec
 
     let mut series_posts = dedup_by_translation(filtered, lang);
 
-    // Sort by series_order first (if present), then created_at ascending (chronological)
-    series_posts.sort_by(
-        |a, b| match (a.metadata.series_order, b.metadata.series_order) {
-            (Some(a_order), Some(b_order)) => a_order.cmp(&b_order),
-            (Some(_), None) => Ordering::Less,
-            (None, Some(_)) => Ordering::Greater,
-            (None, None) => a.metadata.created_at.cmp(&b.metadata.created_at),
-        },
-    );
+    if sort_asc {
+        series_posts.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
+    } else {
+        series_posts.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
+    }
     series_posts
 }
 
 /// Get series navigation info for a specific post (scoped to same language)
 pub fn get_series_nav_info(posts: &[Post], current_post: &Post) -> Option<SeriesNavInfo> {
     let series_name = current_post.metadata.series.as_ref()?;
-    let series_posts = get_posts_by_series(posts, series_name, current_post.lang);
+    // Always use ASC order for series navigation (prev/next)
+    let series_posts = get_posts_by_series(posts, series_name, current_post.lang, true);
     let total_count = series_posts.len();
 
     let current_idx = series_posts

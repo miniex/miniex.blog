@@ -72,40 +72,73 @@ block head %}
     </div>
   </div>
 
-  <!-- Posts Timeline -->
-  <div class="relative mx-6 sm:mx-12">
-    <!-- Timeline center line -->
-    <div
-      class="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-primary/20 via-secondary/15 to-primary/10 rounded-full mx-auto right-0"
-    ></div>
-
-    <div class="relative z-10">
-      {% if posts.len() > 0 %} {% for post in posts %}
-      <div class="relative mb-12 last:mb-0">
-        <!-- Timeline node -->
-        <div
-          class="absolute left-0 right-0 mx-auto w-3 h-3 rounded-full bg-primary/20 border-2 border-base-100 top-14 timeline-node transition-colors duration-300"
-        ></div>
-
-        <!-- Post card with offset -->
-        <div class="ml-12 transform transition-all duration-500 timeline-item">
-          {% call components::post_card(post=post) %}
-        </div>
-      </div>
-      {% endfor %} {% else %}
-      <div
-        class="flex flex-col items-center justify-center py-16 bg-base-100/80 rounded-3xl border border-base-300/25 text-center my-8 ml-12"
+  <div id="sort-content">
+    <!-- Sort Toggle -->
+    <div class="flex justify-end mb-6">
+      {% if sort_asc %}
+      <a
+        hx-get="?sort=desc"
+        hx-target="#sort-content"
+        hx-select="#sort-content"
+        hx-swap="outerHTML transition:true"
+        hx-push-url="true"
+        class="flex items-center gap-1.5 bg-primary/6 hover:bg-primary/12 text-base-content/70 hover:text-primary rounded-full px-4 py-1.5 text-sm transition-all duration-200 cursor-pointer"
       >
-        <i class="ph ph-article text-5xl text-base-content/20 mb-4"></i>
-        <h3 class="text-lg font-semibold mb-2">{{ t.series_no_posts }}</h3>
-        <p class="text-sm text-base-content/50 mb-6 max-w-md">
-          {{ t.series_no_posts_message }}
-        </p>
-        <a href="/series" class="btn btn-primary btn-sm"
-          >{{ t.series_view_all }}</a
-        >
-      </div>
+        <i class="ph ph-sort-ascending text-sm"></i>
+        {{ t.sort_oldest_first }}
+      </a>
+      {% else %}
+      <a
+        hx-get="?sort=asc"
+        hx-target="#sort-content"
+        hx-select="#sort-content"
+        hx-swap="outerHTML transition:true"
+        hx-push-url="true"
+        class="flex items-center gap-1.5 bg-primary/6 hover:bg-primary/12 text-base-content/70 hover:text-primary rounded-full px-4 py-1.5 text-sm transition-all duration-200 cursor-pointer"
+      >
+        <i class="ph ph-sort-descending text-sm"></i>
+        {{ t.sort_newest_first }}
+      </a>
       {% endif %}
+    </div>
+
+    <!-- Posts Timeline -->
+    <div class="relative mx-6 sm:mx-12">
+      <!-- Timeline center line -->
+      <div
+        class="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-primary/20 via-secondary/15 to-primary/10 rounded-full mx-auto right-0"
+      ></div>
+
+      <div class="relative z-10">
+        {% if posts.len() > 0 %} {% for post in posts %}
+        <div class="relative mb-12 last:mb-0">
+          <!-- Timeline node -->
+          <div
+            class="absolute left-0 right-0 mx-auto w-3 h-3 rounded-full bg-primary/20 border-2 border-base-100 top-14 timeline-node transition-colors duration-300"
+          ></div>
+
+          <!-- Post card with offset -->
+          <div
+            class="ml-12 transform transition-all duration-500 timeline-item"
+          >
+            {% call components::post_card(post=post) %}
+          </div>
+        </div>
+        {% endfor %} {% else %}
+        <div
+          class="flex flex-col items-center justify-center py-16 bg-base-100/80 rounded-3xl border border-base-300/25 text-center my-8 ml-12"
+        >
+          <i class="ph ph-article text-5xl text-base-content/20 mb-4"></i>
+          <h3 class="text-lg font-semibold mb-2">{{ t.series_no_posts }}</h3>
+          <p class="text-sm text-base-content/50 mb-6 max-w-md">
+            {{ t.series_no_posts_message }}
+          </p>
+          <a href="/series" class="btn btn-primary btn-sm"
+            >{{ t.series_view_all }}</a
+          >
+        </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>

@@ -58,6 +58,7 @@ block head %}
     </div>
   </div>
 
+  <div id="sort-content">
   <!-- Category Filter -->
   <div
     class="mb-10 bg-base-100/80 backdrop-blur-sm rounded-3xl px-5 py-4 border border-base-300/25"
@@ -74,11 +75,38 @@ block head %}
 
       {% for category in categories %}
       <a
-        href="?category={{ category }}"
+        href="?category={{ category }}{% if sort_asc %}&sort=asc{% endif %}"
         class="bg-primary/6 hover:bg-primary/12 text-base-content/70 hover:text-primary rounded-full px-4 py-1.5 text-sm transition-all duration-200"
         >{{ category }}</a
       >
       {% endfor %}
+
+      <span class="flex-grow"></span>
+      {% if sort_asc %}
+      <a
+        hx-get="?sort=desc{% if let Some(cat) = current_category %}&category={{ cat }}{% endif %}"
+        hx-target="#sort-content"
+        hx-select="#sort-content"
+        hx-swap="outerHTML transition:true"
+        hx-push-url="true"
+        class="flex items-center gap-1.5 bg-primary/6 hover:bg-primary/12 text-base-content/70 hover:text-primary rounded-full px-4 py-1.5 text-sm transition-all duration-200 cursor-pointer"
+      >
+        <i class="ph ph-sort-ascending text-sm"></i>
+        {{ t.sort_oldest_first }}
+      </a>
+      {% else %}
+      <a
+        hx-get="?sort=asc{% if let Some(cat) = current_category %}&category={{ cat }}{% endif %}"
+        hx-target="#sort-content"
+        hx-select="#sort-content"
+        hx-swap="outerHTML transition:true"
+        hx-push-url="true"
+        class="flex items-center gap-1.5 bg-primary/6 hover:bg-primary/12 text-base-content/70 hover:text-primary rounded-full px-4 py-1.5 text-sm transition-all duration-200 cursor-pointer"
+      >
+        <i class="ph ph-sort-descending text-sm"></i>
+        {{ t.sort_newest_first }}
+      </a>
+      {% endif %}
     </div>
   </div>
 
@@ -117,6 +145,7 @@ block head %}
       >
       {% endif %}
     </div>
+  </div>
   </div>
 </div>
 {% endblock %}

@@ -259,6 +259,12 @@ pub struct Translations {
     // Code highlight
     pub code_copy: &'static str,
     pub code_copied: &'static str,
+
+    // Sort
+    pub sort_newest_first: &'static str,
+    pub sort_oldest_first: &'static str,
+    pub sort_recently_updated: &'static str,
+    pub sort_least_updated: &'static str,
 }
 
 impl Translations {
@@ -386,6 +392,12 @@ impl Translations {
             // Code highlight
             code_copy: "Copy",
             code_copied: "Copied!",
+
+            // Sort
+            sort_newest_first: "Newest first",
+            sort_oldest_first: "Oldest first",
+            sort_recently_updated: "Recently updated",
+            sort_least_updated: "Least recently updated",
         }
     }
 
@@ -508,6 +520,12 @@ impl Translations {
             // Code highlight
             code_copy: "복사",
             code_copied: "복사 완료!",
+
+            // Sort
+            sort_newest_first: "최신순",
+            sort_oldest_first: "오래된순",
+            sort_recently_updated: "최근 수정순",
+            sort_least_updated: "오래된 수정순",
         }
     }
 
@@ -627,6 +645,12 @@ impl Translations {
             // Code highlight
             code_copy: "コピー",
             code_copied: "コピーしました！",
+
+            // Sort
+            sort_newest_first: "新しい順",
+            sort_oldest_first: "古い順",
+            sort_recently_updated: "最近更新順",
+            sort_least_updated: "更新が古い順",
         }
     }
 }

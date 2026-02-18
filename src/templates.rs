@@ -23,6 +23,7 @@ pub struct BlogTemplate {
     pub blog: Blog,
     pub posts: Vec<Post>,
     pub categories: Vec<String>,
+    pub current_category: Option<String>,
     pub current_page: u32,
     pub total_pages: u32,
     pub prev_page: Option<u32>,
@@ -30,6 +31,7 @@ pub struct BlogTemplate {
     pub page_numbers: Vec<u32>,
     pub t: Translations,
     pub lang: Lang,
+    pub sort_asc: bool,
 }
 
 #[derive(Template)]
@@ -38,6 +40,7 @@ pub struct ReviewTemplate {
     pub blog: Blog,
     pub posts: Vec<Post>,
     pub categories: Vec<String>,
+    pub current_category: Option<String>,
     pub current_page: u32,
     pub total_pages: u32,
     pub prev_page: Option<u32>,
@@ -45,6 +48,7 @@ pub struct ReviewTemplate {
     pub page_numbers: Vec<u32>,
     pub t: Translations,
     pub lang: Lang,
+    pub sort_asc: bool,
 }
 
 #[derive(Template)]
@@ -53,6 +57,7 @@ pub struct DiaryTemplate {
     pub blog: Blog,
     pub posts: Vec<Post>,
     pub categories: Vec<String>,
+    pub current_category: Option<String>,
     pub current_page: u32,
     pub total_pages: u32,
     pub prev_page: Option<u32>,
@@ -60,6 +65,7 @@ pub struct DiaryTemplate {
     pub page_numbers: Vec<u32>,
     pub t: Translations,
     pub lang: Lang,
+    pub sort_asc: bool,
 }
 
 #[derive(Template)]
@@ -69,6 +75,7 @@ pub struct SeriesTemplate {
     pub series: Vec<Series>,
     pub t: Translations,
     pub lang: Lang,
+    pub sort_asc: bool,
 }
 
 #[derive(Template)]
@@ -83,6 +90,7 @@ pub struct SeriesDetailTemplate {
     pub series_status: SeriesStatus,
     pub t: Translations,
     pub lang: Lang,
+    pub sort_asc: bool,
 }
 
 #[derive(Template)]
@@ -111,6 +119,7 @@ pub struct GuestbookTemplate {
     pub entries: Vec<Guestbook>,
     pub t: Translations,
     pub lang: Lang,
+    pub sort_asc: bool,
 }
 
 #[derive(Template)]

@@ -60,79 +60,110 @@
     </div>
   </div>
 
-  <!-- Series List -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% if series.len() > 0 %} {% for s in series %}
-    <div
-      class="group bg-base-100/80 rounded-3xl border border-base-300/25 p-6 hover:shadow-lg hover:shadow-primary/8 transition-all duration-300 h-full flex flex-col"
-    >
-      <div class="flex items-center justify-between mb-3">
-        <h2
-          class="text-lg font-semibold group-hover:text-primary transition-colors duration-300"
-        >
-          {{ s.name }}
-        </h2>
-        {% match s.status %} {% when crate::post::SeriesStatus::Completed %}
-        <span class="badge badge-sm badge-success gap-1">
-          <i class="ph ph-check-circle text-xs"></i>
-          {{ t.series_completed }}
-        </span>
-        {% when crate::post::SeriesStatus::Ongoing %}
-        <span class="badge badge-sm badge-info gap-1">
-          <i class="ph ph-spinner text-xs"></i>
-          {{ t.series_ongoing }}
-        </span>
-        {% endmatch %}
-      </div>
-
-      {% if let Some(desc) = s.description %}
-      <p class="text-sm text-base-content/60 mb-3 line-clamp-2">{{ desc }}</p>
-      {% endif %}
-
-      <div class="flex flex-wrap gap-1.5 mb-3">
-        {% for author in s.authors %}
-        <span
-          class="badge badge-sm bg-primary/6 border-primary/10 text-primary/80 text-xs"
-          >{{ author }}</span
-        >
-        {% endfor %}
-      </div>
-
-      <div
-        class="flex items-center gap-4 text-xs text-base-content/45 mt-auto mb-4"
-      >
-        <div class="flex items-center gap-1.5">
-          <i class="ph ph-article text-sm"></i>
-          <span>{{ s.post_count }} {{ t.series_posts_count }}</span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <i class="ph ph-clock text-sm"></i>
-          <span>{{ t.series_updated }} {{ s.updated_at|date }}</span>
-        </div>
-      </div>
-
+  <div id="sort-content">
+    <!-- Sort Toggle -->
+    <div class="flex justify-end mb-6">
+      {% if sort_asc %}
       <a
-        href="/series/{{ s.name }}"
-        class="btn btn-sm btn-ghost border border-base-300/30 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 w-full gap-2"
+        hx-get="?sort=desc"
+        hx-target="#sort-content"
+        hx-select="#sort-content"
+        hx-swap="outerHTML transition:true"
+        hx-push-url="true"
+        class="flex items-center gap-1.5 bg-primary/6 hover:bg-primary/12 text-base-content/70 hover:text-primary rounded-full px-4 py-1.5 text-sm transition-all duration-200 cursor-pointer"
       >
-        <i class="ph ph-books text-sm"></i>
-        <span>{{ t.series_view }}</span>
-        <i
-          class="ph ph-arrow-right ml-auto text-sm transform group-hover:translate-x-0.5 transition-transform duration-200"
-        ></i>
+        <i class="ph ph-sort-ascending text-sm"></i>
+        {{ t.sort_least_updated }}
       </a>
+      {% else %}
+      <a
+        hx-get="?sort=asc"
+        hx-target="#sort-content"
+        hx-select="#sort-content"
+        hx-swap="outerHTML transition:true"
+        hx-push-url="true"
+        class="flex items-center gap-1.5 bg-primary/6 hover:bg-primary/12 text-base-content/70 hover:text-primary rounded-full px-4 py-1.5 text-sm transition-all duration-200 cursor-pointer"
+      >
+        <i class="ph ph-sort-descending text-sm"></i>
+        {{ t.sort_recently_updated }}
+      </a>
+      {% endif %}
     </div>
-    {% endfor %} {% else %}
-    <div
-      class="col-span-full flex flex-col items-center justify-center py-16 bg-base-100/80 rounded-3xl border border-base-300/25 text-center"
-    >
-      <i class="ph ph-books text-5xl text-primary/15 mb-4"></i>
-      <h3 class="text-lg font-semibold mb-2">{{ t.series_no_series }}</h3>
-      <p class="text-sm text-base-content/50 max-w-md">
-        {{ t.series_no_series_message }}
-      </p>
+
+    <!-- Series List -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% if series.len() > 0 %} {% for s in series %}
+      <div
+        class="group bg-base-100/80 rounded-3xl border border-base-300/25 p-6 hover:shadow-lg hover:shadow-primary/8 transition-all duration-300 h-full flex flex-col"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <h2
+            class="text-lg font-semibold group-hover:text-primary transition-colors duration-300"
+          >
+            {{ s.name }}
+          </h2>
+          {% match s.status %} {% when crate::post::SeriesStatus::Completed %}
+          <span class="badge badge-sm badge-success gap-1">
+            <i class="ph ph-check-circle text-xs"></i>
+            {{ t.series_completed }}
+          </span>
+          {% when crate::post::SeriesStatus::Ongoing %}
+          <span class="badge badge-sm badge-info gap-1">
+            <i class="ph ph-spinner text-xs"></i>
+            {{ t.series_ongoing }}
+          </span>
+          {% endmatch %}
+        </div>
+
+        {% if let Some(desc) = s.description %}
+        <p class="text-sm text-base-content/60 mb-3 line-clamp-2">{{ desc }}</p>
+        {% endif %}
+
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          {% for author in s.authors %}
+          <span
+            class="badge badge-sm bg-primary/6 border-primary/10 text-primary/80 text-xs"
+            >{{ author }}</span
+          >
+          {% endfor %}
+        </div>
+
+        <div
+          class="flex items-center gap-4 text-xs text-base-content/45 mt-auto mb-4"
+        >
+          <div class="flex items-center gap-1.5">
+            <i class="ph ph-article text-sm"></i>
+            <span>{{ s.post_count }} {{ t.series_posts_count }}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <i class="ph ph-clock text-sm"></i>
+            <span>{{ t.series_updated }} {{ s.updated_at|date }}</span>
+          </div>
+        </div>
+
+        <a
+          href="/series/{{ s.name }}"
+          class="btn btn-sm btn-ghost border border-base-300/30 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 w-full gap-2"
+        >
+          <i class="ph ph-books text-sm"></i>
+          <span>{{ t.series_view }}</span>
+          <i
+            class="ph ph-arrow-right ml-auto text-sm transform group-hover:translate-x-0.5 transition-transform duration-200"
+          ></i>
+        </a>
+      </div>
+      {% endfor %} {% else %}
+      <div
+        class="col-span-full flex flex-col items-center justify-center py-16 bg-base-100/80 rounded-3xl border border-base-300/25 text-center"
+      >
+        <i class="ph ph-books text-5xl text-primary/15 mb-4"></i>
+        <h3 class="text-lg font-semibold mb-2">{{ t.series_no_series }}</h3>
+        <p class="text-sm text-base-content/50 max-w-md">
+          {{ t.series_no_series_message }}
+        </p>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
 </div>
 

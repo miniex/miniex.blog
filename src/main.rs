@@ -157,6 +157,7 @@ async fn handle_index(
 struct BlogQuery {
     category: Option<String>,
     page: Option<u32>,
+    sort: Option<String>,
 }
 
 async fn handle_blog(
@@ -167,10 +168,11 @@ async fn handle_blog(
     let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
+    let sort_asc = query.sort.as_deref() == Some("asc");
     let posts_per_page = 10;
     let t = Translations::for_lang(lang);
 
-    let filtered_posts = get_posts_by_category(&posts, PostType::Blog, category, lang);
+    let filtered_posts = get_posts_by_category(&posts, PostType::Blog, category, lang, sort_asc);
     let total_posts = filtered_posts.len();
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
@@ -204,6 +206,7 @@ async fn handle_blog(
             .set_url(&format!("{}/blog", SITE_URL)),
         posts: current_posts,
         categories,
+        current_category: query.category,
         current_page: page,
         total_pages,
         prev_page: if page > 1 { Some(page - 1) } else { None },
@@ -215,6 +218,7 @@ async fn handle_blog(
         page_numbers,
         t,
         lang,
+        sort_asc,
     }
 }
 
@@ -222,6 +226,7 @@ async fn handle_blog(
 struct ReviewQuery {
     category: Option<String>,
     page: Option<u32>,
+    sort: Option<String>,
 }
 
 async fn handle_review(
@@ -232,10 +237,11 @@ async fn handle_review(
     let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
+    let sort_asc = query.sort.as_deref() == Some("asc");
     let posts_per_page = 10;
     let t = Translations::for_lang(lang);
 
-    let filtered_posts = get_posts_by_category(&posts, PostType::Review, category, lang);
+    let filtered_posts = get_posts_by_category(&posts, PostType::Review, category, lang, sort_asc);
     let total_posts = filtered_posts.len();
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
@@ -269,6 +275,7 @@ async fn handle_review(
             .set_url(&format!("{}/review", SITE_URL)),
         posts: current_posts,
         categories,
+        current_category: query.category,
         current_page: page,
         total_pages,
         prev_page: if page > 1 { Some(page - 1) } else { None },
@@ -280,6 +287,7 @@ async fn handle_review(
         page_numbers,
         t,
         lang,
+        sort_asc,
     }
 }
 
@@ -287,6 +295,7 @@ async fn handle_review(
 struct DiaryQuery {
     category: Option<String>,
     page: Option<u32>,
+    sort: Option<String>,
 }
 
 async fn handle_diary(
@@ -297,10 +306,11 @@ async fn handle_diary(
     let posts = state.posts.read().await;
     let category = query.category.as_deref();
     let page = query.page.unwrap_or(1);
+    let sort_asc = query.sort.as_deref() == Some("asc");
     let posts_per_page = 10;
     let t = Translations::for_lang(lang);
 
-    let filtered_posts = get_posts_by_category(&posts, PostType::Diary, category, lang);
+    let filtered_posts = get_posts_by_category(&posts, PostType::Diary, category, lang, sort_asc);
     let total_posts = filtered_posts.len();
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
@@ -334,6 +344,7 @@ async fn handle_diary(
             .set_url(&format!("{}/diary", SITE_URL)),
         posts: current_posts,
         categories,
+        current_category: query.category,
         current_page: page,
         total_pages,
         prev_page: if page > 1 { Some(page - 1) } else { None },
@@ -345,15 +356,23 @@ async fn handle_diary(
         page_numbers,
         t,
         lang,
+        sort_asc,
     }
+}
+
+#[derive(Deserialize)]
+struct SeriesQuery {
+    sort: Option<String>,
 }
 
 async fn handle_series(
     State(state): State<SharedState>,
     LangExtractor(lang): LangExtractor,
+    Query(query): Query<SeriesQuery>,
 ) -> SeriesTemplate {
     let posts = state.posts.read().await;
-    let series = get_series(&posts, lang);
+    let sort_asc = query.sort.as_deref() == Some("asc");
+    let series = get_series(&posts, lang, sort_asc);
     let t = Translations::for_lang(lang);
 
     SeriesTemplate {
@@ -364,19 +383,27 @@ async fn handle_series(
         series,
         t,
         lang,
+        sort_asc,
     }
+}
+
+#[derive(Deserialize)]
+struct SeriesDetailQuery {
+    sort: Option<String>,
 }
 
 async fn handle_series_detail(
     Path(series_name): Path<String>,
     State(state): State<SharedState>,
     LangExtractor(lang): LangExtractor,
+    Query(query): Query<SeriesDetailQuery>,
 ) -> SeriesDetailTemplate {
     let posts = state.posts.read().await;
-    let series_posts = get_posts_by_series(&posts, &series_name, lang);
+    let sort_asc = query.sort.as_deref() == Some("asc");
+    let series_posts = get_posts_by_series(&posts, &series_name, lang, sort_asc);
     let t = Translations::for_lang(lang);
 
-    let series = get_series(&posts, lang)
+    let series = get_series(&posts, lang, false)
         .into_iter()
         .find(|s| s.name == series_name)
         .expect("Series should exist");
@@ -399,6 +426,7 @@ async fn handle_series_detail(
         updated_at: series.updated_at,
         t,
         lang,
+        sort_asc,
     }
 }
 
@@ -484,20 +512,31 @@ async fn handle_resume(LangExtractor(lang): LangExtractor) -> Result<ResumeTempl
     })
 }
 
+#[derive(Deserialize)]
+struct GuestbookQuery {
+    sort: Option<String>,
+}
+
 async fn handle_guestbook(
     State(state): State<SharedState>,
     LangExtractor(lang): LangExtractor,
+    Query(query): Query<GuestbookQuery>,
 ) -> Result<GuestbookTemplate, StatusCode> {
-    let guestbook_entries = match state.db.get_guestbook_entries(Some(20)).await {
+    let sort_asc = query.sort.as_deref() == Some("asc");
+    let mut guestbook_entries = match state.db.get_guestbook_entries(Some(20)).await {
         Ok(entries) => entries,
         Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
     };
+    if sort_asc {
+        guestbook_entries.reverse();
+    }
     let t = Translations::for_lang(lang);
 
     Ok(GuestbookTemplate {
         entries: guestbook_entries,
         t,
         lang,
+        sort_asc,
     })
 }
 
