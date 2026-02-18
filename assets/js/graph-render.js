@@ -560,9 +560,603 @@
     });
   }
 
+  // ── Plotly.js ──
+
+  function loadPlotly(cb) {
+    if (typeof Plotly !== "undefined") return cb();
+    var s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2/plotly.min.js";
+    s.onload = cb;
+    s.onerror = function () {
+      console.error("Failed to load Plotly.js");
+    };
+    document.head.appendChild(s);
+  }
+
+  // DSL parser for plot3d — supports array keys (vec, dataset)
+  function parsePlot3dConfig(text) {
+    var c = {};
+    text.split("\n").forEach(function (line) {
+      line = line.trim();
+      if (!line) return;
+      var idx = line.indexOf(":");
+      if (idx === -1) return;
+      var k = line.substring(0, idx).trim().toLowerCase();
+      var v = line.substring(idx + 1).trim();
+      if (k === "vec" || k === "dataset") {
+        (c[k] = c[k] || []).push(v);
+      } else {
+        c[k] = v;
+      }
+    });
+    return c;
+  }
+
+  // Simple math evaluator for surface functions.
+  // Expressions come from the blog author's own markdown content (not user input).
+  function evalMathExpr(expr, vars) {
+    var s = expr
+      .replace(/\^/g, "**")
+      .replace(/\bsin\b/g, "Math.sin")
+      .replace(/\bcos\b/g, "Math.cos")
+      .replace(/\btan\b/g, "Math.tan")
+      .replace(/\bsqrt\b/g, "Math.sqrt")
+      .replace(/\bexp\b/g, "Math.exp")
+      .replace(/\blog\b/g, "Math.log")
+      .replace(/\babs\b/g, "Math.abs")
+      .replace(/\bpow\b/g, "Math.pow")
+      .replace(/\bPI\b/gi, "Math.PI")
+      .replace(/\bpi\b/g, "Math.PI")
+      .replace(/\be\b/g, "Math.E");
+    var keys = Object.keys(vars);
+    var vals = keys.map(function (k) {
+      return vars[k];
+    });
+    try {
+      var fn = new Function(keys.join(","), "return (" + s + ");"); // eslint-disable-line no-new-func
+      return fn.apply(null, vals);
+    } catch (e) {
+      return NaN;
+    }
+  }
+
+  function plotlyBaseLayout(cfg, p) {
+    var dark = isDark();
+    return {
+      title: cfg.title
+        ? {
+            text: cfg.title,
+            font: {
+              family: "'Nunito', 'Gowun Dodum', sans-serif",
+              size: 13,
+              color: p.text,
+              weight: 600,
+            },
+          }
+        : undefined,
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      font: {
+        family: "'JetBrains Mono', monospace",
+        size: 10,
+        color: p.textMuted,
+      },
+      margin: { l: 50, r: 30, t: cfg.title ? 50 : 20, b: 50 },
+      showlegend: false,
+      hovermode: false,
+    };
+  }
+
+  function plotlyAxis2d(p) {
+    return {
+      gridcolor: p.grid,
+      zerolinecolor: p.border,
+      zerolinewidth: 1,
+      linecolor: p.border,
+      tickfont: { size: 10, color: p.textMuted },
+    };
+  }
+
+  function plotlyAxis3d(p) {
+    return {
+      backgroundcolor: "rgba(0,0,0,0)",
+      gridcolor: p.grid,
+      zerolinecolor: p.border,
+      showbackground: true,
+      tickfont: { size: 9, color: p.textMuted },
+    };
+  }
+
+  // Block Plotly's wheel-zoom on 3D canvases so page scroll works normally.
+  function blockPlotlyWheelZoom(container) {
+    var canvas = container.querySelector("canvas");
+    if (canvas) {
+      canvas.addEventListener(
+        "wheel",
+        function (e) {
+          e.stopImmediatePropagation();
+        },
+        true,
+      );
+    }
+  }
+
+  // Shared Plotly config — no default UI, scroll-zoom blocked
+  var PLOTLY_CFG_2D = {
+    responsive: true,
+    displaylogo: false,
+    displayModeBar: false,
+    scrollZoom: false,
+    doubleClick: false,
+  };
+
+  var PLOTLY_CFG_3D = {
+    responsive: true,
+    displaylogo: false,
+    displayModeBar: false,
+    scrollZoom: false,
+  };
+
+  // Custom zoom / reset controls (same look as graph block)
+  function addPlotlyControls(graphWrap, opts) {
+    var controls = document.createElement("div");
+    controls.className = "graph-controls";
+
+    var btnZoomIn = document.createElement("button");
+    btnZoomIn.className = "graph-ctrl-btn";
+    btnZoomIn.title = "Zoom in";
+    btnZoomIn.appendChild(
+      mkSvgIcon([
+        ["line", { x1: "12", y1: "5", x2: "12", y2: "19" }],
+        ["line", { x1: "5", y1: "12", x2: "19", y2: "12" }],
+      ]),
+    );
+
+    var btnZoomOut = document.createElement("button");
+    btnZoomOut.className = "graph-ctrl-btn";
+    btnZoomOut.title = "Zoom out";
+    btnZoomOut.appendChild(
+      mkSvgIcon([["line", { x1: "5", y1: "12", x2: "19", y2: "12" }]]),
+    );
+
+    var btnReset = document.createElement("button");
+    btnReset.className = "graph-ctrl-btn";
+    btnReset.title = "Reset view";
+    btnReset.appendChild(
+      mkSvgIcon([
+        ["path", { d: "M3 12a9 9 0 1 1 3 6.7" }],
+        ["polyline", { points: "3 20 3 13 10 13" }],
+      ]),
+    );
+
+    controls.appendChild(btnZoomIn);
+    controls.appendChild(btnZoomOut);
+    controls.appendChild(btnReset);
+    graphWrap.appendChild(controls);
+
+    btnZoomIn.addEventListener("click", function () {
+      opts.zoomIn();
+    });
+    btnZoomOut.addEventListener("click", function () {
+      opts.zoomOut();
+    });
+    btnReset.addEventListener("click", function () {
+      opts.reset();
+    });
+  }
+
+  function renderPlot3dSurface(el, cfg, p) {
+    var xRange = cfg.x ? parseRange(cfg.x) : [-5, 5];
+    var yRange = cfg.y ? parseRange(cfg.y) : [-5, 5];
+    var expr = cfg.fn || "sin(sqrt(x^2 + y^2))";
+
+    var N = 60;
+    var xVals = [],
+      yVals = [],
+      zVals = [];
+    var dx = (xRange[1] - xRange[0]) / N;
+    var dy = (yRange[1] - yRange[0]) / N;
+
+    for (var i = 0; i <= N; i++) {
+      xVals.push(xRange[0] + i * dx);
+    }
+    for (var j = 0; j <= N; j++) {
+      yVals.push(yRange[0] + j * dy);
+    }
+    for (var j = 0; j <= N; j++) {
+      var row = [];
+      for (var i = 0; i <= N; i++) {
+        row.push(evalMathExpr(expr, { x: xVals[i], y: yVals[j] }));
+      }
+      zVals.push(row);
+    }
+
+    var dark = isDark();
+    var trace = {
+      type: "surface",
+      x: xVals,
+      y: yVals,
+      z: zVals,
+      colorscale: dark
+        ? [
+            [0, "#2a1f2d"],
+            [0.25, "#6b4a6e"],
+            [0.5, "#b096b8"],
+            [0.75, "#d4a89e"],
+            [1, "#e8d0c8"],
+          ]
+        : [
+            [0, "#8db8a0"],
+            [0.25, "#b096b8"],
+            [0.5, "#c9899e"],
+            [0.75, "#d4a89e"],
+            [1, "#d4c098"],
+          ],
+      showscale: true,
+      colorbar: {
+        tickfont: { size: 9, color: p.textMuted },
+        thickness: 15,
+        len: 0.6,
+      },
+    };
+
+    var layout = plotlyBaseLayout(cfg, p);
+    layout.scene = {
+      xaxis: plotlyAxis3d(p),
+      yaxis: plotlyAxis3d(p),
+      zaxis: plotlyAxis3d(p),
+    };
+
+    var graphWrap = document.createElement("div");
+    graphWrap.className = "graph-plot-wrap";
+    el.appendChild(graphWrap);
+
+    var wrap = document.createElement("div");
+    graphWrap.appendChild(wrap);
+    Plotly.newPlot(wrap, [trace], layout, PLOTLY_CFG_3D);
+    blockPlotlyWheelZoom(wrap);
+
+    addPlotlyControls(graphWrap, {
+      zoomIn: function () {
+        var cam = wrap._fullLayout.scene._scene.getCamera();
+        cam.eye.x *= 0.75;
+        cam.eye.y *= 0.75;
+        cam.eye.z *= 0.75;
+        Plotly.relayout(wrap, { "scene.camera": cam });
+      },
+      zoomOut: function () {
+        var cam = wrap._fullLayout.scene._scene.getCamera();
+        cam.eye.x *= 1.35;
+        cam.eye.y *= 1.35;
+        cam.eye.z *= 1.35;
+        Plotly.relayout(wrap, { "scene.camera": cam });
+      },
+      reset: function () {
+        Plotly.relayout(wrap, {
+          "scene.camera": { eye: { x: 1.25, y: 1.25, z: 1.25 } },
+        });
+      },
+    });
+  }
+
+  function renderPlot3dVector2d(el, cfg, p) {
+    var xRange = cfg.x ? parseRange(cfg.x) : [-1, 4];
+    var yRange = cfg.y ? parseRange(cfg.y) : [-1, 4];
+    var vecs = cfg.vec || [];
+
+    var traces = [];
+    var annotations = [];
+    var legendItems = [];
+
+    vecs.forEach(function (entry, idx) {
+      var parts = entry.split("|");
+      var coords = parts[0]
+        .trim()
+        .split(",")
+        .map(function (v) {
+          return parseFloat(v.trim());
+        });
+      var colorStr = parts[1] ? parts[1].trim() : "";
+      var color = pickColor(colorStr || null, idx, p);
+      var label = parts[2] ? parts[2].trim() : "";
+
+      var vx = coords[0] || 0;
+      var vy = coords[1] || 0;
+
+      legendItems.push({
+        label: label || "(" + vx + "," + vy + ")",
+        color: color,
+        katex: label || null,
+      });
+
+      traces.push({
+        type: "scatter",
+        x: [0, vx],
+        y: [0, vy],
+        mode: "lines",
+        line: { color: color, width: 2.5 },
+      });
+
+      // Arrowhead annotation
+      annotations.push({
+        x: vx,
+        y: vy,
+        ax: vx * 0.7,
+        ay: vy * 0.7,
+        xref: "x",
+        yref: "y",
+        axref: "x",
+        ayref: "y",
+        showarrow: true,
+        arrowhead: 3,
+        arrowsize: 1.5,
+        arrowwidth: 2.5,
+        arrowcolor: color,
+      });
+    });
+
+    var layout = plotlyBaseLayout(cfg, p);
+    layout.xaxis = plotlyAxis2d(p);
+    layout.yaxis = plotlyAxis2d(p);
+    layout.xaxis.range = xRange;
+    layout.yaxis.range = yRange;
+    layout.xaxis.scaleanchor = "y";
+    layout.xaxis.scaleratio = 1;
+    layout.dragmode = "pan";
+    layout.annotations = annotations;
+
+    var graphWrap = document.createElement("div");
+    graphWrap.className = "graph-plot-wrap";
+    el.appendChild(graphWrap);
+
+    var wrap = document.createElement("div");
+    graphWrap.appendChild(wrap);
+    Plotly.newPlot(wrap, traces, layout, PLOTLY_CFG_2D);
+
+    var curX = xRange.slice();
+    var curY = yRange.slice();
+
+    function relayout2d(newX, newY) {
+      curX = newX;
+      curY = newY;
+      Plotly.relayout(wrap, {
+        "xaxis.range": curX,
+        "yaxis.range": curY,
+      });
+    }
+
+    addPlotlyControls(graphWrap, {
+      zoomIn: function () {
+        var cx = (curX[0] + curX[1]) / 2;
+        var cy = (curY[0] + curY[1]) / 2;
+        var xH = ((curX[1] - curX[0]) / 2) * 0.6;
+        var yH = ((curY[1] - curY[0]) / 2) * 0.6;
+        relayout2d([cx - xH, cx + xH], [cy - yH, cy + yH]);
+      },
+      zoomOut: function () {
+        var cx = (curX[0] + curX[1]) / 2;
+        var cy = (curY[0] + curY[1]) / 2;
+        var xH = ((curX[1] - curX[0]) / 2) * 1.6;
+        var yH = ((curY[1] - curY[0]) / 2) * 1.6;
+        relayout2d([cx - xH, cx + xH], [cy - yH, cy + yH]);
+      },
+      reset: function () {
+        relayout2d(xRange.slice(), yRange.slice());
+      },
+    });
+
+    if (legendItems.length) el.appendChild(mkLegend(legendItems));
+  }
+
+  function renderPlot3dVector3d(el, cfg, p) {
+    var vecs = cfg.vec || [];
+    var traces = [];
+    var legendItems = [];
+
+    vecs.forEach(function (entry, idx) {
+      var parts = entry.split("|");
+      var coords = parts[0]
+        .trim()
+        .split(",")
+        .map(function (v) {
+          return parseFloat(v.trim());
+        });
+      var colorStr = parts[1] ? parts[1].trim() : "";
+      var color = pickColor(colorStr || null, idx, p);
+      var label = parts[2] ? parts[2].trim() : "";
+
+      var vx = coords[0] || 0;
+      var vy = coords[1] || 0;
+      var vz = coords[2] || 0;
+
+      legendItems.push({
+        label: label || "(" + vx + "," + vy + "," + vz + ")",
+        color: color,
+        katex: label || null,
+      });
+
+      traces.push({
+        type: "scatter3d",
+        x: [0, vx],
+        y: [0, vy],
+        z: [0, vz],
+        mode: "lines",
+        line: { color: color, width: 5 },
+      });
+
+      // Cone arrowhead at tip
+      traces.push({
+        type: "cone",
+        x: [vx],
+        y: [vy],
+        z: [vz],
+        u: [vx * 0.15],
+        v: [vy * 0.15],
+        w: [vz * 0.15],
+        colorscale: [
+          [0, color],
+          [1, color],
+        ],
+        showscale: false,
+        sizemode: "absolute",
+        sizeref: 0.3,
+        anchor: "tip",
+        showlegend: false,
+      });
+    });
+
+    var layout = plotlyBaseLayout(cfg, p);
+    layout.scene = {
+      xaxis: plotlyAxis3d(p),
+      yaxis: plotlyAxis3d(p),
+      zaxis: plotlyAxis3d(p),
+      aspectmode: "data",
+    };
+
+    var graphWrap = document.createElement("div");
+    graphWrap.className = "graph-plot-wrap";
+    el.appendChild(graphWrap);
+
+    var wrap = document.createElement("div");
+    graphWrap.appendChild(wrap);
+    Plotly.newPlot(wrap, traces, layout, PLOTLY_CFG_3D);
+    blockPlotlyWheelZoom(wrap);
+
+    addPlotlyControls(graphWrap, {
+      zoomIn: function () {
+        var cam = wrap._fullLayout.scene._scene.getCamera();
+        cam.eye.x *= 0.75;
+        cam.eye.y *= 0.75;
+        cam.eye.z *= 0.75;
+        Plotly.relayout(wrap, { "scene.camera": cam });
+      },
+      zoomOut: function () {
+        var cam = wrap._fullLayout.scene._scene.getCamera();
+        cam.eye.x *= 1.35;
+        cam.eye.y *= 1.35;
+        cam.eye.z *= 1.35;
+        Plotly.relayout(wrap, { "scene.camera": cam });
+      },
+      reset: function () {
+        Plotly.relayout(wrap, {
+          "scene.camera": { eye: { x: 1.25, y: 1.25, z: 1.25 } },
+        });
+      },
+    });
+
+    if (legendItems.length) el.appendChild(mkLegend(legendItems));
+  }
+
+  function renderPlot3dScatter3d(el, cfg, p) {
+    var datasets = cfg.dataset || [];
+    var traces = [];
+    var legendItems = [];
+
+    datasets.forEach(function (entry, di) {
+      var parts = entry.split("|");
+      var label = (parts[0] || "").trim();
+      var pointsStr = (parts[1] || "").trim();
+      var colorStr2 = parts[2] ? parts[2].trim() : "";
+      var color = pickColor(colorStr2 || null, di, p);
+
+      legendItems.push({ label: label, color: color, katex: null });
+
+      var xs = [],
+        ys = [],
+        zs = [];
+      pointsStr.split(";").forEach(function (pt) {
+        var coords = pt
+          .trim()
+          .split(",")
+          .map(function (v) {
+            return parseFloat(v.trim());
+          });
+        if (coords.length >= 3) {
+          xs.push(coords[0]);
+          ys.push(coords[1]);
+          zs.push(coords[2]);
+        }
+      });
+
+      traces.push({
+        type: "scatter3d",
+        mode: "markers",
+        x: xs,
+        y: ys,
+        z: zs,
+        marker: {
+          size: 5,
+          color: color,
+          opacity: 0.85,
+          line: { width: 0.5, color: isDark() ? "#1c181a" : "#fcfafb" },
+        },
+      });
+    });
+
+    var layout = plotlyBaseLayout(cfg, p);
+    layout.scene = {
+      xaxis: plotlyAxis3d(p),
+      yaxis: plotlyAxis3d(p),
+      zaxis: plotlyAxis3d(p),
+    };
+
+    var graphWrap = document.createElement("div");
+    graphWrap.className = "graph-plot-wrap";
+    el.appendChild(graphWrap);
+
+    var wrap = document.createElement("div");
+    graphWrap.appendChild(wrap);
+    Plotly.newPlot(wrap, traces, layout, PLOTLY_CFG_3D);
+    blockPlotlyWheelZoom(wrap);
+
+    addPlotlyControls(graphWrap, {
+      zoomIn: function () {
+        var cam = wrap._fullLayout.scene._scene.getCamera();
+        cam.eye.x *= 0.75;
+        cam.eye.y *= 0.75;
+        cam.eye.z *= 0.75;
+        Plotly.relayout(wrap, { "scene.camera": cam });
+      },
+      zoomOut: function () {
+        var cam = wrap._fullLayout.scene._scene.getCamera();
+        cam.eye.x *= 1.35;
+        cam.eye.y *= 1.35;
+        cam.eye.z *= 1.35;
+        Plotly.relayout(wrap, { "scene.camera": cam });
+      },
+      reset: function () {
+        Plotly.relayout(wrap, {
+          "scene.camera": { eye: { x: 1.25, y: 1.25, z: 1.25 } },
+        });
+      },
+    });
+
+    if (legendItems.length) el.appendChild(mkLegend(legendItems));
+  }
+
+  function renderPlot3d(el) {
+    var raw = el.textContent;
+    el.setAttribute("data-config", raw);
+    var cfg = parsePlot3dConfig(raw);
+    var p = pal();
+    var type = (cfg.type || "surface").toLowerCase();
+
+    el.textContent = "";
+
+    if (type === "surface") {
+      renderPlot3dSurface(el, cfg, p);
+    } else if (type === "vector2d") {
+      renderPlot3dVector2d(el, cfg, p);
+    } else if (type === "vector3d") {
+      renderPlot3dVector3d(el, cfg, p);
+    } else if (type === "scatter3d") {
+      renderPlot3dScatter3d(el, cfg, p);
+    }
+  }
+
   // ── Theme toggle re-render ──
 
-  function reRender(graphEls, chartEls) {
+  function reRender(graphEls, chartEls, plotlyEls) {
     graphEls.forEach(function (el) {
       var cfg = el.getAttribute("data-config");
       if (!cfg) return;
@@ -580,6 +1174,14 @@
       el.textContent = cfg;
       renderChart(el);
     });
+    plotlyEls.forEach(function (el) {
+      var plotDiv = el.querySelector(".js-plotly-plot");
+      if (plotDiv) Plotly.purge(plotDiv);
+      var cfg = el.getAttribute("data-config");
+      if (!cfg) return;
+      el.textContent = cfg;
+      renderPlot3d(el);
+    });
   }
 
   // ── Init ──
@@ -587,6 +1189,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     var gEls = document.querySelectorAll(".function-plot-target");
     var cEls = document.querySelectorAll(".chart-js-target");
+    var pEls = document.querySelectorAll(".plotly-target");
 
     if (gEls.length) {
       loadFP(function () {
@@ -598,13 +1201,18 @@
         cEls.forEach(renderChart);
       });
     }
+    if (pEls.length) {
+      loadPlotly(function () {
+        pEls.forEach(renderPlot3d);
+      });
+    }
 
     // Watch theme changes
     new MutationObserver(function (muts) {
       for (var i = 0; i < muts.length; i++) {
         if (muts[i].attributeName === "data-theme") {
           setTimeout(function () {
-            reRender(gEls, cEls);
+            reRender(gEls, cEls, pEls);
           }, 60);
           break;
         }

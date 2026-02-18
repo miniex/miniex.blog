@@ -480,6 +480,7 @@ async fn process_mdx_file(
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     options.insert(Options::ENABLE_MATH);
+    options.insert(Options::ENABLE_TABLES);
     let parser = Parser::new_ext(parsed.content.as_str(), options);
 
     let mut toc: Vec<TocEntry> = Vec::new();
@@ -494,6 +495,7 @@ async fn process_mdx_file(
     // State for graph/chart code block processing
     let mut in_graph_block = false;
     let mut in_chart_block = false;
+    let mut in_plot3d_block = false;
     let mut block_content = String::new();
 
     // Collect events and process headings
@@ -513,6 +515,11 @@ async fn process_mdx_file(
                     continue;
                 } else if lang_str == "chart" {
                     in_chart_block = true;
+                    block_content.clear();
+                    i += 1;
+                    continue;
+                } else if lang_str == "plot3d" {
+                    in_plot3d_block = true;
                     block_content.clear();
                     i += 1;
                     continue;
@@ -541,6 +548,18 @@ async fn process_mdx_file(
                         .replace('>', "&gt;");
                     processed_events.push(Event::Html(
                         format!("<div class=\"chart-js-target\">{}</div>", escaped).into(),
+                    ));
+                    block_content.clear();
+                    i += 1;
+                    continue;
+                } else if in_plot3d_block {
+                    in_plot3d_block = false;
+                    let escaped = block_content
+                        .replace('&', "&amp;")
+                        .replace('<', "&lt;")
+                        .replace('>', "&gt;");
+                    processed_events.push(Event::Html(
+                        format!("<div class=\"plotly-target\">{}</div>", escaped).into(),
                     ));
                     block_content.clear();
                     i += 1;
@@ -603,7 +622,7 @@ async fn process_mdx_file(
                 }
             }
             Event::Text(text) => {
-                if in_graph_block || in_chart_block {
+                if in_graph_block || in_chart_block || in_plot3d_block {
                     block_content.push_str(text);
                     i += 1;
                     continue;
@@ -618,7 +637,7 @@ async fn process_mdx_file(
                 }
             }
             Event::Code(code) => {
-                if in_graph_block || in_chart_block {
+                if in_graph_block || in_chart_block || in_plot3d_block {
                     block_content.push_str(code);
                     i += 1;
                     continue;
@@ -632,7 +651,7 @@ async fn process_mdx_file(
                 }
             }
             _ => {
-                if in_graph_block || in_chart_block {
+                if in_graph_block || in_chart_block || in_plot3d_block {
                     i += 1;
                     continue;
                 }
