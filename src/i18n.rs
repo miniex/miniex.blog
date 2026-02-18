@@ -260,6 +260,10 @@ pub struct Translations {
     pub code_copy: &'static str,
     pub code_copied: &'static str,
 
+    // Post dates
+    pub post_created: &'static str,
+    pub post_updated: &'static str,
+
     // Graph
     pub graph_before: &'static str,
     pub graph_after: &'static str,
@@ -397,6 +401,10 @@ impl Translations {
             code_copy: "Copy",
             code_copied: "Copied!",
 
+            // Post dates
+            post_created: "Created",
+            post_updated: "Updated",
+
             // Graph
             graph_before: "Before",
             graph_after: "After",
@@ -529,6 +537,10 @@ impl Translations {
             code_copy: "복사",
             code_copied: "복사 완료!",
 
+            // Post dates
+            post_created: "작성",
+            post_updated: "수정",
+
             // Graph
             graph_before: "변환 전",
             graph_after: "변환 후",
@@ -657,6 +669,10 @@ impl Translations {
             // Code highlight
             code_copy: "コピー",
             code_copied: "コピーしました！",
+
+            // Post dates
+            post_created: "作成",
+            post_updated: "更新",
 
             // Graph
             graph_before: "変換前",

@@ -17,6 +17,10 @@
   property="article:published_time"
   content="{{ post.metadata.created_at }}"
 />
+<meta
+  property="article:modified_time"
+  content="{{ post.metadata.updated_at }}"
+/>
 {% for tag in post.metadata.tags %}
 <meta property="article:tag" content="{{ tag }}" />
 {% endfor %}
@@ -85,6 +89,8 @@
           <span>{{ post.metadata.author }}</span>
           <span class="text-base-content/30">&middot;</span>
           <time>{{ post.metadata.created_at|date }}</time>
+          <span class="text-base-content/30">&middot;</span>
+          <time>{{ t.post_updated }} {{ post.metadata.updated_at|date }}</time>
           <span class="text-base-content/30">&middot;</span>
           <span>{{ post.reading_time_min }} {{ t.post_min_read }}</span>
         </div>

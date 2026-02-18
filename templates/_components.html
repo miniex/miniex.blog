@@ -28,9 +28,11 @@
             {{ post.lang.code() }}
           </span>
         </div>
-        <time class="text-xs text-base-content/50 font-medium">
-          {{ post.metadata.created_at|date }}
-        </time>
+        <div class="text-xs text-base-content/50 font-medium">
+          <time>{{ post.metadata.created_at|date }}</time>
+          <span class="text-base-content/30"> · </span>
+          <time>{{ t.post_updated }} {{ post.metadata.updated_at|date }}</time>
+        </div>
       </div>
 
       <!-- Title -->
