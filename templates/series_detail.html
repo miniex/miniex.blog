@@ -58,10 +58,13 @@ block head %}
       </div>
 
       <div
-        class="flex justify-center items-center gap-2 text-base-content/50 text-sm"
+        class="flex flex-col sm:flex-row justify-center items-center gap-0.5 sm:gap-2 text-base-content/50 text-xs sm:text-sm"
       >
-        <i class="ph ph-clock text-sm"></i>
-        <span>{{ t.series_last_updated }} {{ updated_at|date }}</span>
+        <div class="flex items-center gap-1">
+          <i class="ph ph-clock text-sm"></i>
+          <span>{{ t.series_last_updated }}</span>
+        </div>
+        <time>{{ updated_at|date }}</time>
       </div>
     </div>
   </div>

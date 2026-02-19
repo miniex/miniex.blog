@@ -30,10 +30,14 @@
             {{ post.lang.code() }}
           </span>
         </div>
-        <div class="text-xs text-base-content/50 font-medium">
+        <div
+          class="text-xs text-base-content/50 font-medium flex flex-col sm:flex-row sm:gap-1"
+        >
           <time>{{ post.metadata.created_at|date }}</time>
-          <span class="text-base-content/30"> · </span>
-          <time>{{ t.post_updated }} {{ post.metadata.updated_at|date }}</time>
+          <span class="hidden sm:inline text-base-content/30"> · </span>
+          <time class="text-base-content/40"
+            >{{ t.post_updated }} {{ post.metadata.updated_at|date }}</time
+          >
         </div>
       </div>
 
