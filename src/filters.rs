@@ -1,12 +1,22 @@
-use chrono::NaiveDateTime;
+use chrono::DateTime;
 
 pub fn date<T: std::fmt::Display>(s: T) -> ::askama::Result<String> {
     let s = s.to_string();
 
-    let dt = NaiveDateTime::parse_from_str(&s, "%Y-%m-%d %H:%M:%S UTC")
+    let dt = DateTime::parse_from_str(&s, "%Y-%m-%d %H:%M:%S %:z")
         .map_err(|e| ::askama::Error::Custom(Box::new(e)))?;
 
-    let formatted = dt.format("%Y/%m/%d %H:%M").to_string();
+    let offset = dt.offset().local_minus_utc();
+    let hours = offset / 3600;
+    let minutes = (offset % 3600).abs() / 60;
+
+    let tz_str = if minutes == 0 {
+        format!("{:+}", hours)
+    } else {
+        format!("{:+}:{:02}", hours, minutes)
+    };
+
+    let formatted = format!("{} {}", dt.format("%Y/%m/%d %H:%M"), tz_str);
 
     Ok(formatted)
 }

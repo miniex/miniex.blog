@@ -3,7 +3,7 @@ mod de;
 use crate::i18n::Lang;
 use crate::AppState;
 use anyhow::{Context, Result};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, FixedOffset};
 use gray_matter::{engine::YAML, Matter};
 use pulldown_cmark::{html, CodeBlockKind, Event, Options, Parser, Tag, TagEnd};
 use serde::{Deserialize, Serialize};
@@ -58,7 +58,7 @@ pub struct Series {
     pub status: SeriesStatus,
     pub authors: Vec<String>,
     #[serde(with = "de::date_format")]
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: DateTime<FixedOffset>,
     pub post_count: usize,
 }
 
@@ -97,9 +97,9 @@ pub struct PostMetadata {
     pub author: String,
     pub tags: Vec<String>,
     #[serde(with = "de::date_format")]
-    pub created_at: DateTime<Utc>,
+    pub created_at: DateTime<FixedOffset>,
     #[serde(with = "de::date_format")]
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: DateTime<FixedOffset>,
     // -- series (optional) --
     #[serde(default)]
     pub series: Option<String>,
@@ -223,7 +223,7 @@ pub async fn load_posts(state: AppState) -> Result<()> {
 /// get all series information from posts (all languages), sorted by updated_at DESC
 pub fn get_series(posts: &[Post], _lang: Lang, sort_asc: bool) -> Vec<Series> {
     let mut series_map: HashMap<String, Vec<String>> = HashMap::new();
-    let mut latest_updates: HashMap<String, DateTime<Utc>> = HashMap::new();
+    let mut latest_updates: HashMap<String, DateTime<FixedOffset>> = HashMap::new();
     let mut descriptions: HashMap<String, Option<String>> = HashMap::new();
     let mut statuses: HashMap<String, SeriesStatus> = HashMap::new();
     let mut post_counts: HashMap<String, usize> = HashMap::new();
@@ -278,7 +278,9 @@ pub fn get_series(posts: &[Post], _lang: Lang, sort_asc: bool) -> Vec<Series> {
                     .unwrap_or(SeriesStatus::Ongoing),
                 post_count: post_counts.get(&name).copied().unwrap_or(0),
                 authors: unique_authors,
-                updated_at: latest_updates.get(&name).cloned().unwrap_or_default(),
+                updated_at: latest_updates.get(&name).cloned().unwrap_or_else(|| {
+                    DateTime::parse_from_rfc3339("1970-01-01T00:00:00+00:00").unwrap()
+                }),
                 name,
             }
         })

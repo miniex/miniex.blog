@@ -6,7 +6,7 @@ use crate::{
     Blog,
 };
 use askama::Template;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, FixedOffset};
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -85,7 +85,7 @@ pub struct SeriesDetailTemplate {
     pub series_name: String,
     pub posts: Vec<Post>,
     pub authors: Vec<String>,
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: DateTime<FixedOffset>,
     pub series_description: Option<String>,
     pub series_status: SeriesStatus,
     pub t: Translations,

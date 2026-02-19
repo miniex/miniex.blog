@@ -1,12 +1,12 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, FixedOffset};
 use serde::{self, Deserialize, Deserializer, Serializer};
 
 pub mod date_format {
     use super::*;
 
-    const FORMAT: &str = "%Y/%m/%d %H:%M";
+    const FORMAT: &str = "%Y/%m/%d %H:%M %:z";
 
-    pub fn serialize<S>(date: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(date: &DateTime<FixedOffset>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -14,12 +14,11 @@ pub mod date_format {
         serializer.serialize_str(&s)
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<DateTime<Utc>, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<DateTime<FixedOffset>, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        let naive = NaiveDateTime::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)?;
-        Ok(DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc))
+        DateTime::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
     }
 }
