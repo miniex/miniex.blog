@@ -1,13 +1,20 @@
 pub mod db;
+pub mod error;
 pub mod filters;
+pub mod handlers;
 pub mod i18n;
 pub mod post;
+pub mod router;
 pub mod templates;
 
 use db::Database;
 use post::{Post, Series};
 use std::sync::Arc;
 use tokio::sync::RwLock;
+
+pub const SITE_URL: &str = "https://miniex.blog";
+pub const SITE_DESCRIPTION: &str =
+    "miniex dev blog - Rust development, study notes, tech reviews, and more";
 
 pub type AppState = Arc<RwLock<Vec<Post>>>;
 

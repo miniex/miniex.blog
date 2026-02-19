@@ -527,6 +527,11 @@ async fn process_mdx_file(
     let mut current_heading_level: u8 = 0;
     let mut current_heading_text = String::new();
 
+    // State for image lazy loading
+    let mut in_image = false;
+    let mut image_dest = String::new();
+    let mut image_alt = String::new();
+
     // State for graph/chart code block processing
     let mut in_graph_block = false;
     let mut in_chart_block = false;
@@ -662,6 +667,11 @@ async fn process_mdx_file(
                     i += 1;
                     continue;
                 }
+                if in_image {
+                    image_alt.push_str(text);
+                    i += 1;
+                    continue;
+                }
                 if in_heading {
                     current_heading_text.push_str(text);
                 }
@@ -677,6 +687,11 @@ async fn process_mdx_file(
                     i += 1;
                     continue;
                 }
+                if in_image {
+                    image_alt.push_str(code);
+                    i += 1;
+                    continue;
+                }
                 if in_heading {
                     current_heading_text.push_str(code);
                 }
@@ -685,8 +700,45 @@ async fn process_mdx_file(
                     processed_events.push(events[i].clone());
                 }
             }
+            Event::Start(Tag::Image { dest_url, .. }) => {
+                in_image = true;
+                image_dest = dest_url.to_string();
+                image_alt.clear();
+                i += 1;
+                continue;
+            }
+            Event::End(TagEnd::Image) => {
+                if in_image {
+                    in_image = false;
+                    let escaped_alt = image_alt
+                        .replace('&', "&amp;")
+                        .replace('<', "&lt;")
+                        .replace('>', "&gt;")
+                        .replace('"', "&quot;");
+                    let escaped_src = image_dest.replace('&', "&amp;").replace('"', "&quot;");
+                    processed_events.push(Event::Html(
+                        format!(
+                            "<img src=\"{}\" alt=\"{}\" loading=\"lazy\"/>",
+                            escaped_src, escaped_alt
+                        )
+                        .into(),
+                    ));
+                    i += 1;
+                    continue;
+                } else {
+                    processed_events.push(events[i].clone());
+                }
+            }
             _ => {
                 if in_graph_block || in_chart_block || in_plot3d_block {
+                    i += 1;
+                    continue;
+                }
+                if in_image {
+                    // Collect alt text from text events inside image
+                    if let Event::Text(text) = &events[i] {
+                        image_alt.push_str(text);
+                    }
                     i += 1;
                     continue;
                 }
@@ -717,4 +769,122 @@ async fn process_mdx_file(
     };
 
     Ok(post)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_file_lang_ko() {
+        let (base, lang) = parse_file_lang("my-post.ko");
+        assert_eq!(base, "my-post");
+        assert_eq!(lang, Some(Lang::Ko));
+    }
+
+    #[test]
+    fn test_parse_file_lang_ja() {
+        let (base, lang) = parse_file_lang("my-post.ja");
+        assert_eq!(base, "my-post");
+        assert_eq!(lang, Some(Lang::Ja));
+    }
+
+    #[test]
+    fn test_parse_file_lang_en() {
+        let (base, lang) = parse_file_lang("my-post.en");
+        assert_eq!(base, "my-post");
+        assert_eq!(lang, Some(Lang::En));
+    }
+
+    #[test]
+    fn test_parse_file_lang_no_suffix() {
+        let (base, lang) = parse_file_lang("my-post");
+        assert_eq!(base, "my-post");
+        assert_eq!(lang, None);
+    }
+
+    fn make_test_post(slug: &str, lang: Lang, translation_key: &str) -> Post {
+        Post {
+            post_type: PostType::Blog,
+            metadata: PostMetadata {
+                title: format!("Test {}", slug),
+                description: "desc".to_string(),
+                author: "author".to_string(),
+                tags: vec![],
+                created_at: DateTime::parse_from_rfc3339("2024-01-01T00:00:00+00:00").unwrap(),
+                updated_at: DateTime::parse_from_rfc3339("2024-01-01T00:00:00+00:00").unwrap(),
+                series: None,
+                series_order: None,
+                series_description: None,
+                series_status: None,
+                prev_post: None,
+                next_post: None,
+                og_image: None,
+                lang: None,
+                slug: None,
+            },
+            content: String::new(),
+            slug: slug.to_string(),
+            toc: vec![],
+            reading_time_min: 1,
+            lang,
+            translation_key: translation_key.to_string(),
+        }
+    }
+
+    #[test]
+    fn test_dedup_by_translation_prefers_lang() {
+        let posts = vec![
+            make_test_post("hello-en", Lang::En, "hello"),
+            make_test_post("hello-ko", Lang::Ko, "hello"),
+        ];
+        let result = dedup_by_translation(posts, Lang::Ko);
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].slug, "hello-ko");
+    }
+
+    #[test]
+    fn test_dedup_by_translation_fallback() {
+        let posts = vec![make_test_post("hello-en", Lang::En, "hello")];
+        let result = dedup_by_translation(posts, Lang::Ko);
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].slug, "hello-en");
+    }
+
+    #[test]
+    fn test_dedup_different_keys() {
+        let posts = vec![
+            make_test_post("a", Lang::En, "key-a"),
+            make_test_post("b", Lang::En, "key-b"),
+        ];
+        let result = dedup_by_translation(posts, Lang::En);
+        assert_eq!(result.len(), 2);
+    }
+
+    #[test]
+    fn test_get_recent_posts_max_5() {
+        let posts: Vec<Post> = (0..10)
+            .map(|i| {
+                let mut p = make_test_post(&format!("post-{}", i), Lang::En, &format!("key-{}", i));
+                p.metadata.created_at =
+                    DateTime::parse_from_rfc3339(&format!("2024-01-{:02}T00:00:00+00:00", i + 1))
+                        .unwrap();
+                p
+            })
+            .collect();
+        let result = get_recent_posts(&posts, Lang::En);
+        assert_eq!(result.len(), 5);
+        // Should be sorted descending by created_at
+        assert!(result[0].metadata.created_at >= result[1].metadata.created_at);
+    }
+
+    #[test]
+    fn test_get_recent_posts_less_than_5() {
+        let posts = vec![
+            make_test_post("a", Lang::En, "a"),
+            make_test_post("b", Lang::En, "b"),
+        ];
+        let result = get_recent_posts(&posts, Lang::En);
+        assert_eq!(result.len(), 2);
+    }
 }

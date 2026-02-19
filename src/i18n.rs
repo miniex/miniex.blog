@@ -695,3 +695,107 @@ impl Translations {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_lang_parse_ko() {
+        assert_eq!(Lang::parse("ko"), Lang::Ko);
+    }
+
+    #[test]
+    fn test_lang_parse_ko_kr() {
+        assert_eq!(Lang::parse("ko-KR"), Lang::Ko);
+    }
+
+    #[test]
+    fn test_lang_parse_ko_kr_underscore() {
+        assert_eq!(Lang::parse("ko_kr"), Lang::Ko);
+    }
+
+    #[test]
+    fn test_lang_parse_ja() {
+        assert_eq!(Lang::parse("ja"), Lang::Ja);
+    }
+
+    #[test]
+    fn test_lang_parse_ja_jp() {
+        assert_eq!(Lang::parse("ja-JP"), Lang::Ja);
+    }
+
+    #[test]
+    fn test_lang_parse_en() {
+        assert_eq!(Lang::parse("en"), Lang::En);
+    }
+
+    #[test]
+    fn test_lang_parse_en_us() {
+        assert_eq!(Lang::parse("en-US"), Lang::En);
+    }
+
+    #[test]
+    fn test_lang_parse_en_gb() {
+        assert_eq!(Lang::parse("en-GB"), Lang::En);
+    }
+
+    #[test]
+    fn test_lang_parse_unknown_defaults_en() {
+        assert_eq!(Lang::parse("fr"), Lang::En);
+        assert_eq!(Lang::parse("de"), Lang::En);
+        assert_eq!(Lang::parse(""), Lang::En);
+    }
+
+    #[test]
+    fn test_from_accept_language_simple_ko() {
+        assert_eq!(Lang::from_accept_language("ko"), Lang::Ko);
+    }
+
+    #[test]
+    fn test_from_accept_language_with_quality() {
+        assert_eq!(
+            Lang::from_accept_language("en;q=0.5, ko;q=0.9, ja;q=0.3"),
+            Lang::Ko
+        );
+    }
+
+    #[test]
+    fn test_from_accept_language_complex_rfc() {
+        assert_eq!(
+            Lang::from_accept_language("ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7"),
+            Lang::Ja
+        );
+    }
+
+    #[test]
+    fn test_from_accept_language_default_quality() {
+        // No q= means q=1.0
+        assert_eq!(Lang::from_accept_language("ko-KR, en;q=0.5"), Lang::Ko);
+    }
+
+    #[test]
+    fn test_from_accept_language_unknown_only() {
+        assert_eq!(Lang::from_accept_language("fr, de;q=0.5"), Lang::En);
+    }
+
+    #[test]
+    fn test_lang_as_str() {
+        assert_eq!(Lang::Ko.as_str(), "ko");
+        assert_eq!(Lang::Ja.as_str(), "ja");
+        assert_eq!(Lang::En.as_str(), "en");
+    }
+
+    #[test]
+    fn test_lang_code() {
+        assert_eq!(Lang::Ko.code(), "KO");
+        assert_eq!(Lang::Ja.code(), "JA");
+        assert_eq!(Lang::En.code(), "EN");
+    }
+
+    #[test]
+    fn test_lang_display() {
+        assert_eq!(format!("{}", Lang::Ko), "ko");
+        assert_eq!(format!("{}", Lang::En), "en");
+    }
+}

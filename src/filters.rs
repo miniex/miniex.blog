@@ -53,3 +53,77 @@ pub fn percentage(current: &usize, total: &usize) -> ::askama::Result<usize> {
         Ok((current * 100) / total)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_date_with_timezone() {
+        let result = date("2024-06-15 14:30:00 +09:00").unwrap();
+        assert_eq!(result, "2024/06/15 14:30 +9");
+    }
+
+    #[test]
+    fn test_date_utc() {
+        let result = date("2024-01-01 00:00:00 +00:00").unwrap();
+        assert_eq!(result, "2024/01/01 00:00 +0");
+    }
+
+    #[test]
+    fn test_date_negative_offset() {
+        let result = date("2024-03-10 08:00:00 -05:00").unwrap();
+        assert_eq!(result, "2024/03/10 08:00 -5");
+    }
+
+    #[test]
+    fn test_date_half_hour_offset() {
+        let result = date("2024-01-01 00:00:00 +05:30").unwrap();
+        assert_eq!(result, "2024/01/01 00:00 +5:30");
+    }
+
+    #[test]
+    fn test_truncate_short_string() {
+        assert_eq!(truncate("hello", 10).unwrap(), "hello");
+    }
+
+    #[test]
+    fn test_truncate_exact_length() {
+        assert_eq!(truncate("hello", 5).unwrap(), "hello");
+    }
+
+    #[test]
+    fn test_truncate_long_string() {
+        assert_eq!(truncate("hello world", 5).unwrap(), "hello...");
+    }
+
+    #[test]
+    fn test_truncate_korean() {
+        assert_eq!(truncate("안녕하세요", 3).unwrap(), "안녕하...");
+    }
+
+    #[test]
+    fn test_truncate_emoji() {
+        assert_eq!(truncate("🎉🎊🎈🎁", 2).unwrap(), "🎉🎊...");
+    }
+
+    #[test]
+    fn test_percentage_normal() {
+        assert_eq!(percentage(&50, &100).unwrap(), 50);
+    }
+
+    #[test]
+    fn test_percentage_zero_total() {
+        assert_eq!(percentage(&0, &0).unwrap(), 0);
+    }
+
+    #[test]
+    fn test_percentage_full() {
+        assert_eq!(percentage(&100, &100).unwrap(), 100);
+    }
+
+    #[test]
+    fn test_percentage_nonzero_over_zero() {
+        assert_eq!(percentage(&5, &0).unwrap(), 0);
+    }
+}

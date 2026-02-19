@@ -143,6 +143,8 @@ impl Database {
                 if !self.verify_password(password, &stored_hash) {
                     return Ok(false);
                 }
+                self.rehash_if_legacy("comments", "id", comment_id, password, &stored_hash)
+                    .await?;
             } else {
                 return Ok(false);
             }
@@ -176,6 +178,8 @@ impl Database {
                 if !self.verify_password(password, &stored_hash) {
                     return Ok(false);
                 }
+                self.rehash_if_legacy("comments", "id", comment_id, password, &stored_hash)
+                    .await?;
             } else {
                 return Ok(false);
             }
@@ -269,6 +273,8 @@ impl Database {
                 if !self.verify_password(password, &stored_hash) {
                     return Ok(false);
                 }
+                self.rehash_if_legacy("guestbook", "id", entry_id, password, &stored_hash)
+                    .await?;
             } else {
                 return Ok(false);
             }
@@ -302,6 +308,8 @@ impl Database {
                 if !self.verify_password(password, &stored_hash) {
                     return Ok(false);
                 }
+                self.rehash_if_legacy("guestbook", "id", entry_id, password, &stored_hash)
+                    .await?;
             } else {
                 return Ok(false);
             }
@@ -319,15 +327,60 @@ impl Database {
 
     // Password hashing functions
     fn hash_password(&self, password: &str) -> String {
-        use std::collections::hash_map::DefaultHasher;
-        use std::hash::{Hash, Hasher};
+        use argon2::password_hash::rand_core::OsRng;
+        use argon2::password_hash::SaltString;
+        use argon2::{Argon2, PasswordHasher};
 
-        let mut hasher = DefaultHasher::new();
-        password.hash(&mut hasher);
-        format!("{:x}", hasher.finish())
+        let salt = SaltString::generate(&mut OsRng);
+        let argon2 = Argon2::default();
+        argon2
+            .hash_password(password.as_bytes(), &salt)
+            .expect("password hashing failed")
+            .to_string()
     }
 
-    fn verify_password(&self, password: &str, hash: &str) -> bool {
-        self.hash_password(password) == hash
+    fn verify_password(&self, password: &str, stored_hash: &str) -> bool {
+        if stored_hash.starts_with("$argon2") {
+            use argon2::password_hash::PasswordHash;
+            use argon2::{Argon2, PasswordVerifier};
+            let parsed = PasswordHash::new(stored_hash).ok();
+            parsed
+                .map(|h| {
+                    Argon2::default()
+                        .verify_password(password.as_bytes(), &h)
+                        .is_ok()
+                })
+                .unwrap_or(false)
+        } else {
+            // Legacy DefaultHasher format: verify for transparent migration
+            use std::collections::hash_map::DefaultHasher;
+            use std::hash::{Hash, Hasher};
+            let mut hasher = DefaultHasher::new();
+            password.hash(&mut hasher);
+            format!("{:x}", hasher.finish()) == stored_hash
+        }
+    }
+
+    async fn rehash_if_legacy(
+        &self,
+        table: &str,
+        id_column: &str,
+        id: &str,
+        password: &str,
+        stored_hash: &str,
+    ) -> Result<(), sqlx::Error> {
+        if !stored_hash.starts_with("$argon2") {
+            let new_hash = self.hash_password(password);
+            let query = format!(
+                "UPDATE {} SET password_hash = ? WHERE {} = ?",
+                table, id_column
+            );
+            sqlx::query(&query)
+                .bind(&new_hash)
+                .bind(id)
+                .execute(&self.pool)
+                .await?;
+        }
+        Ok(())
     }
 }
