@@ -8,7 +8,7 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 
 - **Post System** — Three categories: Blog, Review, Diary. Written in MDX (YAML front matter + Markdown) with auto-generated TOC, reading time estimation, and series support
 - **i18n** — Korean, Japanese, English. Language determined by filename suffix (`slug.ko.mdx`). Detection order: Cookie → Accept-Language → default (en). Language fallback for post listings (shows available translation when preferred language is missing)
-- **Comments & Guestbook** — SQLite-backed. Password-protected edit and delete
+- **Comments & Guestbook** — SQLite-backed. Argon2 password hashing with transparent migration from legacy hashes
 - **Search** — `/api/search` endpoint. Searches title, description, and tags. Open with `Ctrl+K` or `/`
 - **Dark Mode** — DaisyUI pastel/pastel-dark themes. Persisted in localStorage. Flash-free on route change via blocking inline script
 - **LaTeX Math** — Inline (`$...$`) and block (`$$...$$`) math rendering via KaTeX
@@ -20,11 +20,12 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 - **Series** — Group related posts into a series with prev/next navigation, status tracking (Ongoing/Completed), and per-language navigation chains
 - **Resume** — Dynamic resume page with hierarchical TOC, collapsible sections, and print-to-PDF optimization
 - **SEO** — JSON-LD structured data, Open Graph tags, canonical URLs, hreflang alternate links, meta keywords, trailing slash redirect (301), XML sitemap with series pages
-- **Performance** — Gzip/Brotli compression, Cache-Control headers for static assets, font preload, preconnect hints, deferred scripts
-- **Security Headers** — Strict-Transport-Security (HSTS), X-Content-Type-Options, X-Frame-Options, Referrer-Policy
+- **Performance** — Gzip/Brotli compression, Cache-Control headers for static assets, font preload, preconnect hints, deferred scripts, ETag conditional responses for feed/sitemap, image lazy loading
+- **Security Headers** — Strict-Transport-Security (HSTS), X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Content-Security-Policy
+- **Rate Limiting** — tower_governor based rate limiting on write API endpoints (2/sec, burst 5)
 - **Accessibility** — ARIA labels, keyboard navigation, skip-to-content link, passive event listeners, prefers-reduced-motion support
-- **Atom Feed** — `/feed.xml` (20 recent posts)
-- **Sitemap** — `/sitemap.xml` (dynamically generated, includes series pages)
+- **Atom Feed** — `/feed.xml` (20 recent posts, ETag support)
+- **Sitemap** — `/sitemap.xml` (dynamically generated, includes series pages, ETag support)
 - **Robots.txt** — `/robots.txt`
 - **Custom 404** — Error page with navigation links to main sections
 
@@ -32,12 +33,12 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | Rust, Axum, Tokio |
+| Backend | Rust, Axum, Tokio, tower_governor |
 | Templates | Askama |
 | Styling | Tailwind CSS 3, DaisyUI, Phosphor Icons |
 | Fonts | Nunito, Gowun Dodum (KO), Zen Maru Gothic (JA), JetBrains Mono |
 | Frontend | HTMX, Highlight.js, KaTeX, function-plot, Chart.js, Plotly.js |
-| Database | SQLite (sqlx) |
+| Database | SQLite (sqlx), argon2 |
 | Build | Cargo, Bun |
 | Deploy | Docker, GitLab CI/CD |
 | Dev Env | Nix Flake |
@@ -46,10 +47,17 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 
 ```
 src/
-├── main.rs          # Router, handlers, entrypoint
-├── lib.rs           # Shared types (AppState, SharedState)
-├── db.rs            # SQLite CRUD (comments, guestbook)
-├── post.rs          # MDX loading, markdown parsing, TOC generation
+├── main.rs          # Entrypoint (server startup)
+├── lib.rs           # Shared types (AppState, SharedState, constants)
+├── router.rs        # Router assembly, middleware, live reload
+├── handlers.rs      # Module declarations (handlers/)
+├── handlers/
+│   ├── pages.rs     # Page handlers (index, blog, review, diary, series, post, resume, guestbook, error)
+│   ├── api.rs       # API handlers (search, language, comments, guestbook CRUD)
+│   └── feed.rs      # Feed handlers (Atom feed, sitemap with ETag)
+├── error.rs         # AppError type (NotFound, Database, Internal)
+├── db.rs            # SQLite CRUD (comments, guestbook, argon2 hashing)
+├── post.rs          # MDX loading, markdown parsing, TOC generation, image lazy loading
 ├── post/de.rs       # DateTime serialization
 ├── filters.rs       # Askama template filters
 ├── i18n.rs          # Translations (80+ keys x 3 languages)
