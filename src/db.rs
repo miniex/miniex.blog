@@ -255,6 +255,47 @@ impl Database {
         Ok(entries)
     }
 
+    pub async fn get_guestbook_entries_paged(
+        &self,
+        offset: i32,
+        limit: i32,
+        sort_asc: bool,
+    ) -> Result<Vec<Guestbook>, sqlx::Error> {
+        let order = if sort_asc { "ASC" } else { "DESC" };
+        let query = format!(
+            "SELECT id, author, content, created_at, password_hash FROM guestbook ORDER BY created_at {} LIMIT ? OFFSET ?",
+            order
+        );
+
+        let rows = sqlx::query(&query)
+            .bind(limit)
+            .bind(offset)
+            .fetch_all(&self.pool)
+            .await?;
+
+        let entries = rows
+            .into_iter()
+            .map(|row| Guestbook {
+                id: row.get("id"),
+                author: row.get("author"),
+                content: row.get("content"),
+                created_at: DateTime::parse_from_rfc3339(&row.get::<String, _>("created_at"))
+                    .unwrap()
+                    .with_timezone(&Utc),
+                password_hash: row.get("password_hash"),
+            })
+            .collect();
+
+        Ok(entries)
+    }
+
+    pub async fn count_guestbook_entries(&self) -> Result<u32, sqlx::Error> {
+        let row: (i32,) = sqlx::query_as("SELECT COUNT(*) FROM guestbook")
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(row.0 as u32)
+    }
+
     pub async fn update_guestbook_entry(
         &self,
         entry_id: &str,

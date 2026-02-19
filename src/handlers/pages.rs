@@ -440,6 +440,7 @@ pub async fn handle_resume(
 #[derive(Deserialize)]
 pub struct GuestbookQuery {
     sort: Option<String>,
+    page: Option<u32>,
 }
 
 pub async fn handle_guestbook(
@@ -448,20 +449,52 @@ pub async fn handle_guestbook(
     Query(query): Query<GuestbookQuery>,
 ) -> Result<GuestbookTemplate, StatusCode> {
     let sort_asc = query.sort.as_deref() == Some("asc");
-    let mut guestbook_entries = match state.db.get_guestbook_entries(Some(20)).await {
-        Ok(entries) => entries,
-        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
-    };
-    if sort_asc {
-        guestbook_entries.reverse();
-    }
+    let page = query.page.unwrap_or(1);
+    let per_page: u32 = 10;
     let t = Translations::for_lang(lang);
+
+    let total_entries = state
+        .db
+        .count_guestbook_entries()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let total_pages = if total_entries == 0 {
+        1
+    } else {
+        (total_entries as f32 / per_page as f32).ceil() as u32
+    };
+
+    let offset = ((page - 1) * per_page) as i32;
+    let guestbook_entries = state
+        .db
+        .get_guestbook_entries_paged(offset, per_page as i32, sort_asc)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let page_numbers = if total_pages <= 5 {
+        (1..=total_pages).collect()
+    } else {
+        let s = std::cmp::max(1, std::cmp::min(page.saturating_sub(2), total_pages - 4));
+        let e = std::cmp::min(s + 4, total_pages);
+        (s..=e).collect()
+    };
 
     Ok(GuestbookTemplate {
         entries: guestbook_entries,
         t,
         lang,
         sort_asc,
+        current_page: page,
+        total_pages,
+        prev_page: if page > 1 { Some(page - 1) } else { None },
+        next_page: if page < total_pages {
+            Some(page + 1)
+        } else {
+            None
+        },
+        page_numbers,
+        total_entries,
     })
 }
 
