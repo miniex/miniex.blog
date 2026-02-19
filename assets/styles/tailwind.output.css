@@ -4855,6 +4855,10 @@ html:has(.drawer-toggle:checked) {
   margin-top: auto;
 }
 
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
@@ -5619,6 +5623,14 @@ html:has(.drawer-toggle:checked) {
   background-color: transparent;
 }
 
+.bg-base-200\/50 {
+  background-color: var(--fallback-b2,oklch(var(--b2)/0.5));
+}
+
+.bg-primary\/0 {
+  background-color: var(--fallback-p,oklch(var(--p)/0));
+}
+
 .bg-gradient-to-b {
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
 }
@@ -5974,6 +5986,10 @@ html:has(.drawer-toggle:checked) {
   padding-top: 1rem;
 }
 
+.pt-3 {
+  padding-top: 0.75rem;
+}
+
 .text-center {
   text-align: center;
 }
@@ -6089,6 +6105,10 @@ html:has(.drawer-toggle:checked) {
 
 .leading-tight {
   line-height: 1.25;
+}
+
+.leading-snug {
+  line-height: 1.375;
 }
 
 .tracking-\[0\.3em\] {
@@ -7045,6 +7065,11 @@ html:has(.drawer-toggle:checked) {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.hover\:-translate-y-1\.5:hover {
+  --tw-translate-y: -0.375rem;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 .hover\:scale-105:hover {
   --tw-scale-x: 1.05;
   --tw-scale-y: 1.05;
@@ -7064,6 +7089,10 @@ html:has(.drawer-toggle:checked) {
 
 .hover\:border-primary\/30:hover {
   border-color: var(--fallback-p,oklch(var(--p)/0.3));
+}
+
+.hover\:border-primary\/20:hover {
+  border-color: var(--fallback-p,oklch(var(--p)/0.2));
 }
 
 .hover\:bg-error\/10:hover {
@@ -7214,6 +7243,10 @@ html:has(.drawer-toggle:checked) {
   border-color: var(--fallback-p,oklch(var(--p)/0.3));
 }
 
+.group:hover .group-hover\:bg-primary\/10 {
+  background-color: var(--fallback-p,oklch(var(--p)/0.1));
+}
+
 .group:hover .group-hover\:from-primary\/20 {
   --tw-gradient-from: var(--fallback-p,oklch(var(--p)/0.2)) var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
@@ -7226,9 +7259,20 @@ html:has(.drawer-toggle:checked) {
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
+.group:hover .group-hover\:from-primary {
+  --tw-gradient-from: var(--fallback-p,oklch(var(--p)/1)) var(--tw-gradient-from-position);
+  --tw-gradient-to: var(--fallback-p,oklch(var(--p)/0)) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
 .group:hover .group-hover\:via-secondary\/50 {
   --tw-gradient-to: rgb(255 255 255 / 0)  var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--fallback-s,oklch(var(--s)/0.5)) var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+
+.group:hover .group-hover\:via-secondary {
+  --tw-gradient-to: var(--fallback-s,oklch(var(--s)/0))  var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--fallback-s,oklch(var(--s)/1)) var(--tw-gradient-via-position), var(--tw-gradient-to);
 }
 
 .group:hover .group-hover\:to-accent\/70 {
@@ -7237,6 +7281,10 @@ html:has(.drawer-toggle:checked) {
 
 .group:hover .group-hover\:to-secondary\/20 {
   --tw-gradient-to: var(--fallback-s,oklch(var(--s)/0.2)) var(--tw-gradient-to-position);
+}
+
+.group:hover .group-hover\:to-accent {
+  --tw-gradient-to: var(--fallback-a,oklch(var(--a)/1)) var(--tw-gradient-to-position);
 }
 
 .group:hover .group-hover\:text-primary {
@@ -7376,6 +7424,10 @@ html:has(.drawer-toggle:checked) {
     gap: 0.75rem;
   }
 
+  .sm\:gap-5 {
+    gap: 1.25rem;
+  }
+
   .sm\:gap-x-1\.5 {
     -moz-column-gap: 0.375rem;
          column-gap: 0.375rem;
@@ -7391,6 +7443,10 @@ html:has(.drawer-toggle:checked) {
 
   .sm\:p-8 {
     padding: 2rem;
+  }
+
+  .sm\:p-5 {
+    padding: 1.25rem;
   }
 
   .sm\:px-4 {
@@ -7450,6 +7506,11 @@ html:has(.drawer-toggle:checked) {
   .sm\:text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
+  }
+
+  .sm\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
   }
 }
 

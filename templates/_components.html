@@ -1,89 +1,100 @@
 {% macro post_card(post) %}
 <a href="/post/{{ post.slug }}" class="group block h-full">
   <div
-    class="bg-base-100 rounded-3xl border border-base-300/25 shadow-sm shadow-primary/5 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
+    class="relative bg-base-100 rounded-2xl border border-base-300/20 hover:border-primary/20 shadow-sm hover:shadow-xl hover:shadow-primary/8 hover:-translate-y-1.5 transition-all duration-300 h-full flex flex-col overflow-hidden"
   >
+    <!-- Top accent bar -->
     <div
-      class="h-0.5 bg-gradient-to-r from-primary/30 via-secondary/20 to-accent/30 rounded-t-3xl"
+      class="h-1 bg-gradient-to-r from-primary/40 via-secondary/30 to-accent/40 group-hover:from-primary group-hover:via-secondary group-hover:to-accent transition-all duration-500"
     ></div>
-    <div class="p-5 sm:p-6 flex flex-col flex-grow">
-      <!-- Top section with type, series, and date -->
-      <div
-        class="flex flex-col sm:flex-row sm:justify-between items-start gap-2 mb-4"
-      >
-        <div class="flex flex-wrap gap-2">
-          <span
-            class="badge badge-sm bg-primary/8 text-primary border-none font-medium"
-          >
-            {{ post.post_type }}
-          </span>
-          {% if let Some(series) = post.metadata.series %}
-          <span
-            class="badge badge-sm bg-secondary/8 text-secondary border-none font-medium"
-          >
-            {{ series }}
-          </span>
-          {% endif %}
-          <span
-            class="badge badge-sm bg-accent/8 text-accent border-none font-medium"
-          >
-            {{ post.lang.code() }}
-          </span>
-        </div>
-        <div
-          class="text-xs text-base-content/50 font-medium flex flex-col sm:flex-row sm:gap-1"
+
+    <div class="p-4 sm:p-5 flex flex-col flex-grow">
+      <!-- Badges row -->
+      <div class="flex flex-wrap items-center gap-1.5 mb-3">
+        <span
+          class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-primary/8 px-2 py-0.5 rounded-md"
         >
-          <time>{{ post.metadata.created_at|date }}</time>
-          <span class="hidden sm:inline text-base-content/30"> · </span>
-          <time class="text-base-content/40"
-            >{{ t.post_updated }} {{ post.metadata.updated_at|date }}</time
-          >
-        </div>
+          <i class="ph ph-folder-simple text-xs"></i>
+          {{ post.post_type }}
+        </span>
+        {% if let Some(series) = post.metadata.series %}
+        <span
+          class="inline-flex items-center gap-1 text-[11px] font-semibold text-secondary bg-secondary/8 px-2 py-0.5 rounded-md"
+        >
+          <i class="ph ph-books text-xs"></i>
+          {{ series }}
+        </span>
+        {% endif %}
+        <span
+          class="text-[11px] font-semibold text-accent bg-accent/8 px-1.5 py-0.5 rounded-md"
+        >
+          {{ post.lang.code() }}
+        </span>
+        <!-- Reading time -->
+        <span
+          class="ml-auto text-[11px] text-base-content/40 flex items-center gap-0.5"
+        >
+          <i class="ph ph-clock text-xs"></i>
+          {{ post.reading_time_min }} min
+        </span>
       </div>
 
       <!-- Title -->
       <h3
-        class="text-lg font-semibold mb-3 text-base-content group-hover:text-primary transition-colors duration-200"
+        class="text-base sm:text-lg font-bold mb-2 text-base-content group-hover:text-primary transition-colors duration-200 leading-snug"
       >
         {{ post.metadata.title }}
       </h3>
 
       <!-- Description -->
       <p
-        class="text-sm text-base-content/55 mb-4 line-clamp-2 flex-grow leading-relaxed"
+        class="text-sm text-base-content/50 mb-4 line-clamp-2 flex-grow leading-relaxed"
       >
         {{ post.metadata.description|truncate(120) }}
       </p>
 
-      <!-- Bottom section: tags + read more -->
-      <div class="mt-auto pt-4 border-t border-base-300/20 space-y-3">
-        <!-- Tags -->
-        <div class="flex flex-wrap gap-1.5">
-          {% set tag_count = 0 %} {% for tag in post.metadata.tags %} {% if
-          tag_count < 3 %}
-          <span
-            class="badge badge-sm text-xs bg-primary/5 text-primary/70 border-none"
-            >{{ tag }}</span
+      <!-- Footer -->
+      <div class="mt-auto pt-3 border-t border-base-300/15">
+        <div class="flex items-center justify-between">
+          <!-- Tags -->
+          <div class="flex flex-wrap gap-1 min-w-0 flex-1 mr-2">
+            {% set tag_count = 0 %} {% for tag in post.metadata.tags %} {% if
+            tag_count < 3 %}
+            <span
+              class="text-[11px] text-primary/60 bg-primary/5 px-1.5 py-0.5 rounded"
+              >#{{ tag }}</span
+            >
+            {% endif %} {% set tag_count = tag_count + 1 %} {% endfor %} {% if
+            tag_count > 3 %}
+            <span
+              class="text-[11px] text-base-content/40 bg-base-200/50 px-1.5 py-0.5 rounded"
+              >+{{ tag_count - 3 }}</span
+            >
+            {% endif %}
+          </div>
+
+          <!-- Arrow -->
+          <div
+            class="flex-shrink-0 w-7 h-7 rounded-full bg-primary/0 group-hover:bg-primary/10 flex items-center justify-center transition-all duration-200"
           >
-          {% endif %} {% set tag_count = tag_count + 1 %} {% endfor %} {% if
-          tag_count > 3 %}
-          <span
-            class="badge badge-sm text-xs bg-primary/5 text-primary/70 border-none"
-            >+{{ tag_count - 3 }}</span
-          >
-          {% endif %}
+            <i
+              class="ph ph-arrow-right text-sm text-base-content/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200"
+            ></i>
+          </div>
         </div>
 
-        <!-- Read more -->
-        <div class="flex justify-end">
-          <span
-            class="inline-flex items-center gap-1 text-sm font-medium text-primary/70 group-hover:text-primary transition-colors duration-200"
-          >
-            {{ t.card_read_more }}
-            <i
-              class="ph ph-arrow-right text-sm transform group-hover:translate-x-0.5 transition-transform duration-200"
-            ></i>
-          </span>
+        <!-- Dates -->
+        <div
+          class="flex items-center gap-3 mt-2 text-[11px] text-base-content/35"
+        >
+          <div class="flex items-center gap-1">
+            <i class="ph ph-calendar-blank text-xs"></i>
+            <time>{{ post.metadata.created_at|date }}</time>
+          </div>
+          <div class="flex items-center gap-1">
+            <i class="ph ph-pencil-simple text-xs"></i>
+            <time>{{ post.metadata.updated_at|date }}</time>
+          </div>
         </div>
       </div>
     </div>

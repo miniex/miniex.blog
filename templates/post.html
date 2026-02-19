@@ -130,16 +130,22 @@
         </p>
 
         <!-- Meta row -->
-        <div class="text-sm text-base-content/45 mt-5">
-          <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+        <div class="mt-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5 text-sm text-base-content/45">
+          <div class="flex items-center gap-1.5">
+            <i class="ph ph-user text-sm text-base-content/35"></i>
             <span>{{ post.metadata.author }}</span>
             <span class="text-base-content/30">&middot;</span>
             <span>{{ post.reading_time_min }} {{ t.post_min_read }}</span>
           </div>
-          <div class="flex flex-col sm:flex-row sm:items-center gap-y-0.5 sm:gap-x-1.5 mt-1">
-            <time>{{ post.metadata.created_at|date }}</time>
-            <span class="hidden sm:inline text-base-content/30">&middot;</span>
-            <time class="text-base-content/40">{{ t.post_updated }} {{ post.metadata.updated_at|date }}</time>
+          <div class="flex flex-col sm:flex-row gap-1 sm:gap-3 text-xs sm:text-sm">
+            <div class="flex items-center gap-1">
+              <i class="ph ph-calendar-blank text-sm text-base-content/35"></i>
+              <time>{{ post.metadata.created_at|date }}</time>
+            </div>
+            <div class="flex items-center gap-1">
+              <i class="ph ph-pencil-simple text-sm text-base-content/35"></i>
+              <time>{{ post.metadata.updated_at|date }}</time>
+            </div>
           </div>
         </div>
 
