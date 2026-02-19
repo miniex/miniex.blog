@@ -26,7 +26,7 @@
                 rel="stylesheet"
             />
         </noscript>
-        <link href="/assets/styles/tailwind.output.css?v=19" rel="stylesheet" />
+        <link href="/assets/styles/tailwind.output.css?v=20" rel="stylesheet" />
         <link href="/assets/styles/global.css?v=13" rel="stylesheet" />
         <link
             rel="stylesheet"
@@ -64,6 +64,12 @@
                 transition: box-shadow 0.3s ease, border-color 0.3s ease;
             }
 
+            .nav-link.active {
+                background: hsl(var(--p) / 0.08);
+                color: hsl(var(--p));
+                font-weight: 600;
+            }
+
             /* Custom scrollbar */
             ::-webkit-scrollbar {
                 width: 6px;
@@ -91,83 +97,88 @@
         <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-base-100 focus:px-4 focus:py-2 focus:rounded">Skip to content</a>
         {% block header %}
         <header
-            class="bg-base-100/70 backdrop-blur-xl border-b border-base-300/30 nav-shadow sticky top-0 z-30 transition-all duration-300"
+            class="bg-base-100/70 backdrop-blur-xl border-b border-base-300/20 nav-shadow sticky top-0 z-30 transition-all duration-300"
         >
             <div class="navbar container mx-auto px-4 sm:px-6 h-16">
                 <div class="flex-1">
                     <a
                         href="/"
-                        class="text-lg font-bold text-base-content tracking-tight hover:opacity-70 transition-opacity duration-200"
-                    ><i class="ph ph-flower-lotus text-primary/60 text-sm mr-1"></i>miniex</a>
+                        class="group flex items-center gap-1.5 text-lg font-bold text-base-content tracking-tight hover:text-primary transition-colors duration-300"
+                    >
+                        <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/15 to-secondary/15 group-hover:from-primary/25 group-hover:to-secondary/25 flex items-center justify-center transition-all duration-300">
+                            <i class="ph ph-flower-lotus text-primary text-sm"></i>
+                        </span>
+                        <span>miniex</span>
+                    </a>
                 </div>
                 <div class="flex-none hidden md:flex items-center">
-                    <nav class="flex items-center gap-1">
+                    <nav class="flex items-center gap-0.5 bg-base-200/30 rounded-full px-1.5 py-1">
                         <a
                             href="/blog"
-                            class="px-3 py-2 text-sm font-medium text-base-content/60 hover:text-primary hover:bg-primary/5 transition-colors duration-200 rounded-lg"
+                            class="nav-link px-3 py-1.5 text-sm font-medium text-base-content/55 hover:text-primary hover:bg-base-100/80 transition-all duration-200 rounded-full"
                         >{{ t.nav_blog }}</a>
                         <a
                             href="/review"
-                            class="px-3 py-2 text-sm font-medium text-base-content/60 hover:text-primary hover:bg-primary/5 transition-colors duration-200 rounded-lg"
+                            class="nav-link px-3 py-1.5 text-sm font-medium text-base-content/55 hover:text-primary hover:bg-base-100/80 transition-all duration-200 rounded-full"
                         >{{ t.nav_review }}</a>
                         <a
                             href="/diary"
-                            class="px-3 py-2 text-sm font-medium text-base-content/60 hover:text-primary hover:bg-primary/5 transition-colors duration-200 rounded-lg"
+                            class="nav-link px-3 py-1.5 text-sm font-medium text-base-content/55 hover:text-primary hover:bg-base-100/80 transition-all duration-200 rounded-full"
                         >{{ t.nav_diary }}</a>
                         <a
                             href="/series"
-                            class="px-3 py-2 text-sm font-medium text-base-content/60 hover:text-primary hover:bg-primary/5 transition-colors duration-200 rounded-lg"
+                            class="nav-link px-3 py-1.5 text-sm font-medium text-base-content/55 hover:text-primary hover:bg-base-100/80 transition-all duration-200 rounded-full"
                         >{{ t.nav_series }}</a>
                         <a
                             href="/guestbook"
-                            class="px-3 py-2 text-sm font-medium text-base-content/60 hover:text-primary hover:bg-primary/5 transition-colors duration-200 rounded-lg"
+                            class="nav-link px-3 py-1.5 text-sm font-medium text-base-content/55 hover:text-primary hover:bg-base-100/80 transition-all duration-200 rounded-full"
                         >{{ t.nav_guestbook }}</a>
                         <a
                             href="https://miniex.info"
-                            class="px-3 py-2 text-sm font-medium text-base-content/60 hover:text-primary hover:bg-primary/5 transition-colors duration-200 rounded-lg"
+                            class="nav-link px-3 py-1.5 text-sm font-medium text-base-content/55 hover:text-primary hover:bg-base-100/80 transition-all duration-200 rounded-full"
                         >{{ t.nav_about_me }}</a>
                     </nav>
-                    <div class="w-px h-5 bg-base-300/60 mx-2"></div>
-                    <div class="flex items-center gap-0.5">
+                    <div class="w-px h-5 bg-base-300/40 mx-3"></div>
+                    <div class="flex items-center gap-1">
                         <button
                             id="search-btn"
-                            class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
+                            class="w-8 h-8 flex items-center justify-center rounded-full text-base-content/45 hover:text-primary hover:bg-primary/8 transition-all duration-200"
                             onclick="document.getElementById('search-modal').showModal()"
                             aria-label="Search"
                         >
-                            <i class="ph ph-magnifying-glass text-lg"></i>
+                            <i class="ph ph-magnifying-glass text-[17px]"></i>
                         </button>
                         <div class="dropdown dropdown-end">
                             <label
                                 tabindex="0"
-                                class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
+                                class="w-8 h-8 flex items-center justify-center rounded-full text-base-content/45 hover:text-primary hover:bg-primary/8 transition-all duration-200 cursor-pointer"
                                 aria-label="Change language"
                                 role="button"
                             >
-                                <i class="ph ph-translate text-lg"></i>
+                                <i class="ph ph-translate text-[17px]"></i>
                             </label>
                             <ul
                                 tabindex="0"
-                                class="dropdown-content z-[1] menu shadow-lg bg-base-100 rounded-lg w-36 p-1 border border-base-200/60 mt-2"
+                                class="dropdown-content z-[1] menu shadow-xl shadow-base-300/20 bg-base-100 rounded-xl w-36 p-1.5 border border-base-200/50 mt-3"
                             >
-                                <li><a href="/api/set-lang?lang=ko" class="rounded-md text-sm py-2 {% if lang.as_str() == "ko" %}font-semibold text-primary bg-primary/8{% endif %}">한국어</a></li>
-                                <li><a href="/api/set-lang?lang=ja" class="rounded-md text-sm py-2 {% if lang.as_str() == "ja" %}font-semibold text-primary bg-primary/8{% endif %}">日本語</a></li>
-                                <li><a href="/api/set-lang?lang=en" class="rounded-md text-sm py-2 {% if lang.as_str() == "en" %}font-semibold text-primary bg-primary/8{% endif %}">English</a></li>
+                                <li><a href="/api/set-lang?lang=ko" class="rounded-lg text-sm py-2 {% if lang.as_str() == "ko" %}font-semibold text-primary bg-primary/8{% endif %}">한국어</a></li>
+                                <li><a href="/api/set-lang?lang=ja" class="rounded-lg text-sm py-2 {% if lang.as_str() == "ja" %}font-semibold text-primary bg-primary/8{% endif %}">日本語</a></li>
+                                <li><a href="/api/set-lang?lang=en" class="rounded-lg text-sm py-2 {% if lang.as_str() == "en" %}font-semibold text-primary bg-primary/8{% endif %}">English</a></li>
                             </ul>
                         </div>
                         <button
                             id="theme-toggle"
-                            class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
+                            class="w-8 h-8 flex items-center justify-center rounded-full text-base-content/45 hover:text-primary hover:bg-primary/8 transition-all duration-200"
                             aria-label="Toggle theme"
                         >
-                            <i class="ph ph-sun text-lg theme-light"></i>
-                            <i class="ph ph-moon text-lg theme-dark hidden"></i>
+                            <i class="ph ph-sun text-[17px] theme-light"></i>
+                            <i class="ph ph-moon text-[17px] theme-dark hidden"></i>
                         </button>
                     </div>
                 </div>
-                <div class="flex-none md:hidden flex items-center gap-0.5">
+                <div class="flex-none md:hidden flex items-center gap-1">
                     <button
-                        class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
+                        class="w-9 h-9 flex items-center justify-center rounded-full text-base-content/50 hover:text-primary hover:bg-primary/8 transition-all duration-200"
                         onclick="document.getElementById('search-modal').showModal()"
                         aria-label="Search"
                     >
@@ -175,22 +186,10 @@
                     </button>
                     <label
                         for="drawer"
-                        class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-base-content hover:bg-primary/8 transition-all duration-200"
+                        class="w-9 h-9 flex items-center justify-center rounded-full text-base-content/50 hover:text-primary hover:bg-primary/8 transition-all duration-200 cursor-pointer"
                         aria-label="Open menu"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            class="inline-block w-5 h-5 stroke-current"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"
-                            ></path>
-                        </svg>
+                        <i class="ph ph-list text-xl"></i>
                     </label>
                 </div>
             </div>
@@ -206,124 +205,157 @@
                 <div class="drawer-side z-40">
                     <label for="drawer" class="drawer-overlay"></label>
                     <div
-                        class="px-6 py-8 w-72 sm:w-80 h-full bg-base-100 text-base-content border-l border-base-200/50"
+                        class="px-6 py-6 w-72 sm:w-80 h-full bg-base-100 text-base-content border-l border-base-200/30"
                     >
-                        <div class="h-1 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 -mx-6 -mt-8 mb-6 rounded-none"></div>
-                        <ul class="menu text-sm gap-1 p-0">
-                            <li class="menu-title text-xs uppercase tracking-wider text-base-content/40 px-3 pt-2 pb-1">{{ t.nav_posts }}</li>
+                        <!-- Drawer header -->
+                        <div class="flex items-center justify-between mb-6">
+                            <a href="/" class="flex items-center gap-2">
+                                <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center">
+                                    <i class="ph ph-flower-lotus text-primary text-sm"></i>
+                                </span>
+                                <span class="font-bold text-base-content">miniex</span>
+                            </a>
+                            <label for="drawer" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-base-200/60 text-base-content/40 cursor-pointer transition-colors">
+                                <i class="ph ph-x text-lg"></i>
+                            </label>
+                        </div>
+                        <div class="h-px bg-gradient-to-r from-primary/15 via-secondary/15 to-transparent mb-5"></div>
+
+                        <ul class="menu text-sm gap-0.5 p-0">
+                            <li class="menu-title text-[11px] uppercase tracking-[0.15em] text-base-content/35 font-semibold px-3 pt-1 pb-2">{{ t.nav_posts }}</li>
                             <li>
                                 <a
                                     href="/blog"
-                                    class="rounded-lg hover:bg-primary/5 transition-colors px-3 py-2.5"
-                                >{{ t.nav_blog }}</a>
+                                    class="rounded-xl hover:bg-primary/6 hover:text-primary transition-all duration-200 px-3 py-2.5 flex items-center gap-2.5"
+                                ><i class="ph ph-article text-base text-primary/40"></i>{{ t.nav_blog }}</a>
                             </li>
                             <li>
                                 <a
                                     href="/review"
-                                    class="rounded-lg hover:bg-primary/5 transition-colors px-3 py-2.5"
-                                >{{ t.nav_review }}</a>
+                                    class="rounded-xl hover:bg-primary/6 hover:text-primary transition-all duration-200 px-3 py-2.5 flex items-center gap-2.5"
+                                ><i class="ph ph-star text-base text-primary/40"></i>{{ t.nav_review }}</a>
                             </li>
                             <li>
                                 <a
                                     href="/diary"
-                                    class="rounded-lg hover:bg-primary/5 transition-colors px-3 py-2.5"
-                                >{{ t.nav_diary }}</a>
+                                    class="rounded-xl hover:bg-primary/6 hover:text-primary transition-all duration-200 px-3 py-2.5 flex items-center gap-2.5"
+                                ><i class="ph ph-notebook text-base text-primary/40"></i>{{ t.nav_diary }}</a>
                             </li>
-                            <li class="mt-2"><div class="border-t border-base-200/50 mx-3"></div></li>
+                            <li class="my-2"><div class="h-px bg-base-200/40 mx-3"></div></li>
                             <li>
                                 <a
                                     href="/series"
-                                    class="rounded-lg hover:bg-primary/5 transition-colors px-3 py-2.5"
-                                >{{ t.nav_series }}</a>
+                                    class="rounded-xl hover:bg-primary/6 hover:text-primary transition-all duration-200 px-3 py-2.5 flex items-center gap-2.5"
+                                ><i class="ph ph-books text-base text-primary/40"></i>{{ t.nav_series }}</a>
                             </li>
                             <li>
                                 <a
                                     href="/guestbook"
-                                    class="rounded-lg hover:bg-primary/5 transition-colors px-3 py-2.5"
-                                >{{ t.nav_guestbook }}</a>
+                                    class="rounded-xl hover:bg-primary/6 hover:text-primary transition-all duration-200 px-3 py-2.5 flex items-center gap-2.5"
+                                ><i class="ph ph-chat-circle text-base text-primary/40"></i>{{ t.nav_guestbook }}</a>
                             </li>
                             <li>
                                 <a
                                     href="https://miniex.info"
-                                    class="rounded-lg hover:bg-primary/5 transition-colors px-3 py-2.5"
-                                >{{ t.nav_about_me }}</a>
+                                    class="rounded-xl hover:bg-primary/6 hover:text-primary transition-all duration-200 px-3 py-2.5 flex items-center gap-2.5"
+                                ><i class="ph ph-user-circle text-base text-primary/40"></i>{{ t.nav_about_me }}</a>
                             </li>
-                            <li class="mt-2"><div class="border-t border-base-200/50 mx-3"></div></li>
+                            <li class="my-2"><div class="h-px bg-base-200/40 mx-3"></div></li>
                             <li>
                                 <details>
                                     <summary
-                                        class="rounded-lg hover:bg-primary/5 transition-colors px-3 py-2.5"
+                                        class="rounded-xl hover:bg-primary/6 hover:text-primary transition-all duration-200 px-3 py-2.5"
                                     >
-                                        <i class="ph ph-translate text-base"></i>
+                                        <i class="ph ph-translate text-base text-primary/40"></i>
                                         {{ t.lang_switch_label }}
                                     </summary>
                                     <ul class="mt-1 ml-2 before:hidden">
-                                        <li><a href="/api/set-lang?lang=ko" class="rounded-md text-sm py-2 {% if lang.as_str() == "ko" %}font-semibold text-primary{% endif %}">한국어</a></li>
-                                        <li><a href="/api/set-lang?lang=ja" class="rounded-md text-sm py-2 {% if lang.as_str() == "ja" %}font-semibold text-primary{% endif %}">日本語</a></li>
-                                        <li><a href="/api/set-lang?lang=en" class="rounded-md text-sm py-2 {% if lang.as_str() == "en" %}font-semibold text-primary{% endif %}">English</a></li>
+                                        <li><a href="/api/set-lang?lang=ko" class="rounded-lg text-sm py-2 {% if lang.as_str() == "ko" %}font-semibold text-primary{% endif %}">한국어</a></li>
+                                        <li><a href="/api/set-lang?lang=ja" class="rounded-lg text-sm py-2 {% if lang.as_str() == "ja" %}font-semibold text-primary{% endif %}">日本語</a></li>
+                                        <li><a href="/api/set-lang?lang=en" class="rounded-lg text-sm py-2 {% if lang.as_str() == "en" %}font-semibold text-primary{% endif %}">English</a></li>
                                     </ul>
                                 </details>
                             </li>
-                            <li class="mt-3">
+                            <li class="mt-1">
                                 <button
                                     id="theme-toggle-mobile"
-                                    class="rounded-lg hover:bg-primary/5 transition-colors flex items-center gap-2 px-3 py-2.5"
+                                    class="rounded-xl hover:bg-primary/6 hover:text-primary transition-all duration-200 flex items-center gap-2.5 px-3 py-2.5"
                                 >
-                                    <i
-                                        class="ph ph-sun text-base theme-light"
-                                    ></i>
-                                    <i
-                                        class="ph ph-moon text-base theme-dark hidden"
-                                    ></i>
+                                    <i class="ph ph-sun text-base text-primary/40 theme-light"></i>
+                                    <i class="ph ph-moon text-base text-primary/40 theme-dark hidden"></i>
                                     <span class="theme-light">{{ t.nav_light_mode }}</span>
-                                    <span class="theme-dark hidden"
-                                        >{{ t.nav_dark_mode }}</span
-                                    >
+                                    <span class="theme-dark hidden">{{ t.nav_dark_mode }}</span>
                                 </button>
                             </li>
                         </ul>
+
+                        <!-- Drawer footer -->
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="h-px bg-base-200/30 mb-4"></div>
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="https://github.com/miniex" class="w-9 h-9 rounded-xl bg-base-200/40 hover:bg-primary/10 flex items-center justify-center text-base-content/35 hover:text-primary transition-all duration-200" aria-label="GitHub">
+                                    <i class="ph ph-github-logo text-base"></i>
+                                </a>
+                                <a href="mailto:miniex@daminstudio.net" class="w-9 h-9 rounded-xl bg-base-200/40 hover:bg-primary/10 flex items-center justify-center text-base-content/35 hover:text-primary transition-all duration-200" aria-label="Email">
+                                    <i class="ph ph-envelope text-base"></i>
+                                </a>
+                                <a href="https://miniex.info" class="w-9 h-9 rounded-xl bg-base-200/40 hover:bg-primary/10 flex items-center justify-center text-base-content/35 hover:text-primary transition-all duration-200" aria-label="Website">
+                                    <i class="ph ph-globe text-base"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
         {% block footer %}
-        <footer
-            class="border-t border-base-300/30"
-        >
-            <div class="container mx-auto px-4 sm:px-6 py-6">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div class="flex items-center gap-4 text-sm text-base-content/50">
-                        <a href="/blog" class="hover:text-base-content transition-colors duration-200">{{ t.nav_blog }}</a>
-                        <a href="/review" class="hover:text-base-content transition-colors duration-200">{{ t.nav_review }}</a>
-                        <a href="/diary" class="hover:text-base-content transition-colors duration-200">{{ t.nav_diary }}</a>
-                        <a href="/series" class="hover:text-base-content transition-colors duration-200">{{ t.nav_series }}</a>
-                        <a href="/guestbook" class="hover:text-base-content transition-colors duration-200">{{ t.nav_guestbook }}</a>
+        <footer class="relative mt-8">
+            <!-- Top accent -->
+            <div class="h-px bg-gradient-to-r from-transparent via-base-300/40 to-transparent"></div>
+
+            <div class="container mx-auto px-4 sm:px-6 py-8 sm:py-10">
+                <div class="flex flex-col gap-6">
+                    <!-- Top row: brand + nav -->
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+                        <!-- Brand -->
+                        <div class="flex flex-col items-center sm:items-start gap-2">
+                            <a href="/" class="flex items-center gap-2 group">
+                                <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/12 to-secondary/12 group-hover:from-primary/20 group-hover:to-secondary/20 flex items-center justify-center transition-all duration-300">
+                                    <i class="ph ph-flower-lotus text-primary/70 text-sm"></i>
+                                </span>
+                                <span class="font-bold text-base-content/80 text-sm">miniex</span>
+                            </a>
+                            <p class="text-xs text-base-content/30 max-w-[200px] text-center sm:text-left leading-relaxed">A personal dev blog by Han Damin</p>
+                        </div>
+
+                        <!-- Nav links -->
+                        <nav class="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-base-content/40">
+                            <a href="/blog" class="hover:text-primary transition-colors duration-200">{{ t.nav_blog }}</a>
+                            <a href="/review" class="hover:text-primary transition-colors duration-200">{{ t.nav_review }}</a>
+                            <a href="/diary" class="hover:text-primary transition-colors duration-200">{{ t.nav_diary }}</a>
+                            <a href="/series" class="hover:text-primary transition-colors duration-200">{{ t.nav_series }}</a>
+                            <a href="/guestbook" class="hover:text-primary transition-colors duration-200">{{ t.nav_guestbook }}</a>
+                            <a href="/feed.xml" class="hover:text-primary transition-colors duration-200">RSS</a>
+                        </nav>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center gap-1">
-                            <a
-                                href="https://github.com/miniex"
-                                class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors duration-200"
-                                aria-label="GitHub"
-                            >
-                                <i class="ph ph-github-logo text-base"></i>
+
+                    <!-- Divider -->
+                    <div class="h-px bg-base-300/20"></div>
+
+                    <!-- Bottom row: social + copyright -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="flex items-center gap-1.5">
+                            <a href="https://github.com/miniex" class="w-8 h-8 rounded-full bg-base-200/30 hover:bg-primary/10 flex items-center justify-center text-base-content/30 hover:text-primary transition-all duration-200" aria-label="GitHub">
+                                <i class="ph ph-github-logo text-sm"></i>
                             </a>
-                            <a
-                                href="mailto:miniex@daminstudio.net"
-                                class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors duration-200"
-                                aria-label="Email"
-                            >
-                                <i class="ph ph-envelope text-base"></i>
+                            <a href="mailto:miniex@daminstudio.net" class="w-8 h-8 rounded-full bg-base-200/30 hover:bg-primary/10 flex items-center justify-center text-base-content/30 hover:text-primary transition-all duration-200" aria-label="Email">
+                                <i class="ph ph-envelope text-sm"></i>
                             </a>
-                            <a
-                                href="https://miniex.info"
-                                class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors duration-200"
-                                aria-label="Website"
-                            >
-                                <i class="ph ph-globe text-base"></i>
+                            <a href="https://miniex.info" class="w-8 h-8 rounded-full bg-base-200/30 hover:bg-primary/10 flex items-center justify-center text-base-content/30 hover:text-primary transition-all duration-200" aria-label="Website">
+                                <i class="ph ph-globe text-sm"></i>
                             </a>
                         </div>
-                        <span class="text-xs text-base-content/25">{{ t.footer_copyright }}</span>
+                        <span class="text-[11px] text-base-content/25">{{ t.footer_copyright }}</span>
                     </div>
                 </div>
             </div>
@@ -429,6 +461,17 @@
                     header.classList.remove("shadow-md");
                 }
             }, { passive: true });
+
+            // Highlight active nav link
+            (function() {
+                var path = window.location.pathname;
+                document.querySelectorAll(".nav-link").forEach(function(link) {
+                    var href = link.getAttribute("href");
+                    if (href && href !== "/" && path.startsWith(href)) {
+                        link.classList.add("active");
+                    }
+                });
+            })();
 
             // Theme toggle functionality
             document.addEventListener("DOMContentLoaded", function () {
