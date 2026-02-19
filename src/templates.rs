@@ -91,6 +91,12 @@ pub struct SeriesDetailTemplate {
     pub t: Translations,
     pub lang: Lang,
     pub sort_asc: bool,
+    pub current_page: u32,
+    pub total_pages: u32,
+    pub prev_page: Option<u32>,
+    pub next_page: Option<u32>,
+    pub page_numbers: Vec<u32>,
+    pub total_posts: u32,
 }
 
 #[derive(Template)]

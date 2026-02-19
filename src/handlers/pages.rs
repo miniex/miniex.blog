@@ -277,6 +277,7 @@ pub async fn handle_series(
 #[derive(Deserialize)]
 pub struct SeriesDetailQuery {
     sort: Option<String>,
+    page: Option<u32>,
 }
 
 pub async fn handle_series_detail(
@@ -286,6 +287,8 @@ pub async fn handle_series_detail(
     Query(query): Query<SeriesDetailQuery>,
 ) -> impl IntoResponse {
     let sort_asc = query.sort.as_deref() == Some("asc");
+    let page = query.page.unwrap_or(1);
+    let posts_per_page: u32 = 6;
     let t = Translations::for_lang(lang);
 
     let series = state
@@ -299,7 +302,25 @@ pub async fn handle_series_detail(
     match series {
         Some(series) => {
             let posts = state.posts.read().await;
-            let series_posts = get_posts_by_series(&posts, &series_name, lang, sort_asc);
+            let all_series_posts = get_posts_by_series(&posts, &series_name, lang, sort_asc);
+            let total_posts = all_series_posts.len();
+            let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
+
+            let start = ((page - 1) * posts_per_page) as usize;
+            let series_posts: Vec<_> = all_series_posts
+                .into_iter()
+                .skip(start)
+                .take(posts_per_page as usize)
+                .collect();
+
+            let page_numbers = if total_pages <= 5 {
+                (1..=total_pages).collect()
+            } else {
+                let s = std::cmp::max(1, std::cmp::min(page - 2, total_pages - 4));
+                let e = std::cmp::min(s + 4, total_pages);
+                (s..=e).collect()
+            };
+
             SeriesDetailTemplate {
                 blog: Blog::new()
                     .set_title(&format!("miniex::series::{}", series_name))
@@ -319,6 +340,16 @@ pub async fn handle_series_detail(
                 t,
                 lang,
                 sort_asc,
+                current_page: page,
+                total_pages,
+                prev_page: if page > 1 { Some(page - 1) } else { None },
+                next_page: if page < total_pages {
+                    Some(page + 1)
+                } else {
+                    None
+                },
+                page_numbers,
+                total_posts: total_posts as u32,
             }
             .into_response()
         }
