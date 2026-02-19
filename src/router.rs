@@ -106,7 +106,7 @@ pub fn create_router(state: SharedState) -> Router {
                 "default-src 'self'; \
                  script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com; \
                  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; \
-                 font-src 'self' https://fonts.gstatic.com; \
+                 font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; \
                  img-src 'self' data: https:; \
                  connect-src 'self' https://www.google-analytics.com; \
                  frame-ancestors 'none'"
