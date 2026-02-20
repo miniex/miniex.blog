@@ -1,8 +1,8 @@
 {% extends "_base.html" %} {% block head %}
 <title>{{ blog.title }}</title>
 <meta name="description" content="Resume - Taemin Yoon" />
-<script src="/assets/js/resume-toc.js?v=8" defer></script>
-<script src="/assets/js/resume-print.js?v=1" defer></script>
+<script src="/assets/js/resume-toc.js?v={{ blog.v }}" defer></script>
+<script src="/assets/js/resume-print.js?v={{ blog.v }}" defer></script>
 {% endblock %} {% block header %}
 <header
   class="bg-base-300/90 text-base-content backdrop-blur-sm nav-shadow sticky top-0 z-30 transition-all duration-300"

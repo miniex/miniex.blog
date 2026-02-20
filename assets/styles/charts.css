@@ -1,0 +1,420 @@
+/* ═══════════════════════════════════════════
+   Graph & Chart — pastel-matched styling
+   ═══════════════════════════════════════════ */
+
+/* ── Shared container ── */
+.function-plot-target,
+.chart-js-target,
+.plotly-target {
+  position: relative;
+  max-width: 100%;
+  margin: 2rem 0;
+  padding: 1.5rem 1.5rem 1.25rem;
+  border-radius: 1.5rem;
+  border: 1px solid hsl(var(--b3) / 0.15);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--b1) / 0.7) 0%,
+    hsl(var(--b2) / 0.3) 100%
+  );
+  backdrop-filter: blur(6px);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.function-plot-target:hover,
+.chart-js-target:hover,
+.plotly-target:hover {
+  border-color: hsl(var(--p) / 0.18);
+  box-shadow:
+    0 2px 16px -2px hsl(var(--p) / 0.06),
+    0 0 0 1px hsl(var(--p) / 0.04);
+}
+
+/* Top gradient accent — always visible but subtle, stronger on hover */
+.function-plot-target::before,
+.chart-js-target::before,
+.plotly-target::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--p) / 0.25),
+    hsl(var(--s) / 0.35),
+    hsl(var(--a) / 0.25)
+  );
+  border-radius: 0 0 2px 2px;
+  transition: opacity 0.3s ease;
+  opacity: 0.6;
+}
+
+.function-plot-target:hover::before,
+.chart-js-target:hover::before,
+.plotly-target:hover::before {
+  opacity: 1;
+}
+
+/* ── Title ── */
+.graph-chart-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  color: hsl(var(--bc) / 0.6);
+  margin: 0 0 0.875rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px dashed hsl(var(--b3) / 0.25);
+}
+
+.function-plot-target .graph-chart-title::before {
+  content: "f(x)  ";
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: hsl(var(--p) / 0.45);
+  letter-spacing: -0.02em;
+}
+
+.chart-js-target .graph-chart-title::before {
+  content: "\25C6  ";
+  font-size: 0.625rem;
+  color: hsl(var(--s) / 0.45);
+}
+
+.plotly-target .graph-chart-title::before {
+  content: "\25B3  ";
+  font-size: 0.625rem;
+  color: hsl(var(--a) / 0.45);
+}
+
+/* ── Plotly internals ── */
+.plotly-target .js-plotly-plot {
+  max-width: 100%;
+}
+
+.plotly-target .modebar {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.plotly-target:hover .modebar {
+  opacity: 1;
+}
+
+/* ── Graph plot wrapper (interactive zoom/pan area) ── */
+.graph-plot-wrap {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.graph-plot-target {
+  cursor: grab;
+}
+
+.graph-plot-target:active {
+  cursor: grabbing;
+}
+
+/* ── Zoom/pan control buttons ── */
+.graph-controls {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.graph-plot-wrap:hover .graph-controls {
+  opacity: 1;
+}
+
+.graph-ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(61, 53, 58, 0.1);
+  background: rgba(252, 250, 251, 0.9);
+  color: rgba(61, 53, 58, 0.5);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  backdrop-filter: blur(8px);
+  padding: 0;
+  line-height: 1;
+}
+
+.graph-ctrl-btn:hover {
+  background: rgba(252, 250, 251, 1);
+  border-color: rgba(201, 137, 158, 0.3);
+  color: rgba(61, 53, 58, 0.8);
+}
+
+.graph-ctrl-btn:active {
+  transform: scale(0.92);
+}
+
+[data-theme="pastel-dark"] .graph-ctrl-btn {
+  background: rgba(28, 24, 26, 0.85);
+  border-color: rgba(208, 160, 176, 0.1);
+  color: rgba(224, 216, 220, 0.45);
+}
+
+[data-theme="pastel-dark"] .graph-ctrl-btn:hover {
+  background: rgba(36, 32, 34, 0.95);
+  border-color: rgba(208, 160, 176, 0.2);
+  color: rgba(224, 216, 220, 0.75);
+}
+
+/* ── function-plot SVG deep styling ──
+   D3 sets stroke-opacity:0.1 as an SVG presentation attribute
+   on axis paths & lines. CSS !important overrides those. */
+.function-plot-target svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Kill D3's inline stroke-opacity on everything first */
+.function-plot-target .axis path,
+.function-plot-target .axis line {
+  stroke-opacity: 1 !important;
+  fill-opacity: 0 !important;
+  shape-rendering: auto !important;
+}
+
+/* Axis domain lines (the x/y axis borders) */
+.function-plot-target .x.axis .domain,
+.function-plot-target .y.axis .domain {
+  stroke: rgba(61, 53, 58, 0.25) !important;
+  stroke-width: 1.5 !important;
+  stroke-dasharray: none !important;
+}
+
+/* Grid lines (= tick lines extended across the plot by tickSize) */
+.function-plot-target .x.axis .tick line,
+.function-plot-target .y.axis .tick line {
+  stroke: rgba(201, 137, 158, 0.2) !important;
+  stroke-width: 1 !important;
+  stroke-dasharray: 4 3 !important;
+}
+
+/* Tick labels */
+.function-plot-target .x.axis .tick text,
+.function-plot-target .y.axis .tick text {
+  fill: rgba(61, 53, 58, 0.45) !important;
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 10px !important;
+}
+
+/* Axis labels (xlabel / ylabel) */
+.function-plot-target .x.axis text.label,
+.function-plot-target .y.axis text.label {
+  fill: rgba(61, 53, 58, 0.6) !important;
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+/* Plot curves */
+.function-plot-target path.line {
+  stroke-width: 2.5 !important;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-opacity: 1 !important;
+}
+
+/* Hover tip legend */
+.function-plot-target .top-right-legend text {
+  fill: rgba(61, 53, 58, 0.55) !important;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+}
+
+/* ── Chart.js wrapper ── */
+.chart-js-target .chart-canvas-wrap {
+  padding: 0.25rem 0.125rem;
+}
+
+.chart-js-target canvas {
+  max-width: 100%;
+}
+
+/* ── Legend pills (added via JS) ── */
+.graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.625rem;
+  border-top: 1px dashed hsl(var(--b3) / 0.2);
+}
+
+.graph-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: hsl(var(--bc) / 0.55);
+  padding: 0.25rem 0.625rem;
+  background: hsl(var(--b2) / 0.4);
+  border-radius: 100px;
+  border: 1px solid hsl(var(--b3) / 0.15);
+  transition: background 0.2s ease;
+}
+
+.graph-legend-item:hover {
+  background: hsl(var(--b2) / 0.7);
+}
+
+.graph-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Dark mode ── */
+[data-theme="pastel-dark"] .function-plot-target,
+[data-theme="pastel-dark"] .chart-js-target,
+[data-theme="pastel-dark"] .plotly-target {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--b1) / 0.85) 0%,
+    hsl(var(--b2) / 0.4) 100%
+  );
+  border-color: hsl(var(--b3) / 0.1);
+}
+
+[data-theme="pastel-dark"] .function-plot-target:hover,
+[data-theme="pastel-dark"] .chart-js-target:hover,
+[data-theme="pastel-dark"] .plotly-target:hover {
+  border-color: hsl(var(--p) / 0.2);
+  box-shadow:
+    0 2px 20px -2px hsl(var(--p) / 0.08),
+    0 0 0 1px hsl(var(--p) / 0.05);
+}
+
+[data-theme="pastel-dark"] .graph-chart-title {
+  color: hsl(var(--bc) / 0.5);
+  border-bottom-color: hsl(var(--b3) / 0.12);
+}
+
+[data-theme="pastel-dark"] .function-plot-target .x.axis .domain,
+[data-theme="pastel-dark"] .function-plot-target .y.axis .domain {
+  stroke: rgba(224, 216, 220, 0.18) !important;
+}
+
+[data-theme="pastel-dark"] .function-plot-target .x.axis .tick line,
+[data-theme="pastel-dark"] .function-plot-target .y.axis .tick line {
+  stroke: rgba(208, 160, 176, 0.15) !important;
+}
+
+[data-theme="pastel-dark"] .function-plot-target .x.axis .tick text,
+[data-theme="pastel-dark"] .function-plot-target .y.axis .tick text {
+  fill: rgba(224, 216, 220, 0.32) !important;
+}
+
+[data-theme="pastel-dark"] .function-plot-target .x.axis text.label,
+[data-theme="pastel-dark"] .function-plot-target .y.axis text.label {
+  fill: rgba(224, 216, 220, 0.5) !important;
+}
+
+[data-theme="pastel-dark"] .function-plot-target .top-right-legend text {
+  fill: rgba(224, 216, 220, 0.4) !important;
+}
+
+[data-theme="pastel-dark"] .graph-legend-item {
+  background: hsl(var(--b2) / 0.3);
+  border-color: hsl(var(--b3) / 0.1);
+  color: hsl(var(--bc) / 0.45);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .function-plot-target,
+  .chart-js-target,
+  .plotly-target {
+    padding: 0.5rem 0.25rem 0.5rem;
+    margin: 1rem 0;
+    border-radius: 0.75rem;
+  }
+
+  .function-plot-target::before,
+  .chart-js-target::before,
+  .plotly-target::before {
+    left: 0.25rem;
+    right: 0.25rem;
+  }
+
+  .graph-chart-title {
+    font-size: 0.75rem;
+    margin-bottom: 0.625rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .graph-legend {
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .graph-legend-item {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+  }
+
+  /* Controls: always visible on touch devices, bigger tap targets */
+  .graph-controls {
+    opacity: 0.7;
+  }
+
+  .graph-ctrl-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+  }
+
+  /* function-plot SVG: constrain to container */
+  .function-plot-target svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Plotly: prevent overflow */
+  .plotly-target .js-plotly-plot {
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+
+/* Responsive font size for mobile */
+@media (max-width: 768px) {
+  article.prose {
+    font-size: 0.875rem;
+  }
+
+  article.prose h1 {
+    font-size: 1.5rem;
+  }
+
+  article.prose h2 {
+    font-size: 1.25rem;
+  }
+
+  article.prose h3 {
+    font-size: 1.125rem;
+  }
+}

@@ -1,0 +1,52 @@
+/* Base styles: html/body/main, selection, scrollbar, nav */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0 auto;
+}
+
+main {
+  line-height: 1.6;
+}
+
+/* Selection styling */
+::selection {
+  background-color: hsl(var(--p) / 0.15);
+  color: hsl(var(--bc));
+}
+
+/* Nav shadow transition */
+.nav-shadow {
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Active nav link */
+.nav-link.active {
+  background: hsl(var(--p) / 0.08);
+  color: hsl(var(--p));
+  font-weight: 600;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 137, 158, 0.18);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 137, 158, 0.3);
+}

@@ -194,37 +194,4 @@ block head %}
   </div>
 </div>
 
-<style>
-  .series-item {
-    opacity: 0;
-    animation: seriesFadeIn 0.5s ease-out forwards;
-    animation-delay: calc(var(--i, 0) * 100ms);
-  }
-  .series-item:nth-child(1) { --i: 0; }
-  .series-item:nth-child(2) { --i: 1; }
-  .series-item:nth-child(3) { --i: 2; }
-  .series-item:nth-child(4) { --i: 3; }
-  .series-item:nth-child(5) { --i: 4; }
-  .series-item:nth-child(6) { --i: 5; }
-
-  @keyframes seriesFadeIn {
-    from {
-      opacity: 0;
-      transform: translateX(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  .series-timeline {
-    animation: timelineReveal 0.6s ease-out forwards;
-  }
-
-  @keyframes timelineReveal {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-</style>
 {% endblock %}

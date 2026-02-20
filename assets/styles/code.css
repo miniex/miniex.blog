@@ -1,0 +1,148 @@
+/* Table styling for resume */
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  background-color: hsl(var(--b1));
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+article thead {
+  background-color: hsl(var(--b2));
+}
+
+article th {
+  padding: 0.875rem 1.25rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  color: hsl(var(--bc) / 0.7);
+  border-bottom: 1px solid hsl(var(--b3) / 0.5);
+}
+
+article th:first-child {
+  padding-left: 1.5rem;
+}
+
+article th:last-child {
+  padding-right: 1.5rem;
+}
+
+article td {
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid hsl(var(--b3) / 0.3);
+  color: hsl(var(--bc) / 0.8);
+}
+
+article td:first-child {
+  padding-left: 1.5rem;
+}
+
+article td:last-child {
+  padding-right: 1.5rem;
+}
+
+article tbody tr:last-child td {
+  border-bottom: none;
+}
+
+article tbody tr:hover {
+  background-color: hsl(var(--b2) / 0.3);
+}
+
+/* Inline code - no background */
+article code:not(pre code) {
+  background-color: transparent !important;
+}
+
+/* Prevent highlight.js from adding background */
+.hljs {
+  background: transparent !important;
+}
+
+code.hljs {
+  background: transparent !important;
+}
+
+/* Force rounded corners on pre */
+article pre {
+  border-radius: 0.75rem !important;
+  border: 1px solid hsl(var(--b3) / 0.4) !important;
+  position: relative;
+}
+
+/* Copy button styling */
+.code-copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  background-color: hsl(var(--b1) / 0.9);
+  border: 1px solid hsl(var(--bc) / 0.1);
+  border-radius: 0.375rem;
+  color: hsl(var(--bc) / 0.6);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  opacity: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+article pre:hover .code-copy-button {
+  opacity: 1;
+}
+
+.code-copy-button:hover {
+  background-color: hsl(var(--b2));
+  border-color: hsl(var(--bc) / 0.2);
+  color: hsl(var(--bc));
+}
+
+.code-copy-button:active {
+  transform: scale(0.95);
+}
+
+.code-copy-button.copied {
+  background-color: hsl(var(--su) / 0.15);
+  color: hsl(var(--su));
+  border-color: hsl(var(--su) / 0.3);
+}
+
+/* Dark mode code block styling */
+[data-theme="pastel-dark"] article pre {
+  background-color: #201c1e !important;
+  border-color: rgba(208, 160, 176, 0.06) !important;
+}
+
+[data-theme="pastel-dark"] article pre code {
+  color: #d8d0d4 !important;
+}
+
+[data-theme="pastel-dark"] article pre code .hljs-keyword,
+[data-theme="pastel-dark"] article pre code .hljs-selector-tag,
+[data-theme="pastel-dark"] article pre code .hljs-type {
+  color: #d0a0b0 !important;
+}
+
+[data-theme="pastel-dark"] article pre code .hljs-string,
+[data-theme="pastel-dark"] article pre code .hljs-attr {
+  color: #baa0c0 !important;
+}
+
+[data-theme="pastel-dark"] article pre code .hljs-function,
+[data-theme="pastel-dark"] article pre code .hljs-title {
+  color: #c8a8b0 !important;
+}
+
+[data-theme="pastel-dark"] article pre code .hljs-number,
+[data-theme="pastel-dark"] article pre code .hljs-literal {
+  color: #d4b0a8 !important;
+}
+
+[data-theme="pastel-dark"] article pre code .hljs-comment {
+  color: #706468 !important;
+}

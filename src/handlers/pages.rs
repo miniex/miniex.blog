@@ -342,7 +342,15 @@ pub async fn handle_series_detail(
             }
             .into_response()
         }
-        None => (StatusCode::NOT_FOUND, ErrorTemplate { t, lang }).into_response(),
+        None => (
+            StatusCode::NOT_FOUND,
+            ErrorTemplate {
+                blog: Blog::new(),
+                t,
+                lang,
+            },
+        )
+            .into_response(),
     }
 }
 
@@ -464,6 +472,10 @@ pub async fn handle_guestbook(
     let page_numbers = compute_page_numbers(page, total_pages);
 
     Ok(GuestbookTemplate {
+        blog: Blog::new()
+            .set_title("miniex::guestbook")
+            .set_description("Guestbook")
+            .set_url(&format!("{}/guestbook", SITE_URL)),
         entries: guestbook_entries,
         t,
         lang,
@@ -483,5 +495,9 @@ pub async fn handle_guestbook(
 
 pub async fn handle_error(LangExtractor(lang): LangExtractor) -> ErrorTemplate {
     let t = Translations::for_lang(lang);
-    ErrorTemplate { t, lang }
+    ErrorTemplate {
+        blog: Blog::new(),
+        t,
+        lang,
+    }
 }

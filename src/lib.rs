@@ -31,12 +31,28 @@ pub struct Blog {
     pub description: String,
     pub url: String,
     pub og_type: String,
+    pub v: String,
 }
 
 impl Blog {
     pub fn new() -> Self {
+        use std::sync::OnceLock;
+        use std::time::{SystemTime, UNIX_EPOCH};
+
+        static VERSION: OnceLock<String> = OnceLock::new();
+        let v = VERSION
+            .get_or_init(|| {
+                let secs = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs();
+                format!("{:x}", secs)
+            })
+            .clone();
+
         Blog {
             og_type: "website".to_string(),
+            v,
             ..Blog::default()
         }
     }

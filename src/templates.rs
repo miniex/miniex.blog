@@ -122,6 +122,7 @@ pub struct ResumeTemplate {
 #[derive(Template)]
 #[template(path = "guestbook.html")]
 pub struct GuestbookTemplate {
+    pub blog: Blog,
     pub entries: Vec<Guestbook>,
     pub t: Translations,
     pub lang: Lang,
@@ -137,6 +138,7 @@ pub struct GuestbookTemplate {
 #[derive(Template)]
 #[template(path = "error.html")]
 pub struct ErrorTemplate {
+    pub blog: Blog,
     pub t: Translations,
     pub lang: Lang,
 }

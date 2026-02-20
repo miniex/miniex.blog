@@ -226,35 +226,6 @@
   </div>
 </div>
 
-<style>
-  .guestbook-item {
-    opacity: 0;
-    animation: gbFadeIn 0.4s ease-out forwards;
-    animation-delay: calc(var(--i, 0) * 60ms);
-  }
-  .guestbook-item:nth-child(1) { --i: 0; }
-  .guestbook-item:nth-child(2) { --i: 1; }
-  .guestbook-item:nth-child(3) { --i: 2; }
-  .guestbook-item:nth-child(4) { --i: 3; }
-  .guestbook-item:nth-child(5) { --i: 4; }
-  .guestbook-item:nth-child(6) { --i: 5; }
-  .guestbook-item:nth-child(7) { --i: 6; }
-  .guestbook-item:nth-child(8) { --i: 7; }
-  .guestbook-item:nth-child(9) { --i: 8; }
-  .guestbook-item:nth-child(10) { --i: 9; }
-
-  @keyframes gbFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>
-
 <script>
   var i18nEl = document.getElementById("i18n-data");
   var i18n = i18nEl ? JSON.parse(i18nEl.textContent) : {};

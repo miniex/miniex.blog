@@ -1,0 +1,30 @@
+/* KaTeX — isolate from prose styles */
+.prose .katex {
+  font-size: 1.1em;
+  line-height: 1.2;
+}
+
+.prose .katex * {
+  border: revert;
+  padding: revert;
+  margin: revert;
+}
+
+.prose .katex img,
+.prose .katex svg {
+  display: inline-block;
+  max-width: revert;
+  margin: 0;
+  border-radius: 0;
+}
+
+.prose .math-display {
+  display: block;
+  text-align: center;
+  margin: 1.5em 0;
+  overflow-x: auto;
+}
+
+.prose .math-inline {
+  display: inline;
+}

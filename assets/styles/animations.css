@@ -1,0 +1,122 @@
+/* ═══════════════════════════════════════════
+   Page transitions & staggered animations
+   ═══════════════════════════════════════════ */
+
+/* Page transition (used by _base.html main) */
+.page-transition {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Series grid fade-in */
+.grid {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Series detail: timeline reveal */
+.series-timeline {
+  animation: timelineReveal 0.6s ease-out forwards;
+}
+
+@keyframes timelineReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Series detail: staggered item fade-in */
+.series-item {
+  opacity: 0;
+  animation: seriesFadeIn 0.5s ease-out forwards;
+  animation-delay: calc(var(--i, 0) * 100ms);
+}
+.series-item:nth-child(1) {
+  --i: 0;
+}
+.series-item:nth-child(2) {
+  --i: 1;
+}
+.series-item:nth-child(3) {
+  --i: 2;
+}
+.series-item:nth-child(4) {
+  --i: 3;
+}
+.series-item:nth-child(5) {
+  --i: 4;
+}
+.series-item:nth-child(6) {
+  --i: 5;
+}
+
+@keyframes seriesFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Guestbook: staggered item fade-in */
+.guestbook-item {
+  opacity: 0;
+  animation: gbFadeIn 0.4s ease-out forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.guestbook-item:nth-child(1) {
+  --i: 0;
+}
+.guestbook-item:nth-child(2) {
+  --i: 1;
+}
+.guestbook-item:nth-child(3) {
+  --i: 2;
+}
+.guestbook-item:nth-child(4) {
+  --i: 3;
+}
+.guestbook-item:nth-child(5) {
+  --i: 4;
+}
+.guestbook-item:nth-child(6) {
+  --i: 5;
+}
+.guestbook-item:nth-child(7) {
+  --i: 6;
+}
+.guestbook-item:nth-child(8) {
+  --i: 7;
+}
+.guestbook-item:nth-child(9) {
+  --i: 8;
+}
+.guestbook-item:nth-child(10) {
+  --i: 9;
+}
+
+@keyframes gbFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

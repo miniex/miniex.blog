@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" media="print" onload="this.media='all'" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js" defer></script>
-<script src="/assets/js/code-highlight.js?v=3" defer></script>
+<script src="/assets/js/code-highlight.js?v={{ blog.v }}" defer></script>
 {% if let Some(post) = current_post
 %}
 <title>{{ post.metadata.title }}</title>
@@ -740,7 +740,7 @@
 </script>
 
 <!-- TOC interaction script -->
-<script src="/assets/js/post-toc.js?v=1" defer></script>
+<script src="/assets/js/post-toc.js?v={{ blog.v }}" defer></script>
 
 <!-- KaTeX rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
@@ -754,5 +754,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- Graph & Chart rendering -->
-<script src="/assets/js/graph-render.js?v=7" defer></script>
+<script src="/assets/js/graph-render.js?v={{ blog.v }}" defer></script>
 {% endblock %}
