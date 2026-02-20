@@ -133,7 +133,7 @@ block head %}
           <div class="flex-shrink-0 flex flex-col items-center z-10 pt-5">
             <div class="w-[31px] h-[31px] sm:w-[39px] sm:h-[39px] rounded-full bg-base-100 border-2 border-primary/20 group-hover/item:border-primary/50 flex items-center justify-center transition-all duration-300 group-hover/item:shadow-md group-hover/item:shadow-primary/10">
               <span class="text-[11px] sm:text-xs font-bold text-primary/60 group-hover/item:text-primary transition-colors duration-300">
-                {{ loop.index }}
+                {% match post.metadata.series_order %}{% when Some with (order) %}{{ order }}{% when None %}{{ loop.index }}{% endmatch %}
               </span>
             </div>
           </div>
