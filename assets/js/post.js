@@ -54,13 +54,21 @@ if (postId) {
           }),
         });
 
-        if (response.ok) {
+        if (response.status === 429) {
+          showToast(
+            i18n.rate_limit || "Too many requests. Please wait a moment.",
+            "warn",
+          );
+        } else if (response.ok) {
           document.getElementById("comment-author").value = "";
           document.getElementById("comment-content").value = "";
           document.getElementById("comment-password").value = "";
           loadComments();
         } else {
-          alert(i18n.comments_failed_create || "Failed to create comment.");
+          showToast(
+            i18n.comments_failed_create || "Failed to create comment.",
+            "error",
+          );
         }
       } catch (error) {
         console.error("Error:", error);
@@ -177,6 +185,13 @@ if (postId) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ client_id: cid }),
         });
+        if (resp.status === 429) {
+          showToast(
+            i18n.rate_limit || "Too many requests. Please wait a moment.",
+            "warn",
+          );
+          return;
+        }
         if (!resp.ok && resp.status !== 200) return;
         var text = await resp.text();
         if (!text) return;

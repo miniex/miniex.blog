@@ -283,6 +283,9 @@ pub struct Translations {
     pub visitor_today: &'static str,
     pub visitor_total: &'static str,
     pub visitor_visitors: &'static str,
+
+    // Rate limit
+    pub rate_limit: &'static str,
 }
 
 impl Translations {
@@ -441,6 +444,9 @@ impl Translations {
             visitor_today: "Today",
             visitor_total: "Total",
             visitor_visitors: "visitors",
+
+            // Rate limit
+            rate_limit: "Too many requests. Please wait a moment.",
         }
     }
 
@@ -586,6 +592,9 @@ impl Translations {
             visitor_today: "오늘",
             visitor_total: "전체",
             visitor_visitors: "방문자",
+
+            // Rate limit
+            rate_limit: "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.",
         }
     }
 
@@ -728,6 +737,9 @@ impl Translations {
             visitor_today: "今日",
             visitor_total: "合計",
             visitor_visitors: "訪問者",
+
+            // Rate limit
+            rate_limit: "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
         }
     }
 }

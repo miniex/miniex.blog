@@ -142,6 +142,34 @@
   animation: shimmer 1.8s ease-in-out infinite;
 }
 
+/* Toast notifications */
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes toastSlideOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+.toast-slide-in {
+  animation: toastSlideIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+.toast-slide-out {
+  animation: toastSlideOut 0.3s ease-in forwards;
+}
+
 /* Like button bounce */
 @keyframes likeBounce {
   0% {
