@@ -311,11 +311,52 @@
       </div>
       {% endif %}
 
+      <!-- Engagement bar: Like, Views, Share -->
+      <div class="mt-10 bg-base-100/80 backdrop-blur-sm rounded-3xl p-5 sm:p-6 border border-base-300/20">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-6">
+            <!-- Like -->
+            <button
+              id="like-btn"
+              class="flex items-center gap-2 text-base-content/50 hover:text-red-400 transition-colors duration-200"
+              data-slug="{{ post.slug }}"
+              aria-label="Like"
+            >
+              <i class="ph ph-heart text-2xl" id="like-icon"></i>
+              <span id="like-count" class="text-base font-medium tabular-nums min-w-[1.5ch]">{{ post.like_count }}</span>
+            </button>
+            <!-- Views -->
+            <div class="flex items-center gap-2 text-base-content/40">
+              <i class="ph ph-eye text-xl"></i>
+              <span class="text-base tabular-nums min-w-[1.5ch]">{{ post.view_count }}</span>
+            </div>
+          </div>
+          <!-- Share -->
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-base-content/40 hidden sm:inline">{{ t.post_share_article }}</span>
+            <button
+              class="btn btn-sm btn-ghost btn-circle text-base-content/40 hover:text-primary"
+              onclick="if(navigator.share){navigator.share({title:'{{ post.metadata.title }}',text:'{{ post.metadata.description }}',url:window.location.href})}else{navigator.clipboard.writeText(window.location.href)}"
+              aria-label="Share article"
+            >
+              <i class="ph ph-share-network text-lg"></i>
+            </button>
+            <button
+              class="btn btn-sm btn-ghost btn-circle text-base-content/40 hover:text-primary"
+              onclick="navigator.clipboard.writeText(window.location.href)"
+              aria-label="Copy link"
+            >
+              <i class="ph ph-link text-lg"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Comments section -->
       <div
         id="comments-section"
         data-post-id="{{ post.slug }}"
-        class="mt-10 bg-base-100/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-base-300/20"
+        class="mt-6 bg-base-100/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-base-300/20"
       >
         <h2
           class="text-lg font-semibold mb-6 flex items-center gap-2 text-base-content/80"
@@ -392,49 +433,7 @@
       </div>
 
       <!-- Post footer -->
-      <div
-        class="mt-10 flex items-center justify-between py-6 border-t border-base-300/15"
-      >
-        <!-- Like & View -->
-        <div class="flex items-center gap-4">
-          <button
-            id="like-btn"
-            class="flex items-center gap-1.5 text-base-content/40 hover:text-red-400 transition-colors duration-200"
-            data-slug="{{ post.slug }}"
-            aria-label="Like"
-          >
-            <i class="ph ph-heart text-lg" id="like-icon"></i>
-            <span id="like-count" class="text-sm">{{ post.like_count }}</span>
-          </button>
-          <span class="text-base-content/20">&middot;</span>
-          <div class="flex items-center gap-1.5 text-base-content/35">
-            <i class="ph ph-eye text-base"></i>
-            <span class="text-sm">{{ post.view_count }}</span>
-          </div>
-
-          <span class="text-base-content/15">|</span>
-
-          <!-- Share section -->
-          <span class="text-xs text-base-content/35"
-            >{{ t.post_share_article }}</span
-          >
-          <button
-            class="text-base-content/35 hover:text-primary transition-colors duration-200"
-            onclick="navigator.share({title: '{{ post.metadata.title }}', text: '{{ post.metadata.description }}', url: window.location.href})"
-            aria-label="Share article"
-          >
-            <i class="ph ph-share-network text-base"></i>
-          </button>
-          <button
-            class="text-base-content/35 hover:text-primary transition-colors duration-200"
-            onclick="navigator.clipboard.writeText(window.location.href)"
-            aria-label="Copy link"
-          >
-            <i class="ph ph-link text-base"></i>
-          </button>
-        </div>
-
-        <!-- Back to top -->
+      <div class="mt-10 flex justify-end py-6 border-t border-base-300/15">
         <a
           href="#"
           class="text-xs text-base-content/35 hover:text-primary transition-colors duration-200 inline-flex items-center gap-1"

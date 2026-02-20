@@ -68,6 +68,88 @@ if (postId) {
       }
     });
 
+  // Like celebration burst
+  function likeCelebrate(btn) {
+    var emojis = [
+      "\u2764\ufe0f",
+      "\ud83e\udde1",
+      "\ud83d\udc9b",
+      "\ud83d\udc9c",
+      "\ud83d\udc96",
+      "\ud83d\udc97",
+      "\u2728",
+      "\ud83c\udf1f",
+      "\ud83d\udcab",
+      "\ud83c\udf89",
+      "\ud83c\udf8a",
+      "\ud83e\udd70",
+    ];
+    btn.style.position = "relative";
+    btn.style.overflow = "visible";
+
+    // Double ring burst
+    var ring1 = document.createElement("span");
+    ring1.className = "like-ring";
+    btn.appendChild(ring1);
+    var ring2 = document.createElement("span");
+    ring2.className = "like-ring-2";
+    btn.appendChild(ring2);
+    setTimeout(function () {
+      ring1.remove();
+      ring2.remove();
+    }, 1200);
+
+    // Glow
+    btn.classList.add("like-glow");
+    setTimeout(function () {
+      btn.classList.remove("like-glow");
+    }, 900);
+
+    // Wave 1: big particles bursting out
+    function spawnParticle(angle, dist, size, delay) {
+      var p = document.createElement("span");
+      p.className = "like-particle";
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      var rad = (angle * Math.PI) / 180;
+      p.style.setProperty("--tx", Math.cos(rad) * dist + "px");
+      p.style.setProperty("--ty", Math.sin(rad) * dist + "px");
+      p.style.setProperty("--rot", Math.random() * 540 - 270 + "deg");
+      p.style.setProperty("--dur", 0.6 + Math.random() * 0.5 + "s");
+      p.style.setProperty("--delay", delay + "s");
+      p.style.setProperty("--size", size + "rem");
+      p.style.opacity = "1";
+      btn.appendChild(p);
+      setTimeout(function () {
+        p.remove();
+      }, 1500);
+    }
+
+    var count1 = 14;
+    for (var i = 0; i < count1; i++) {
+      var angle = (i / count1) * 360 + (Math.random() * 20 - 10);
+      spawnParticle(
+        angle,
+        60 + Math.random() * 50,
+        0.9 + Math.random() * 0.7,
+        0,
+      );
+    }
+
+    // Wave 2: delayed smaller burst
+    setTimeout(function () {
+      var count2 = 10;
+      for (var j = 0; j < count2; j++) {
+        var angle2 = (j / count2) * 360 + (Math.random() * 30 - 15);
+        spawnParticle(
+          angle2,
+          30 + Math.random() * 80,
+          0.6 + Math.random() * 0.5,
+          0,
+        );
+      }
+    }, 150);
+  }
+
   // Like button functionality
   (function () {
     var cid = localStorage.getItem("blog_client_id");
@@ -84,7 +166,7 @@ if (postId) {
       localStorage.getItem("blog_liked_posts") || "{}",
     );
     if (likedSlugs[postId]) {
-      likeIcon.className = "ph-fill ph-heart text-lg text-red-400";
+      likeIcon.className = "ph-fill ph-heart text-2xl text-red-400";
       likeBtn.classList.add("text-red-400");
     }
 
@@ -101,11 +183,12 @@ if (postId) {
         var data = JSON.parse(text);
         likeCount.textContent = data.like_count;
         if (data.liked) {
-          likeIcon.className = "ph-fill ph-heart text-lg text-red-400";
+          likeIcon.className = "ph-fill ph-heart text-2xl text-red-400";
           likeBtn.classList.add("text-red-400");
           likedSlugs[postId] = true;
+          likeCelebrate(likeBtn);
         } else {
-          likeIcon.className = "ph ph-heart text-lg";
+          likeIcon.className = "ph ph-heart text-2xl";
           likeBtn.classList.remove("text-red-400");
           delete likedSlugs[postId];
         }
@@ -113,7 +196,7 @@ if (postId) {
         likeIcon.classList.add("like-bounce");
         setTimeout(function () {
           likeIcon.classList.remove("like-bounce");
-        }, 400);
+        }, 600);
       } catch (e) {
         console.error("Like error:", e);
       }
