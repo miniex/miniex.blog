@@ -1532,19 +1532,48 @@
     var cEls = document.querySelectorAll(".chart-js-target");
     var pEls = document.querySelectorAll(".plotly-target");
 
+    // Track async library loads to signal completion
+    var pending = 0;
+    if (gEls.length) pending++;
+    if (cEls.length) pending++;
+    if (pEls.length) pending++;
+
+    function onGroupDone() {
+      pending--;
+      if (pending <= 0) {
+        document.dispatchEvent(new Event("graphs:rendered"));
+      }
+    }
+
+    if (pending === 0) {
+      document.dispatchEvent(new Event("graphs:rendered"));
+    }
+
     if (gEls.length) {
       loadFP(function () {
-        gEls.forEach(renderGraph);
+        gEls.forEach(function (el) {
+          renderGraph(el);
+          el.classList.add("rendered");
+        });
+        onGroupDone();
       });
     }
     if (cEls.length) {
       loadCJ(function () {
-        cEls.forEach(renderChart);
+        cEls.forEach(function (el) {
+          renderChart(el);
+          el.classList.add("rendered");
+        });
+        onGroupDone();
       });
     }
     if (pEls.length) {
       loadPlotly(function () {
-        pEls.forEach(renderPlot3d);
+        pEls.forEach(function (el) {
+          renderPlot3d(el);
+          el.classList.add("rendered");
+        });
+        onGroupDone();
       });
     }
 

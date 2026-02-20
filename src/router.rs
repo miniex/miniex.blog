@@ -59,6 +59,8 @@ pub fn create_router(state: SharedState) -> Router {
             "/api/guestbook/delete/:entry_id",
             axum::routing::delete(api::delete_guestbook_entry),
         )
+        .route("/api/post/:slug/like", post(api::toggle_like))
+        .route("/api/visit", post(api::record_visit))
         .layer(GovernorLayer {
             config: governor_conf.into(),
         });
@@ -80,6 +82,7 @@ pub fn create_router(state: SharedState) -> Router {
         .route("/api/set-lang", get(api::handle_set_lang))
         .route("/api/comments/:post_id", get(api::get_comments))
         .route("/api/guestbook", get(api::get_guestbook_entries))
+        .route("/api/visitor-stats", get(api::get_visitor_stats))
         .merge(api_write_routes)
         .nest_service("/assets", assets_service)
         .nest_service("/favicon.ico", ServeFile::new("assets/favicon/favicon.ico"))
@@ -105,8 +108,8 @@ pub fn create_router(state: SharedState) -> Router {
             header::HeaderName::from_static("content-security-policy"),
             header::HeaderValue::from_static(
                 "default-src 'self'; \
-                 script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com; \
-                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; \
+                 script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com; \
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; \
                  font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; \
                  img-src 'self' data: https:; \
                  connect-src 'self' https://www.google-analytics.com; \

@@ -25,6 +25,10 @@ pub struct Post {
     pub reading_time_min: u32,
     pub lang: Lang,
     pub translation_key: String,
+    #[serde(skip)]
+    pub view_count: u32,
+    #[serde(skip)]
+    pub like_count: u32,
 }
 
 #[derive(Deserialize, Serialize, Clone, PartialEq, Eq)]
@@ -773,6 +777,8 @@ async fn process_mdx_file(
         reading_time_min,
         lang,
         translation_key,
+        view_count: 0,
+        like_count: 0,
     };
 
     Ok(post)
@@ -836,6 +842,8 @@ mod tests {
             reading_time_min: 1,
             lang,
             translation_key: translation_key.to_string(),
+            view_count: 0,
+            like_count: 0,
         }
     }
 

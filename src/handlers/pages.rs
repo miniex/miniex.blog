@@ -1,8 +1,9 @@
+use crate::db::Database;
 use crate::{
     i18n::{LangExtractor, Translations},
     post::{
         get_available_translations, get_posts_by_category, get_posts_by_series, get_recent_posts,
-        get_series_nav_info, PostType,
+        get_series_nav_info, Post, PostType,
     },
     templates::{
         BlogTemplate, DiaryTemplate, ErrorTemplate, GuestbookTemplate, IndexTemplate, PostTemplate,
@@ -16,6 +17,19 @@ use axum::{
     response::IntoResponse,
 };
 use serde::Deserialize;
+
+async fn enrich_posts_with_counts(posts: &mut [Post], db: &Database) {
+    let slugs: Vec<String> = posts.iter().map(|p| p.slug.clone()).collect();
+    if slugs.is_empty() {
+        return;
+    }
+    let view_counts = db.get_view_counts(&slugs).await.unwrap_or_default();
+    let like_counts = db.get_like_counts(&slugs).await.unwrap_or_default();
+    for post in posts.iter_mut() {
+        post.view_count = view_counts.get(&post.slug).copied().unwrap_or(0);
+        post.like_count = like_counts.get(&post.slug).copied().unwrap_or(0);
+    }
+}
 
 fn compute_page_numbers(current: u32, total: u32) -> Vec<u32> {
     if total <= 5 {
@@ -35,7 +49,9 @@ pub async fn handle_index(
     LangExtractor(lang): LangExtractor,
 ) -> IndexTemplate {
     let posts = state.posts.read().await;
-    let recent_posts = get_recent_posts(&posts, lang);
+    let mut recent_posts = get_recent_posts(&posts, lang);
+    drop(posts);
+    enrich_posts_with_counts(&mut recent_posts, &state.db).await;
     let t = Translations::for_lang(lang);
 
     IndexTemplate {
@@ -73,7 +89,7 @@ pub async fn handle_blog(
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
     let start = (page - 1) * posts_per_page;
-    let current_posts = filtered_posts
+    let mut current_posts: Vec<Post> = filtered_posts
         .into_iter()
         .skip(start as usize)
         .take(posts_per_page as usize)
@@ -86,6 +102,9 @@ pub async fn handle_blog(
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
         .collect();
+
+    drop(posts);
+    enrich_posts_with_counts(&mut current_posts, &state.db).await;
 
     let page_numbers = compute_page_numbers(page, total_pages);
 
@@ -138,7 +157,7 @@ pub async fn handle_review(
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
     let start = (page - 1) * posts_per_page;
-    let current_posts = filtered_posts
+    let mut current_posts: Vec<Post> = filtered_posts
         .into_iter()
         .skip(start as usize)
         .take(posts_per_page as usize)
@@ -151,6 +170,9 @@ pub async fn handle_review(
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
         .collect();
+
+    drop(posts);
+    enrich_posts_with_counts(&mut current_posts, &state.db).await;
 
     let page_numbers = compute_page_numbers(page, total_pages);
 
@@ -201,7 +223,7 @@ pub async fn handle_diary(
     let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
     let start = (page - 1) * posts_per_page;
-    let current_posts = filtered_posts
+    let mut current_posts: Vec<Post> = filtered_posts
         .into_iter()
         .skip(start as usize)
         .take(posts_per_page as usize)
@@ -214,6 +236,9 @@ pub async fn handle_diary(
         .collect::<std::collections::HashSet<_>>()
         .into_iter()
         .collect();
+
+    drop(posts);
+    enrich_posts_with_counts(&mut current_posts, &state.db).await;
 
     let page_numbers = compute_page_numbers(page, total_pages);
 
@@ -302,11 +327,14 @@ pub async fn handle_series_detail(
             let total_pages = (total_posts as f32 / posts_per_page as f32).ceil() as u32;
 
             let start = ((page - 1) * posts_per_page) as usize;
-            let series_posts: Vec<_> = all_series_posts
+            let mut series_posts: Vec<_> = all_series_posts
                 .into_iter()
                 .skip(start)
                 .take(posts_per_page as usize)
                 .collect();
+
+            drop(posts);
+            enrich_posts_with_counts(&mut series_posts, &state.db).await;
 
             let page_numbers = compute_page_numbers(page, total_pages);
 
@@ -378,6 +406,20 @@ pub async fn handle_post(
     let series_nav = current_post
         .as_ref()
         .and_then(|p| get_series_nav_info(&posts, p));
+
+    // Increment view count and get like count
+    let current_post = if let Some(mut post) = current_post {
+        if let Ok(view_count) = state.db.increment_view(&post.slug).await {
+            post.view_count = view_count;
+        }
+        let slugs = vec![post.slug.clone()];
+        if let Ok(like_counts) = state.db.get_like_counts(&slugs).await {
+            post.like_count = like_counts.get(&post.slug).copied().unwrap_or(0);
+        }
+        Some(post)
+    } else {
+        None
+    };
 
     let blog = if let Some(ref p) = current_post {
         Blog::new()

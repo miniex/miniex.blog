@@ -120,3 +120,43 @@
     transform: translateY(0);
   }
 }
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(var(--bc) / 0.04) 0%,
+    oklch(var(--bc) / 0.1) 40%,
+    oklch(var(--bc) / 0.04) 80%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* Like button bounce */
+@keyframes likeBounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.3);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.like-bounce {
+  animation: likeBounce 0.4s ease-out;
+}

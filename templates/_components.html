@@ -83,17 +83,30 @@
           </div>
         </div>
 
-        <!-- Dates -->
+        <!-- Dates & Stats -->
         <div
-          class="flex items-center gap-3 mt-2 text-[11px] text-base-content/35"
+          class="flex items-center justify-between mt-2 text-[11px] text-base-content/35"
         >
-          <div class="flex items-center gap-1">
-            <i class="ph ph-calendar-blank text-xs"></i>
-            <time>{{ post.metadata.created_at|date }}</time>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1">
+              <i class="ph ph-calendar-blank text-xs"></i>
+              <time>{{ post.metadata.created_at|date }}</time>
+            </div>
+            <div class="flex items-center gap-1">
+              <i class="ph ph-pencil-simple text-xs"></i>
+              <time>{{ post.metadata.updated_at|date }}</time>
+            </div>
           </div>
-          <div class="flex items-center gap-1">
-            <i class="ph ph-pencil-simple text-xs"></i>
-            <time>{{ post.metadata.updated_at|date }}</time>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-0.5">
+              <i class="ph ph-eye text-xs"></i>
+              <span>{{ post.view_count }}</span>
+            </div>
+            <span class="text-base-content/20">&middot;</span>
+            <div class="flex items-center gap-0.5">
+              <i class="ph ph-heart text-xs"></i>
+              <span>{{ post.like_count }}</span>
+            </div>
           </div>
         </div>
       </div>

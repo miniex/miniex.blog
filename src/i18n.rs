@@ -274,6 +274,15 @@ pub struct Translations {
     pub sort_oldest_first: &'static str,
     pub sort_recently_updated: &'static str,
     pub sort_least_updated: &'static str,
+
+    // Post stats
+    pub post_views: &'static str,
+    pub post_likes: &'static str,
+
+    // Visitor stats
+    pub visitor_today: &'static str,
+    pub visitor_total: &'static str,
+    pub visitor_visitors: &'static str,
 }
 
 impl Translations {
@@ -423,6 +432,15 @@ impl Translations {
             sort_oldest_first: "Oldest first",
             sort_recently_updated: "Recently updated",
             sort_least_updated: "Least recently updated",
+
+            // Post stats
+            post_views: "views",
+            post_likes: "likes",
+
+            // Visitor stats
+            visitor_today: "Today",
+            visitor_total: "Total",
+            visitor_visitors: "visitors",
         }
     }
 
@@ -559,6 +577,15 @@ impl Translations {
             sort_oldest_first: "오래된순",
             sort_recently_updated: "최근 수정순",
             sort_least_updated: "오래된 수정순",
+
+            // Post stats
+            post_views: "조회",
+            post_likes: "좋아요",
+
+            // Visitor stats
+            visitor_today: "오늘",
+            visitor_total: "전체",
+            visitor_visitors: "방문자",
         }
     }
 
@@ -692,6 +719,15 @@ impl Translations {
             sort_oldest_first: "古い順",
             sort_recently_updated: "最近更新順",
             sort_least_updated: "更新が古い順",
+
+            // Post stats
+            post_views: "閲覧",
+            post_likes: "いいね",
+
+            // Visitor stats
+            visitor_today: "今日",
+            visitor_total: "合計",
+            visitor_visitors: "訪問者",
         }
     }
 }

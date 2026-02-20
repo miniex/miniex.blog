@@ -307,3 +307,85 @@ pub async fn delete_guestbook_entry(
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
 }
+
+// --- Like API ---
+
+#[derive(Deserialize)]
+pub struct LikeRequest {
+    client_id: String,
+}
+
+#[derive(Serialize)]
+pub struct LikeResponse {
+    liked: bool,
+    like_count: u32,
+}
+
+pub async fn toggle_like(
+    Path(slug): Path<String>,
+    State(state): State<SharedState>,
+    Json(payload): Json<LikeRequest>,
+) -> impl IntoResponse {
+    match state.db.toggle_like(&slug, &payload.client_id).await {
+        Ok((liked, like_count)) => Json(LikeResponse { liked, like_count }).into_response(),
+        Err(e) => {
+            tracing::error!("toggle_like error for slug={}: {}", slug, e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(LikeResponse {
+                    liked: false,
+                    like_count: 0,
+                }),
+            )
+                .into_response()
+        }
+    }
+}
+
+// --- Visit API ---
+
+#[derive(Deserialize)]
+pub struct VisitRequest {
+    client_id: String,
+    date: String,
+}
+
+pub async fn record_visit(
+    State(state): State<SharedState>,
+    Json(payload): Json<VisitRequest>,
+) -> StatusCode {
+    match state
+        .db
+        .record_visit(&payload.client_id, &payload.date)
+        .await
+    {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            tracing::error!("record_visit error: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
+}
+
+// --- Visitor Stats API ---
+
+#[derive(Deserialize)]
+pub struct VisitorStatsQuery {
+    date: String,
+}
+
+#[derive(Serialize)]
+pub struct VisitorStatsResponse {
+    today: u32,
+    total: u32,
+}
+
+pub async fn get_visitor_stats(
+    State(state): State<SharedState>,
+    Query(query): Query<VisitorStatsQuery>,
+) -> Json<VisitorStatsResponse> {
+    match state.db.get_visitor_stats(&query.date).await {
+        Ok((today, total)) => Json(VisitorStatsResponse { today, total }),
+        Err(_) => Json(VisitorStatsResponse { today: 0, total: 0 }),
+    }
+}

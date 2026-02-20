@@ -9,12 +9,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <script>
             (function(){var t=localStorage.getItem("theme");if(t==="dark"||t==="pastel-dark"||((!t)&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.setAttribute("data-theme","pastel-dark")}})();
+            window.addEventListener("scroll",function(){var h=document.querySelector("header");if(h){if(window.scrollY>10)h.classList.add("shadow-md");else h.classList.remove("shadow-md")}},{passive:true});
         </script>
+        <link rel="preconnect" href="https://unpkg.com" crossorigin>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="preconnect" href="https://unpkg.com" crossorigin>
-        <script src="https://unpkg.com/htmx.org@2.0.2" defer></script>
-        <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
+        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+        <script src="/assets/js/app.js?v={{ blog.v }}" defer></script>
+        <script src="https://unpkg.com/htmx.org@2.0.2" async></script>
         <link
             href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
             rel="stylesheet"
@@ -295,6 +297,23 @@
                     <!-- Divider -->
                     <div class="h-px bg-base-300/20"></div>
 
+                    <!-- Visitor stats -->
+                    <div class="flex items-center justify-center gap-4 text-xs text-base-content/35">
+                        <div class="flex items-center gap-1.5">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/60 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-success/80"></span>
+                            </span>
+                            <span>{{ t.visitor_today }}</span>
+                            <span id="visitor-today" class="font-medium text-base-content/50">&mdash;</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i class="ph ph-users text-xs"></i>
+                            <span>{{ t.visitor_total }}</span>
+                            <span id="visitor-total" class="font-medium text-base-content/50">&mdash;</span>
+                        </div>
+                    </div>
+
                     <!-- Bottom row: social + copyright -->
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div class="flex items-center gap-1.5">
@@ -390,7 +409,12 @@
             "guestbook_enter_both": "{{ t.guestbook_enter_both }}",
             "guestbook_failed": "{{ t.guestbook_failed }}",
             "graph_before": "{{ t.graph_before }}",
-            "graph_after": "{{ t.graph_after }}"
+            "graph_after": "{{ t.graph_after }}",
+            "post_views": "{{ t.post_views }}",
+            "post_likes": "{{ t.post_likes }}",
+            "visitor_today": "{{ t.visitor_today }}",
+            "visitor_total": "{{ t.visitor_total }}",
+            "visitor_visitors": "{{ t.visitor_visitors }}"
         }
         </script>
         <!-- Google tag (gtag.js) -->
@@ -403,94 +427,6 @@
         </script>
 
         <script src="/assets/js/search.js?v={{ blog.v }}" defer></script>
-
-        <script>
-            // Add shadow to header on scroll
-            window.addEventListener("scroll", function () {
-                const header = document.querySelector("header");
-                if (window.scrollY > 10) {
-                    header.classList.add("shadow-md");
-                } else {
-                    header.classList.remove("shadow-md");
-                }
-            }, { passive: true });
-
-            // Highlight active nav link
-            (function() {
-                var path = window.location.pathname;
-                document.querySelectorAll(".nav-link").forEach(function(link) {
-                    var href = link.getAttribute("href");
-                    if (href && href !== "/" && path.startsWith(href)) {
-                        link.classList.add("active");
-                    }
-                });
-            })();
-
-            // Theme toggle functionality
-            document.addEventListener("DOMContentLoaded", function () {
-                // Get theme toggles and html element
-                const themeToggle = document.getElementById("theme-toggle");
-                const themeToggleMobile = document.getElementById(
-                    "theme-toggle-mobile",
-                );
-                const html = document.documentElement;
-
-                // Check for saved theme preference or use system preference
-                const savedTheme = localStorage.getItem("theme");
-                const systemDarkMode = window.matchMedia(
-                    "(prefers-color-scheme: dark)",
-                ).matches;
-
-                // Apply theme on initial load
-                if (savedTheme === "dark" || savedTheme === "pastel-dark" || (!savedTheme && systemDarkMode)) {
-                    applyTheme("pastel-dark");
-                } else {
-                    applyTheme("pastel");
-                }
-
-                // Toggle theme on button click
-                themeToggle.addEventListener("click", () => {
-                    const currentTheme = html.getAttribute("data-theme");
-                    const newTheme =
-                        currentTheme === "pastel-dark" ? "pastel" : "pastel-dark";
-                    applyTheme(newTheme);
-                });
-
-                themeToggleMobile.addEventListener("click", () => {
-                    const currentTheme = html.getAttribute("data-theme");
-                    const newTheme =
-                        currentTheme === "pastel-dark" ? "pastel" : "pastel-dark";
-                    applyTheme(newTheme);
-                });
-
-                // Function to apply theme
-                function applyTheme(theme) {
-                    html.setAttribute("data-theme", theme);
-                    localStorage.setItem("theme", theme);
-
-                    // Update toggle visibility
-                    const lightElements =
-                        document.querySelectorAll(".theme-light");
-                    const darkElements =
-                        document.querySelectorAll(".theme-dark");
-
-                    if (theme === "pastel-dark") {
-                        lightElements.forEach((el) =>
-                            el.classList.add("hidden"),
-                        );
-                        darkElements.forEach((el) =>
-                            el.classList.remove("hidden"),
-                        );
-                    } else {
-                        lightElements.forEach((el) =>
-                            el.classList.remove("hidden"),
-                        );
-                        darkElements.forEach((el) =>
-                            el.classList.add("hidden"),
-                        );
-                    }
-                }
-            });
-        </script>
+        <script src="/assets/js/visitor.js?v={{ blog.v }}" defer></script>
     </body>
 </html>

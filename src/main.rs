@@ -5,6 +5,7 @@ use blog::{
     router::create_router,
     SharedState,
 };
+use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::info;
@@ -73,9 +74,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Starting server on {}", address);
     let listener = tokio::net::TcpListener::bind(address).await?;
-    axum::serve(listener, app)
-        .with_graceful_shutdown(shutdown_signal())
-        .await?;
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .with_graceful_shutdown(shutdown_signal())
+    .await?;
 
     Ok(())
 }

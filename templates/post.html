@@ -1,6 +1,7 @@
 {% extends "_base.html" %} {% block head %}
 <!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" media="print" onload="this.media='all'">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" defer></script>
 <!-- highlight.js -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" media="print" onload="this.media='all'" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
@@ -86,6 +87,53 @@
   <div class="flex flex-col xl:flex-row gap-8">
     <!-- Main content column -->
     <div class="flex-1 w-full max-w-4xl mx-auto xl:mx-0">
+      <!-- Post wrapper (skeleton covers back link + header + content) -->
+      <div id="post-wrapper" class="relative">
+        <!-- Loading skeleton overlay -->
+        <div id="post-loading" class="absolute inset-0 z-10 bg-base-100 transition-opacity duration-500" style="will-change:opacity">
+          <!-- Back link skeleton -->
+          <div class="mb-8">
+            <div class="skeleton-shimmer h-4 rounded w-16"></div>
+          </div>
+          <!-- Header skeleton -->
+          <div class="mb-10 animate-pulse">
+            <div class="flex gap-2 mb-5">
+              <div class="skeleton-shimmer h-6 rounded-full w-16"></div>
+              <div class="skeleton-shimmer h-6 rounded-full w-24"></div>
+            </div>
+            <div class="skeleton-shimmer h-10 sm:h-12 rounded-xl w-[85%] mb-4"></div>
+            <div class="space-y-2 mb-6">
+              <div class="skeleton-shimmer h-5 rounded-lg w-[70%]"></div>
+              <div class="skeleton-shimmer h-5 rounded-lg w-[45%]"></div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 mb-5">
+              <div class="skeleton-shimmer h-4 rounded w-20"></div>
+              <div class="skeleton-shimmer h-4 rounded w-28"></div>
+              <div class="skeleton-shimmer h-4 rounded w-24"></div>
+            </div>
+            <div class="flex gap-2">
+              <div class="skeleton-shimmer h-6 rounded-full w-14"></div>
+              <div class="skeleton-shimmer h-6 rounded-full w-18"></div>
+              <div class="skeleton-shimmer h-6 rounded-full w-12"></div>
+              <div class="skeleton-shimmer h-6 rounded-full w-16"></div>
+            </div>
+          </div>
+          <!-- Content skeleton -->
+          <div class="bg-base-100/60 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 border border-base-300/15 animate-pulse space-y-5">
+            <div class="skeleton-shimmer h-5 rounded-lg w-4/5"></div>
+            <div class="skeleton-shimmer h-4 rounded-lg w-full"></div>
+            <div class="skeleton-shimmer h-4 rounded-lg w-11/12"></div>
+            <div class="skeleton-shimmer h-4 rounded-lg w-3/5"></div>
+            <div class="skeleton-shimmer h-32 rounded-xl w-full mt-4"></div>
+            <div class="skeleton-shimmer h-4 rounded-lg w-full"></div>
+            <div class="skeleton-shimmer h-4 rounded-lg w-4/5"></div>
+            <div class="skeleton-shimmer h-4 rounded-lg w-2/3"></div>
+            <div class="skeleton-shimmer h-24 rounded-xl w-full mt-2"></div>
+            <div class="skeleton-shimmer h-4 rounded-lg w-full"></div>
+            <div class="skeleton-shimmer h-4 rounded-lg w-3/4"></div>
+          </div>
+        </div>
+
       <!-- Back link -->
       <div class="mb-8">
         <a
@@ -180,6 +228,7 @@
 
       <!-- Article content -->
       <div
+        id="post-content"
         class="bg-base-100/60 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-3 sm:p-8 md:p-10 border border-base-300/15"
       >
         <article
@@ -188,6 +237,7 @@
           {{ post.content|safe }}
         </article>
       </div>
+      </div><!-- /post-wrapper -->
 
       <!-- Series Navigation -->
       {% if let Some(nav) = series_nav %}
@@ -263,6 +313,8 @@
 
       <!-- Comments section -->
       <div
+        id="comments-section"
+        data-post-id="{{ post.slug }}"
         class="mt-10 bg-base-100/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-base-300/20"
       >
         <h2
@@ -343,8 +395,26 @@
       <div
         class="mt-10 flex items-center justify-between py-6 border-t border-base-300/15"
       >
-        <!-- Share section -->
-        <div class="flex items-center gap-3">
+        <!-- Like & View -->
+        <div class="flex items-center gap-4">
+          <button
+            id="like-btn"
+            class="flex items-center gap-1.5 text-base-content/40 hover:text-red-400 transition-colors duration-200"
+            data-slug="{{ post.slug }}"
+            aria-label="Like"
+          >
+            <i class="ph ph-heart text-lg" id="like-icon"></i>
+            <span id="like-count" class="text-sm">{{ post.like_count }}</span>
+          </button>
+          <span class="text-base-content/20">&middot;</span>
+          <div class="flex items-center gap-1.5 text-base-content/35">
+            <i class="ph ph-eye text-base"></i>
+            <span class="text-sm">{{ post.view_count }}</span>
+          </div>
+
+          <span class="text-base-content/15">|</span>
+
+          <!-- Share section -->
           <span class="text-xs text-base-content/35"
             >{{ t.post_share_article }}</span
           >
@@ -503,256 +573,12 @@
   ></div>
 </div>
 
-<script>
-  // Scroll progress indicator
-  window.addEventListener('scroll', function() {
-      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrolled = (winScroll / height) * 100;
-      document.getElementById('progress-bar').style.width = scrolled + '%';
-  }, { passive: true });
-
-  // i18n strings from server
-  var i18nEl = document.getElementById('i18n-data');
-  var i18n = i18nEl ? JSON.parse(i18nEl.textContent) : {};
-
-  // Comments functionality
-  {% if let Some(post) = current_post %}
-  const postId = '{{ post.slug }}';
-
-  document.addEventListener('DOMContentLoaded', function() {
-      loadComments();
-  });
-
-  document.getElementById('comment-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      const author = document.getElementById('comment-author').value;
-      const content = document.getElementById('comment-content').value;
-      const password = document.getElementById('comment-password').value;
-
-      if (!author.trim() || !content.trim()) {
-          alert(i18n.comments_enter_both || 'Please enter both name and comment.');
-          return;
-      }
-
-      try {
-          const response = await fetch('/api/comments', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ post_id: postId, author, content, password: password || null })
-          });
-
-          if (response.ok) {
-              document.getElementById('comment-author').value = '';
-              document.getElementById('comment-content').value = '';
-              document.getElementById('comment-password').value = '';
-              loadComments();
-          } else {
-              alert(i18n.comments_failed_create || 'Failed to create comment.');
-          }
-      } catch (error) {
-          console.error('Error:', error);
-          alert(i18n.comments_error || 'An error occurred.');
-      }
-  });
-
-  async function loadComments() {
-      try {
-          const response = await fetch(`/api/comments/${postId}`);
-          const data = await response.json();
-          const container = document.getElementById('comments-container');
-
-          if (data.data.length === 0) {
-              container.textContent = '';
-              const p = document.createElement('p');
-              p.className = 'text-center text-base-content/70 py-8';
-              p.textContent = i18n.comments_be_first || 'Be the first to comment!';
-              container.appendChild(p);
-              return;
-          }
-
-          container.textContent = '';
-          data.data.forEach(function(comment) {
-              const card = document.createElement('div');
-              card.className = 'group relative p-6 bg-gradient-to-br from-base-100 to-base-200 rounded-xl border border-base-300/20 shadow-sm hover:shadow-md transition-all duration-300';
-
-              const topBar = document.createElement('div');
-              topBar.className = 'absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary/60 to-secondary/60 rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300';
-              card.appendChild(topBar);
-
-              const header = document.createElement('div');
-              header.className = 'flex justify-between items-start mb-4';
-
-              const userInfo = document.createElement('div');
-              userInfo.className = 'flex items-center gap-3';
-
-              const avatar = document.createElement('div');
-              avatar.className = 'w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-base-300/30';
-              const avatarIcon = document.createElement('i');
-              avatarIcon.className = 'ph ph-user text-primary text-lg';
-              avatar.appendChild(avatarIcon);
-              userInfo.appendChild(avatar);
-
-              const nameBlock = document.createElement('div');
-              const nameEl = document.createElement('h4');
-              nameEl.className = 'font-semibold text-base-content text-lg';
-              nameEl.textContent = comment.author;
-              nameBlock.appendChild(nameEl);
-
-              const dateEl = document.createElement('p');
-              dateEl.className = 'text-sm text-base-content/60 flex items-center gap-1';
-              const clockIcon = document.createElement('i');
-              clockIcon.className = 'ph ph-clock text-xs';
-              dateEl.appendChild(clockIcon);
-              const dateText = document.createTextNode(' ' + formatDate(comment.created_at));
-              dateEl.appendChild(dateText);
-              nameBlock.appendChild(dateEl);
-              userInfo.appendChild(nameBlock);
-              header.appendChild(userInfo);
-
-              const actions = document.createElement('div');
-              actions.className = 'flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300';
-
-              if (comment.password_hash) {
-                  const editBtn = document.createElement('button');
-                  editBtn.className = 'btn btn-sm btn-ghost btn-circle edit-comment-btn hover:bg-primary/10 hover:text-primary';
-                  editBtn.dataset.id = comment.id;
-                  const editIcon = document.createElement('i');
-                  editIcon.className = 'ph ph-pencil text-base';
-                  editBtn.appendChild(editIcon);
-                  actions.appendChild(editBtn);
-              }
-
-              const deleteBtn = document.createElement('button');
-              deleteBtn.className = 'btn btn-sm btn-ghost btn-circle delete-comment-btn hover:bg-error/10 hover:text-error';
-              deleteBtn.dataset.id = comment.id;
-              const deleteIcon = document.createElement('i');
-              deleteIcon.className = 'ph ph-trash text-base';
-              deleteBtn.appendChild(deleteIcon);
-              actions.appendChild(deleteBtn);
-              header.appendChild(actions);
-              card.appendChild(header);
-
-              const body = document.createElement('div');
-              body.className = 'pl-13';
-              const contentP = document.createElement('p');
-              contentP.className = 'text-base-content/90 whitespace-pre-wrap leading-relaxed';
-              contentP.textContent = comment.content;
-              body.appendChild(contentP);
-              card.appendChild(body);
-
-              container.appendChild(card);
-          });
-
-          // Add edit event listeners
-          document.querySelectorAll('.edit-comment-btn').forEach(function(btn) {
-              btn.addEventListener('click', async function() {
-                  const commentId = this.dataset.id;
-                  const commentContainer = this.closest('.group');
-                  const currentContent = commentContainer.querySelector('.whitespace-pre-wrap').textContent;
-
-                  const password = prompt(i18n.comments_enter_password_edit || 'Enter password to edit comment:');
-                  if (!password) return;
-
-                  const newContent = prompt(i18n.comments_edit_prompt || 'Edit your comment:', currentContent);
-                  if (!newContent || newContent === currentContent) return;
-
-                  try {
-                      const response = await fetch('/api/comments/edit/' + commentId, {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ content: newContent, password: password })
-                      });
-
-                      if (response.ok) {
-                          const result = await response.json();
-                          if (result.success) {
-                              loadComments();
-                          } else {
-                              alert(i18n.comments_wrong_password || 'Wrong password or comment not found.');
-                          }
-                      } else {
-                          alert(i18n.comments_failed_edit || 'Failed to edit comment.');
-                      }
-                  } catch (error) {
-                      console.error('Error:', error);
-                      alert(i18n.comments_error || 'An error occurred.');
-                  }
-              });
-          });
-
-          // Add delete event listeners
-          document.querySelectorAll('.delete-comment-btn').forEach(function(btn) {
-              btn.addEventListener('click', async function() {
-                  const commentId = this.dataset.id;
-
-                  const password = prompt(i18n.comments_enter_password_delete || 'Enter password to delete this comment:');
-                  if (!password) return;
-
-                  if (confirm(i18n.comments_confirm_delete || 'Are you sure you want to delete this comment?')) {
-                      try {
-                          const response = await fetch('/api/comments/delete/' + commentId, {
-                              method: 'DELETE',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ password: password })
-                          });
-
-                          if (response.ok) {
-                              const result = await response.json();
-                              if (result.success) {
-                                  loadComments();
-                              } else {
-                                  alert(i18n.comments_wrong_password || 'Wrong password or comment not found.');
-                              }
-                          } else {
-                              alert(i18n.comments_failed_edit || 'Failed to delete comment.');
-                          }
-                      } catch (error) {
-                          console.error('Error:', error);
-                          alert(i18n.comments_error || 'An error occurred.');
-                      }
-                  }
-              });
-          });
-      } catch (error) {
-          console.error('Error loading comments:', error);
-          var container = document.getElementById('comments-container');
-          container.textContent = '';
-          var p = document.createElement('p');
-          p.className = 'text-center text-error py-8';
-          p.textContent = i18n.comments_error || 'Failed to load comments.';
-          container.appendChild(p);
-      }
-  }
-
-  function formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('ko-KR', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-      });
-  }
-  {% endif %}
-</script>
-
 <!-- TOC interaction script -->
 <script src="/assets/js/post-toc.js?v={{ blog.v }}" defer></script>
 
-<!-- KaTeX rendering -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.math').forEach(function(el) {
-        var isDisplay = el.classList.contains('math-display');
-        katex.render(el.textContent, el, { displayMode: isDisplay, throwOnError: false });
-    });
-});
-</script>
-
 <!-- Graph & Chart rendering -->
 <script src="/assets/js/graph-render.js?v={{ blog.v }}" defer></script>
+
+<!-- Post scripts: scroll progress, comments, likes, KaTeX -->
+<script src="/assets/js/post.js?v={{ blog.v }}" defer></script>
 {% endblock %}

@@ -1,3 +1,13 @@
+/* KaTeX — hide raw LaTeX text until rendered */
+.prose .math {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.prose .math.rendered {
+  opacity: 1;
+}
+
 /* KaTeX — isolate from prose styles */
 .prose .katex {
   font-size: 1.1em;

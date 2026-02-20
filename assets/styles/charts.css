@@ -18,9 +18,19 @@
     hsl(var(--b2) / 0.3) 100%
   );
   backdrop-filter: blur(6px);
+  opacity: 0;
+  min-height: 280px;
   transition:
+    opacity 0.4s ease,
     border-color 0.3s ease,
     box-shadow 0.3s ease;
+}
+
+.function-plot-target.rendered,
+.chart-js-target.rendered,
+.plotly-target.rendered {
+  opacity: 1;
+  min-height: 0;
 }
 
 .function-plot-target:hover,
@@ -350,6 +360,7 @@
     padding: 0.5rem 0.25rem 0.5rem;
     margin: 1rem 0;
     border-radius: 0.75rem;
+    min-height: 200px;
   }
 
   .function-plot-target::before,
