@@ -86,10 +86,15 @@ assets/
 │   ├── resume-toc.js      # Resume TOC (collapsible h2 sections)
 │   └── resume-print.js    # Print-to-PDF optimization
 ├── styles/
-│   ├── tailwind.input.css # Tailwind source
-│   ├── tailwind.output.css# Compiled output
-│   ├── global.css         # Custom styles (tables, code blocks, graphs, hero animations)
-│   └── print.css          # Print media styles
+│   ├── tailwind.input.css  # Tailwind entry (imports + directives)
+│   ├── tailwind.output.css # Compiled output (single bundle)
+│   ├── base.css            # Base resets, selection, scrollbar, nav
+│   ├── code.css            # Tables, code blocks, copy button, dark mode
+│   ├── katex.css           # KaTeX math isolation
+│   ├── charts.css          # Plotly, Chart.js, D3 graph styling
+│   ├── hero.css            # Hero animations, reduced motion
+│   ├── animations.css      # Page transitions, staggered animations
+│   └── print.css           # Print media styles
 ├── favicon/               # Sakura flower icons
 └── robots.txt             # Crawler rules
 
