@@ -1,0 +1,252 @@
+---
+title: "양자역학 입문기 — [선형대수학] 03 선형변환의 합성과 행렬의 곱셈"
+description: "두 선형변환의 연속 적용, 행렬 곱셈의 기하학적 의미, 교환법칙의 부재와 결합법칙의 자명성까지"
+author: "Han Damin <miniex@daminstudio.net>"
+tags:
+  - physics
+  - quantum-mechanics
+  - linear-algebra
+  - series
+series: "양자역학 입문기"
+series_order: 3
+series_status: ongoing
+created_at: "2026/02/21 01:00 +09:00"
+updated_at: "2026/02/21 01:00 +09:00"
+lang: ko
+---
+
+## 선형변환의 합성(Composition)
+
+02장에서 하나의 선형변환은 하나의 행렬로 기술된다는 사실을 확인했다. 그렇다면 두 변환을 **순서대로** 적용하면 어떻게 되는가?
+
+예를 들어, 다음 두 변환을 순차적으로 적용하는 상황을 생각하자.
+
+1. **90° 반시계 회전** — $R = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$
+2. **전단(shear)** — $S = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$
+
+벡터 $\vec{v}$에 회전을 먼저 적용한 뒤 전단을 적용하면:
+
+$$S(R(\vec{v}))$$
+
+이 전체 과정의 결과는 그 자체로 하나의 새로운 선형변환이 된다. 이를 $R$과 $S$의 **합성(composition)** 이라 하며, 결과 역시 하나의 행렬로 표현할 수 있다.
+
+## 기저 벡터를 따라가기
+
+02장의 핵심 원리를 다시 적용한다 — **기저 벡터의 도달점만 추적하면 변환 전체를 기술할 수 있다.**
+
+### 1단계: 회전 $R$ 적용
+
+표준 기저 $\hat{i}$, $\hat{j}$에 회전 $R$을 적용한다.
+
+$$\hat{i} = \begin{bmatrix} 1 \\ 0 \end{bmatrix} \xrightarrow{R} \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \quad \hat{j} = \begin{bmatrix} 0 \\ 1 \end{bmatrix} \xrightarrow{R} \begin{bmatrix} -1 \\ 0 \end{bmatrix}$$
+
+```plot3d
+type: vector2d
+title: 1단계 — 회전 R 적용
+x: -3, 3
+y: -1, 3
+vec: 1, 0 | | \hat{i}
+vec: 0, 1 | | \hat{j}
+vec: 0, 1 | | R(\hat{i}) = (0, 1)
+vec: -1, 0 | | R(\hat{j}) = (-1, 0)
+```
+
+### 2단계: 전단 $S$ 적용
+
+1단계의 결과에 전단 $S$를 적용한다.
+
+$$\begin{bmatrix} 0 \\ 1 \end{bmatrix} \xrightarrow{S} 0\begin{bmatrix} 1 \\ 0 \end{bmatrix} + 1\begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 1 \\ 1 \end{bmatrix}$$
+
+$$\begin{bmatrix} -1 \\ 0 \end{bmatrix} \xrightarrow{S} -1\begin{bmatrix} 1 \\ 0 \end{bmatrix} + 0\begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} -1 \\ 0 \end{bmatrix}$$
+
+```plot3d
+type: vector2d
+title: 2단계 — 전단 S 적용 후 최종 도달점
+x: -3, 3
+y: -1, 3
+vec: 0, 1 | | R(\hat{i})
+vec: -1, 0 | | R(\hat{j})
+vec: 1, 1 | | S(R(\hat{i})) = (1, 1)
+vec: -1, 0 | | S(R(\hat{j})) = (-1, 0)
+```
+
+### 합성 결과
+
+최종 도달점으로부터 합성 행렬을 구성한다.
+
+$$SR = \begin{bmatrix} 1 & -1 \\ 1 & 0 \end{bmatrix}$$
+
+첫 번째 열이 $\hat{i}$의 최종 도달점 $(1, 1)$, 두 번째 열이 $\hat{j}$의 최종 도달점 $(-1, 0)$이다.
+
+## 행렬의 곱셈
+
+위의 과정을 식으로 쓰면:
+
+$$S \cdot R = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} = \begin{bmatrix} 1 & -1 \\ 1 & 0 \end{bmatrix}$$
+
+이것이 **행렬의 곱셈(matrix multiplication)** 이다. 두 행렬의 곱은 두 선형변환의 합성을 나타낸다.
+
+> **$M_2 M_1$은 "먼저 $M_1$을 적용하고, 그 다음 $M_2$를 적용한다"는 의미다.** 오른쪽에서 왼쪽으로 읽는다.
+
+### 열 단위로 생각하기
+
+합성의 결과를 구하는 방법은 명확하다. $M_1$의 각 열 벡터에 $M_2$를 적용하면 된다.
+
+- **결과의 첫째 열**: $M_2 \cdot (M_1\text{의 첫째 열})$ — $\hat{i}$가 $M_1$을 거친 뒤 $M_2$를 통과한 결과
+- **결과의 둘째 열**: $M_2 \cdot (M_1\text{의 둘째 열})$ — $\hat{j}$가 $M_1$을 거친 뒤 $M_2$를 통과한 결과
+
+### 일반 공식
+
+$$\begin{bmatrix} a & b \\ c & d \end{bmatrix}\begin{bmatrix} e & f \\ g & h \end{bmatrix} = \begin{bmatrix} ae + bg & af + bh \\ ce + dg & cf + dh \end{bmatrix}$$
+
+이 공식을 기계적으로 암기할 수도 있지만, 기하학적 의미를 함께 기억하는 것이 훨씬 강력하다 — **오른쪽 행렬의 각 열 벡터에 왼쪽 행렬(변환)을 적용하는 것**이다.
+
+## 또 다른 예시
+
+$$M_2 = \begin{bmatrix} 0 & 2 \\ 1 & 0 \end{bmatrix}, \quad M_1 = \begin{bmatrix} 1 & -2 \\ 1 & 0 \end{bmatrix}$$
+
+$\hat{i}$: $M_1$에 의해 $(1, 1)$로 이동 → $M_2$ 적용:
+
+$$M_2 \begin{bmatrix} 1 \\ 1 \end{bmatrix} = 1\begin{bmatrix} 0 \\ 1 \end{bmatrix} + 1\begin{bmatrix} 2 \\ 0 \end{bmatrix} = \begin{bmatrix} 2 \\ 1 \end{bmatrix}$$
+
+$\hat{j}$: $M_1$에 의해 $(-2, 0)$으로 이동 → $M_2$ 적용:
+
+$$M_2 \begin{bmatrix} -2 \\ 0 \end{bmatrix} = -2\begin{bmatrix} 0 \\ 1 \end{bmatrix} + 0\begin{bmatrix} 2 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ -2 \end{bmatrix}$$
+
+```plot3d
+type: vector2d
+title: M₂M₁ 합성 — 기저 벡터의 경로
+x: -3, 4
+y: -3, 3
+vec: 1, 1 | | M_1(\hat{i}) = (1, 1)
+vec: -2, 0 | | M_1(\hat{j}) = (-2, 0)
+vec: 2, 1 | | M_2 M_1(\hat{i}) = (2, 1)
+vec: 0, -2 | | M_2 M_1(\hat{j}) = (0, -2)
+```
+
+$$M_2 M_1 = \begin{bmatrix} 0 & 2 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 1 & -2 \\ 1 & 0 \end{bmatrix} = \begin{bmatrix} 2 & 0 \\ 1 & -2 \end{bmatrix}$$
+
+## 교환법칙은 성립하지 않는다
+
+행렬 곱셈에서 **순서는 중요하다.** 일반적으로:
+
+$$M_1 M_2 \neq M_2 M_1$$
+
+기하학적으로 생각하면 이는 자명하다. "회전한 뒤 전단"과 "전단한 뒤 회전"은 전혀 다른 변환이다. 실제로 계산해 보자.
+
+$$SR = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} = \begin{bmatrix} 1 & -1 \\ 1 & 0 \end{bmatrix}$$
+
+$$RS = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 0 & -1 \\ 1 & 1 \end{bmatrix}$$
+
+같은 벡터 $\vec{v} = (1, 1)$에 대해 두 합성의 결과가 어떻게 달라지는지 확인한다.
+
+$$SR\begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \quad RS\begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} -1 \\ 2 \end{bmatrix}$$
+
+```plot3d
+type: vector2d
+title: 교환법칙의 부재 — 같은 벡터, 다른 결과
+x: -3, 3
+y: -1, 4
+vec: 1, 1 | | \vec{v} = (1, 1)
+vec: 0, 1 | | SR(\vec{v}) = (0, 1)
+vec: -1, 2 | | RS(\vec{v}) = (-1, 2)
+```
+
+동일한 입력 벡터가 적용 순서에 따라 완전히 다른 위치에 도달한다. 숫자 연산에서의 $3 \times 5 = 5 \times 3$과는 근본적으로 다르다.
+
+더 넓은 시각에서 보면, 격자점 전체의 변환 결과도 달라진다. 다음은 $(-2, -2)$부터 $(2, 2)$까지의 격자점을 $SR$과 $RS$로 각각 변환한 결과다.
+
+```plot3d
+type: point2d
+title: SR 적용 결과 — 격자점의 도달 위치
+x: -5, 5
+y: -5, 5
+point: -2, -2 | | (-2,-2)
+point: -1, -2 | | (-1,-2)
+point: 0, -2 | |
+point: 1, -2 | |
+point: 2, -2 | |
+point: -3, -1 | |
+point: -2, -1 | |
+point: -1, -1 | |
+point: 0, -1 | |
+point: 1, -1 | |
+point: -4, 0 | |
+point: -3, 0 | |
+point: -2, 0 | |
+point: -1, 0 | |
+point: 0, 0 | | \vec{0}
+point: -5, 1 | |
+point: -4, 1 | |
+point: -3, 1 | |
+point: -2, 1 | |
+point: -1, 1 | |
+point: -6, 2 | |
+point: -5, 2 | |
+point: -4, 2 | |
+point: -3, 2 | |
+point: -2, 2 | |
+```
+
+```plot3d
+type: point2d
+title: RS 적용 결과 — 격자점의 도달 위치
+x: -5, 5
+y: -5, 5
+point: 2, -2 | | (2,-2)
+point: 1, -1 | |
+point: 0, 0 | | \vec{0}
+point: -1, 1 | |
+point: -2, 2 | |
+point: 2, -1 | |
+point: 1, 0 | |
+point: 0, 1 | |
+point: -1, 2 | |
+point: -2, 3 | |
+point: 2, 0 | |
+point: 1, 1 | |
+point: 0, 2 | |
+point: -1, 3 | |
+point: -2, 4 | |
+point: 2, 1 | |
+point: 1, 2 | |
+point: 0, 3 | |
+point: -1, 4 | |
+point: -2, 5 | |
+point: 2, 2 | |
+point: 1, 3 | |
+point: 0, 4 | |
+point: -1, 5 | |
+point: -2, 6 | |
+```
+
+같은 격자점 집합이 적용 순서에 따라 전혀 다른 패턴으로 변환된다.
+
+## 결합법칙은 성립한다
+
+반면, **결합법칙(associativity)** 은 성립한다.
+
+$$(AB)C = A(BC)$$
+
+세 변환 $A$, $B$, $C$를 순서대로 적용하는 상황을 생각하자.
+
+- $(AB)C$: "$C$를 적용한 뒤, $B$ 다음 $A$의 합성을 적용"
+- $A(BC)$: "$C$ 다음 $B$의 합성을 적용한 뒤, $A$를 적용"
+
+어느 쪽이든 실제로 벡터에 가해지는 변환은 **$C \to B \to A$ 순서의 연속 적용**이다. 묶는 방식만 다를 뿐, 최종 결과는 동일하다.
+
+## 요약
+
+| 개념 | 정의 |
+|---|---|
+| **합성** | 두 변환의 순차 적용; $M_2(M_1(\vec{v}))$ |
+| **행렬 곱셈** | 합성의 수치적 표현; $M_2 M_1$의 각 열은 $M_1$의 열 벡터에 $M_2$를 적용한 결과 |
+| **적용 순서** | $M_2 M_1$은 오른쪽($M_1$)부터 적용 |
+| **교환법칙** | 일반적으로 $AB \neq BA$ — 적용 순서가 결과를 바꾼다 |
+| **결합법칙** | $(AB)C = A(BC)$ — 묶는 방식은 결과에 영향을 주지 않는다 |
+
+---
+
+*참고자료: [3Blue1Brown — 선형대수학의 본질](https://www.youtube.com/playlist?list=PLkoaXOTFHiqhVDo0nWybNmihCP_4BjOFR)*
+
+*학습 중인 내용을 정리한 글이므로, 용어 선택이나 설명의 전달이 부정확할 수 있다.*
