@@ -13,7 +13,7 @@ repository = "https://gitlab.daminstudio.com/miniex/miniex.blog"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 
-tokio = { version = "=1.40.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "=1.40.0", features = ["macros", "rt-multi-thread", "signal"] }
 axum = { version = "=0.7.5", features = ["macros", "ws"] }
 askama = { version = "=0.12.1", features = ["with-axum"] }
 askama_axum = "=0.4.0"

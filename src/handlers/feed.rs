@@ -1,4 +1,7 @@
-use crate::{post::Post, SharedState, SITE_DESCRIPTION, SITE_URL};
+use crate::{
+    post::{dedup_refs_by_translation, Post},
+    SharedState, SITE_DESCRIPTION, SITE_URL,
+};
 use axum::{
     extract::{Query, State},
     http::{header, HeaderMap, StatusCode},
@@ -26,11 +29,14 @@ pub async fn handle_feed(
 ) -> impl IntoResponse {
     let posts = state.posts.read().await;
     let lang_filter = query.lang.as_deref().map(crate::i18n::Lang::parse);
+    let dedup_lang = lang_filter.unwrap_or(crate::i18n::Lang::En);
 
-    let mut recent_posts: Vec<&Post> = posts
-        .iter()
-        .filter(|p| lang_filter.map(|l| p.lang == l).unwrap_or(true))
-        .collect();
+    let mut recent_posts = dedup_refs_by_translation(
+        posts
+            .iter()
+            .filter(|p| lang_filter.map(|l| p.lang == l).unwrap_or(true)),
+        dedup_lang,
+    );
     recent_posts.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
     let recent_posts: Vec<_> = recent_posts.into_iter().take(20).collect();
 
@@ -165,7 +171,8 @@ pub async fn handle_sitemap(
 
     let mut xml = String::new();
     xml.push_str("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-    xml.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+    xml.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n");
+    xml.push_str("        xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n");
 
     // Static pages
     for path in &["/", "/blog", "/review", "/diary", "/series", "/guestbook"] {
@@ -188,6 +195,16 @@ pub async fn handle_sitemap(
         }
     }
 
+    // Build translation groups for hreflang
+    let mut translation_groups: std::collections::HashMap<&str, Vec<&Post>> =
+        std::collections::HashMap::new();
+    for post in posts.iter() {
+        translation_groups
+            .entry(&post.translation_key)
+            .or_default()
+            .push(post);
+    }
+
     // Post pages (deduplicated by translation_key for canonical URLs)
     let mut sorted_posts: Vec<&Post> = posts.iter().collect();
     sorted_posts.sort_by(|a, b| b.metadata.updated_at.cmp(&a.metadata.updated_at));
@@ -202,6 +219,21 @@ pub async fn handle_sitemap(
         xml.push_str(&format!("    <loc>{}/post/{}</loc>\n", SITE_URL, post.slug));
         xml.push_str(&format!("    <lastmod>{}</lastmod>\n", lastmod));
         xml.push_str("    <changefreq>monthly</changefreq>\n");
+
+        // Add hreflang alternates for multilingual posts
+        if let Some(translations) = translation_groups.get(post.translation_key.as_str()) {
+            if translations.len() > 1 {
+                for t_post in translations {
+                    xml.push_str(&format!(
+                        "    <xhtml:link rel=\"alternate\" hreflang=\"{}\" href=\"{}/post/{}\"/>\n",
+                        t_post.lang.as_str(),
+                        SITE_URL,
+                        t_post.slug
+                    ));
+                }
+            }
+        }
+
         xml.push_str("  </url>\n");
     }
 

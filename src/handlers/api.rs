@@ -11,6 +11,12 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 
+// --- Health Check ---
+
+pub async fn health_check() -> StatusCode {
+    StatusCode::OK
+}
+
 // --- Search API ---
 
 #[derive(Deserialize)]

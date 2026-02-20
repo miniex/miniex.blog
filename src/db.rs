@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Row, Sqlite, SqlitePool};
+use sqlx::{sqlite::SqlitePoolOptions, Pool, Row, Sqlite};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,7 +31,10 @@ pub struct Database {
 
 impl Database {
     pub async fn new(database_url: &str) -> Result<Self, sqlx::Error> {
-        let pool = SqlitePool::connect(database_url).await?;
+        let pool = SqlitePoolOptions::new()
+            .max_connections(5)
+            .connect(database_url)
+            .await?;
 
         // Create tables
         sqlx::query(
@@ -62,6 +65,15 @@ impl Database {
         )
         .execute(&pool)
         .await?;
+
+        // Create indexes for query performance
+        sqlx::query("CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id)")
+            .execute(&pool)
+            .await?;
+
+        sqlx::query("CREATE INDEX IF NOT EXISTS idx_guestbook_created_at ON guestbook(created_at)")
+            .execute(&pool)
+            .await?;
 
         Ok(Database { pool })
     }

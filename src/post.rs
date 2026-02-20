@@ -157,27 +157,50 @@ fn parse_file_lang(stem: &str) -> (String, Option<Lang>) {
 /// For each group of posts sharing the same translation_key, pick the one
 /// matching `lang`; if none matches, pick the first one (arbitrary fallback).
 pub fn dedup_by_translation(posts: Vec<Post>, lang: Lang) -> Vec<Post> {
+    use std::collections::hash_map::Entry;
     let mut seen: HashMap<String, Post> = HashMap::new();
     for post in posts {
-        seen.entry(post.translation_key.clone())
-            .and_modify(|existing| {
-                // Replace if the new post matches the preferred language
-                // and the existing one does not
-                if post.lang == lang && existing.lang != lang {
-                    *existing = post.clone();
+        match seen.entry(post.translation_key.clone()) {
+            Entry::Occupied(mut e) => {
+                if post.lang == lang && e.get().lang != lang {
+                    e.insert(post);
                 }
-            })
-            .or_insert(post);
+            }
+            Entry::Vacant(e) => {
+                e.insert(post);
+            }
+        }
+    }
+    seen.into_values().collect()
+}
+
+/// Reference-based dedup — avoids cloning until the caller needs owned values.
+pub fn dedup_refs_by_translation<'a>(
+    posts: impl Iterator<Item = &'a Post>,
+    lang: Lang,
+) -> Vec<&'a Post> {
+    use std::collections::hash_map::Entry;
+    let mut seen: HashMap<&str, &'a Post> = HashMap::new();
+    for post in posts {
+        match seen.entry(&post.translation_key) {
+            Entry::Occupied(mut e) => {
+                if post.lang == lang && e.get().lang != lang {
+                    e.insert(post);
+                }
+            }
+            Entry::Vacant(e) => {
+                e.insert(post);
+            }
+        }
     }
     seen.into_values().collect()
 }
 
 /// get recent posts with language fallback
 pub fn get_recent_posts(posts: &[Post], lang: Lang) -> Vec<Post> {
-    let all_posts: Vec<Post> = posts.to_vec();
-    let mut deduped = dedup_by_translation(all_posts, lang);
-    deduped.sort();
-    deduped.into_iter().take(5).collect()
+    let mut deduped = dedup_refs_by_translation(posts.iter(), lang);
+    deduped.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
+    deduped.into_iter().take(5).cloned().collect()
 }
 
 /// get posts by category with language fallback
@@ -188,24 +211,21 @@ pub fn get_posts_by_category(
     lang: Lang,
     sort_asc: bool,
 ) -> Vec<Post> {
-    let filtered: Vec<Post> = posts
-        .iter()
-        .filter(|post| {
+    let mut deduped = dedup_refs_by_translation(
+        posts.iter().filter(|post| {
             post.post_type == post_type
                 && category
                     .map(|c| post.metadata.tags.contains(&c.to_string()))
                     .unwrap_or(true)
-        })
-        .cloned()
-        .collect();
-
-    let mut deduped = dedup_by_translation(filtered, lang);
+        }),
+        lang,
+    );
     if sort_asc {
         deduped.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
     } else {
-        deduped.sort();
+        deduped.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
     }
-    deduped
+    deduped.into_iter().cloned().collect()
 }
 
 // load posts from mdx files
@@ -222,66 +242,66 @@ pub async fn load_posts(state: AppState) -> Result<()> {
 
 /// get all series information from posts (all languages), sorted by updated_at DESC
 pub fn get_series(posts: &[Post], _lang: Lang, sort_asc: bool) -> Vec<Series> {
-    let mut series_map: HashMap<String, Vec<String>> = HashMap::new();
-    let mut latest_updates: HashMap<String, DateTime<FixedOffset>> = HashMap::new();
-    let mut descriptions: HashMap<String, Option<String>> = HashMap::new();
-    let mut statuses: HashMap<String, SeriesStatus> = HashMap::new();
-    let mut post_counts: HashMap<String, usize> = HashMap::new();
+    struct SeriesBuilder {
+        authors: Vec<String>,
+        latest_update: DateTime<FixedOffset>,
+        description: Option<String>,
+        status: Option<SeriesStatus>,
+        post_count: usize,
+    }
+
+    let mut builders: HashMap<String, SeriesBuilder> = HashMap::new();
 
     for post in posts.iter() {
         if let Some(series_name) = &post.metadata.series {
-            series_map
+            let builder = builders
                 .entry(series_name.clone())
-                .or_default()
-                .push(post.metadata.author.clone());
+                .or_insert(SeriesBuilder {
+                    authors: Vec::new(),
+                    latest_update: DateTime::parse_from_rfc3339("1970-01-01T00:00:00+00:00")
+                        .unwrap(),
+                    description: None,
+                    status: None,
+                    post_count: 0,
+                });
 
-            latest_updates
-                .entry(series_name.clone())
-                .and_modify(|e| *e = (*e).max(post.metadata.updated_at))
-                .or_insert(post.metadata.updated_at);
+            builder.authors.push(post.metadata.author.clone());
+            builder.latest_update = builder.latest_update.max(post.metadata.updated_at);
+            builder.post_count += 1;
 
-            *post_counts.entry(series_name.clone()).or_default() += 1;
-
-            // Take description from the first post that has one
-            if !descriptions.contains_key(series_name) || descriptions[series_name].is_none() {
+            if builder.description.is_none() {
                 if let Some(desc) = &post.metadata.series_description {
-                    descriptions.insert(series_name.clone(), Some(desc.clone()));
+                    builder.description = Some(desc.clone());
                 }
             }
 
-            // Take status from the first post that has one
-            if !statuses.contains_key(series_name) {
+            if builder.status.is_none() {
                 if let Some(status_str) = &post.metadata.series_status {
-                    let status = match status_str.to_lowercase().as_str() {
+                    builder.status = Some(match status_str.to_lowercase().as_str() {
                         "completed" => SeriesStatus::Completed,
                         _ => SeriesStatus::Ongoing,
-                    };
-                    statuses.insert(series_name.clone(), status);
+                    });
                 }
             }
         }
     }
 
-    let mut series: Vec<Series> = series_map
+    let mut series: Vec<Series> = builders
         .into_iter()
-        .map(|(name, authors)| {
-            let unique_authors: Vec<String> = authors
+        .map(|(name, b)| {
+            let unique_authors: Vec<String> = b
+                .authors
                 .into_iter()
                 .collect::<std::collections::HashSet<_>>()
                 .into_iter()
                 .collect();
             Series {
-                description: descriptions.get(&name).cloned().flatten(),
-                status: statuses
-                    .get(&name)
-                    .cloned()
-                    .unwrap_or(SeriesStatus::Ongoing),
-                post_count: post_counts.get(&name).copied().unwrap_or(0),
-                authors: unique_authors,
-                updated_at: latest_updates.get(&name).cloned().unwrap_or_else(|| {
-                    DateTime::parse_from_rfc3339("1970-01-01T00:00:00+00:00").unwrap()
-                }),
                 name,
+                description: b.description,
+                status: b.status.unwrap_or(SeriesStatus::Ongoing),
+                authors: unique_authors,
+                updated_at: b.latest_update,
+                post_count: b.post_count,
             }
         })
         .collect();
@@ -294,19 +314,6 @@ pub fn get_series(posts: &[Post], _lang: Lang, sort_asc: bool) -> Vec<Series> {
     series
 }
 
-/// get all series names from posts (all languages), sorted alphabetically
-pub fn get_series_names(posts: &[Post], _lang: Lang) -> Vec<String> {
-    let mut series_names: Vec<String> = posts
-        .iter()
-        .filter_map(|post| post.metadata.series.clone())
-        .collect::<std::collections::HashSet<String>>()
-        .into_iter()
-        .collect();
-
-    series_names.sort();
-    series_names
-}
-
 /// get posts by series name with language fallback, sorted by created_at DESC by default
 pub fn get_posts_by_series(
     posts: &[Post],
@@ -314,26 +321,22 @@ pub fn get_posts_by_series(
     lang: Lang,
     sort_asc: bool,
 ) -> Vec<Post> {
-    let filtered: Vec<Post> = posts
-        .iter()
-        .filter(|post| {
+    let mut deduped = dedup_refs_by_translation(
+        posts.iter().filter(|post| {
             post.metadata
                 .series
                 .as_ref()
                 .map(|s| s == series_name)
                 .unwrap_or(false)
-        })
-        .cloned()
-        .collect();
-
-    let mut series_posts = dedup_by_translation(filtered, lang);
-
+        }),
+        lang,
+    );
     if sort_asc {
-        series_posts.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
+        deduped.sort_by(|a, b| a.metadata.created_at.cmp(&b.metadata.created_at));
     } else {
-        series_posts.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
+        deduped.sort_by(|a, b| b.metadata.created_at.cmp(&a.metadata.created_at));
     }
-    series_posts
+    deduped.into_iter().cloned().collect()
 }
 
 /// Get series navigation info for a specific post (scoped to same language)
@@ -465,14 +468,18 @@ async fn process_type_directory(
     state: &AppState,
 ) -> Result<()> {
     let mut entries = fs::read_dir(path).await?;
+    let mut batch: Vec<Post> = Vec::new();
     while let Some(entry) = entries.next_entry().await? {
         let file_path = entry.path();
         if file_path.extension().and_then(|e| e.to_str()) == Some("mdx") {
             let post = process_mdx_file(&file_path, post_type.clone(), matter)
                 .await
                 .with_context(|| format!("Failed to process file: {:?}", file_path))?;
-            state.write().await.push(post);
+            batch.push(post);
         }
+    }
+    if !batch.is_empty() {
+        state.write().await.extend(batch);
     }
     Ok(())
 }

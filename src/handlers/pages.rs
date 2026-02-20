@@ -17,6 +17,19 @@ use axum::{
 };
 use serde::Deserialize;
 
+fn compute_page_numbers(current: u32, total: u32) -> Vec<u32> {
+    if total <= 5 {
+        (1..=total).collect()
+    } else {
+        let start = std::cmp::max(
+            1,
+            std::cmp::min(current.saturating_sub(2), total.saturating_sub(4)),
+        );
+        let end = std::cmp::min(start + 4, total);
+        (start..=end).collect()
+    }
+}
+
 pub async fn handle_index(
     State(state): State<SharedState>,
     LangExtractor(lang): LangExtractor,
@@ -74,13 +87,7 @@ pub async fn handle_blog(
         .into_iter()
         .collect();
 
-    let page_numbers = if total_pages <= 5 {
-        (1..=total_pages).collect()
-    } else {
-        let start = std::cmp::max(1, std::cmp::min(page - 2, total_pages - 4));
-        let end = std::cmp::min(start + 4, total_pages);
-        (start..=end).collect()
-    };
+    let page_numbers = compute_page_numbers(page, total_pages);
 
     BlogTemplate {
         blog: Blog::new()
@@ -145,13 +152,7 @@ pub async fn handle_review(
         .into_iter()
         .collect();
 
-    let page_numbers = if total_pages <= 5 {
-        (1..=total_pages).collect()
-    } else {
-        let start = std::cmp::max(1, std::cmp::min(page - 2, total_pages - 4));
-        let end = std::cmp::min(start + 4, total_pages);
-        (start..=end).collect()
-    };
+    let page_numbers = compute_page_numbers(page, total_pages);
 
     ReviewTemplate {
         blog: Blog::new()
@@ -214,13 +215,7 @@ pub async fn handle_diary(
         .into_iter()
         .collect();
 
-    let page_numbers = if total_pages <= 5 {
-        (1..=total_pages).collect()
-    } else {
-        let start = std::cmp::max(1, std::cmp::min(page - 2, total_pages - 4));
-        let end = std::cmp::min(start + 4, total_pages);
-        (start..=end).collect()
-    };
+    let page_numbers = compute_page_numbers(page, total_pages);
 
     DiaryTemplate {
         blog: Blog::new()
@@ -313,13 +308,7 @@ pub async fn handle_series_detail(
                 .take(posts_per_page as usize)
                 .collect();
 
-            let page_numbers = if total_pages <= 5 {
-                (1..=total_pages).collect()
-            } else {
-                let s = std::cmp::max(1, std::cmp::min(page - 2, total_pages - 4));
-                let e = std::cmp::min(s + 4, total_pages);
-                (s..=e).collect()
-            };
+            let page_numbers = compute_page_numbers(page, total_pages);
 
             SeriesDetailTemplate {
                 blog: Blog::new()
@@ -472,13 +461,7 @@ pub async fn handle_guestbook(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let page_numbers = if total_pages <= 5 {
-        (1..=total_pages).collect()
-    } else {
-        let s = std::cmp::max(1, std::cmp::min(page.saturating_sub(2), total_pages - 4));
-        let e = std::cmp::min(s + 4, total_pages);
-        (s..=e).collect()
-    };
+    let page_numbers = compute_page_numbers(page, total_pages);
 
     Ok(GuestbookTemplate {
         entries: guestbook_entries,

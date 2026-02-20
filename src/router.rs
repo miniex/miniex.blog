@@ -75,6 +75,7 @@ pub fn create_router(state: SharedState) -> Router {
         .route("/guestbook", get(pages::handle_guestbook))
         .route("/feed.xml", get(feed::handle_feed))
         .route("/sitemap.xml", get(feed::handle_sitemap))
+        .route("/health", get(api::health_check))
         .route("/api/search", get(api::handle_search))
         .route("/api/set-lang", get(api::handle_set_lang))
         .route("/api/comments/:post_id", get(api::get_comments))
