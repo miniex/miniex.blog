@@ -78,6 +78,17 @@ $$SR = \begin{bmatrix} 1 & -1 \\ 1 & 0 \end{bmatrix}$$
 
 첫 번째 열이 $\hat{i}$의 최종 도달점 $(1, 1)$, 두 번째 열이 $\hat{j}$의 최종 도달점 $(-1, 0)$이다.
 
+격자 전체의 2단계 변환 과정을 한눈에 확인해 보자. 아래층(원본)에서 중간층(회전 후)으로, 다시 윗층(전단 적용 후)으로 격자점이 이동하는 모습이다.
+
+```plot3d
+type: compose2d
+title: SR 합성 — 격자의 두 단계 변환
+matrix1: 0, -1, 1, 0
+matrix2: 1, 1, 0, 1
+grid: -2, 2
+step: 1
+```
+
 ## 행렬의 곱셈
 
 위의 과정을 식으로 쓰면:
@@ -154,70 +165,24 @@ vec: -1, 2 | | RS(\vec{v}) = (-1, 2)
 
 동일한 입력 벡터가 적용 순서에 따라 완전히 다른 위치에 도달한다. 숫자 연산에서의 $3 \times 5 = 5 \times 3$과는 근본적으로 다르다.
 
-더 넓은 시각에서 보면, 격자점 전체의 변환 결과도 달라진다. 다음은 $(-2, -2)$부터 $(2, 2)$까지의 격자점을 $SR$과 $RS$로 각각 변환한 결과다.
+더 넓은 시각에서 보면, 격자점 전체의 변환 결과도 달라진다. 다음은 $(-2, -2)$부터 $(2, 2)$까지의 격자점에 대해 $SR$과 $RS$를 각각 적용한 결과를 단계별로 보여준다.
 
 ```plot3d
-type: point2d
-title: SR 적용 결과 — 격자점의 도달 위치
-x: -5, 5
-y: -5, 5
-point: -2, -2 | | (-2,-2)
-point: -1, -2 | | (-1,-2)
-point: 0, -2 | |
-point: 1, -2 | |
-point: 2, -2 | |
-point: -3, -1 | |
-point: -2, -1 | |
-point: -1, -1 | |
-point: 0, -1 | |
-point: 1, -1 | |
-point: -4, 0 | |
-point: -3, 0 | |
-point: -2, 0 | |
-point: -1, 0 | |
-point: 0, 0 | | \vec{0}
-point: -5, 1 | |
-point: -4, 1 | |
-point: -3, 1 | |
-point: -2, 1 | |
-point: -1, 1 | |
-point: -6, 2 | |
-point: -5, 2 | |
-point: -4, 2 | |
-point: -3, 2 | |
-point: -2, 2 | |
+type: compose2d
+title: SR — 회전 후 전단
+matrix1: 0, -1, 1, 0
+matrix2: 1, 1, 0, 1
+grid: -2, 2
+step: 1
 ```
 
 ```plot3d
-type: point2d
-title: RS 적용 결과 — 격자점의 도달 위치
-x: -5, 5
-y: -5, 5
-point: 2, -2 | | (2,-2)
-point: 1, -1 | |
-point: 0, 0 | | \vec{0}
-point: -1, 1 | |
-point: -2, 2 | |
-point: 2, -1 | |
-point: 1, 0 | |
-point: 0, 1 | |
-point: -1, 2 | |
-point: -2, 3 | |
-point: 2, 0 | |
-point: 1, 1 | |
-point: 0, 2 | |
-point: -1, 3 | |
-point: -2, 4 | |
-point: 2, 1 | |
-point: 1, 2 | |
-point: 0, 3 | |
-point: -1, 4 | |
-point: -2, 5 | |
-point: 2, 2 | |
-point: 1, 3 | |
-point: 0, 4 | |
-point: -1, 5 | |
-point: -2, 6 | |
+type: compose2d
+title: RS — 전단 후 회전
+matrix1: 1, 1, 0, 1
+matrix2: 0, -1, 1, 0
+grid: -2, 2
+step: 1
 ```
 
 같은 격자점 집합이 적용 순서에 따라 전혀 다른 패턴으로 변환된다.

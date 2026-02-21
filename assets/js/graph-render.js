@@ -1120,8 +1120,260 @@
     if (legendItems.length) el.appendChild(mkLegend(legendItems));
   }
 
+  // ── Animated grid helper (shared by transform2d / compose2d) ──
+
+  function easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+
+  function renderAnimatedGrid(el, cfg, p, opts) {
+    var dark = isDark();
+    var grid = opts.grid;
+    var nx = opts.nx;
+    var ny = opts.ny;
+    var pts = opts.pts;
+    var interpFn = opts.interp;
+    var duration = opts.duration || 1500;
+
+    var refLineColor = toRgba(p.series[2], dark ? 0.2 : 0.25);
+    var refPtColor = toRgba(p.series[2], dark ? 0.35 : 0.4);
+    var animLineColor = toRgba(p.series[0], dark ? 0.6 : 0.7);
+    var animPtColor = p.series[0];
+    var markerBorder = dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)";
+
+    function buildData(t) {
+      var lx = [],
+        ly = [],
+        px = [],
+        py = [];
+      for (var iy = 0; iy < ny; iy++) {
+        for (var ix = 0; ix < nx; ix++) {
+          var pos = interpFn(grid[ix][iy], t);
+          lx.push(pos.x);
+          ly.push(pos.y);
+        }
+        lx.push(null);
+        ly.push(null);
+      }
+      for (var ix = 0; ix < nx; ix++) {
+        for (var iy = 0; iy < ny; iy++) {
+          var pos = interpFn(grid[ix][iy], t);
+          lx.push(pos.x);
+          ly.push(pos.y);
+        }
+        lx.push(null);
+        ly.push(null);
+      }
+      for (var i = 0; i < pts.length; i++) {
+        var pos = interpFn(pts[i], t);
+        px.push(pos.x);
+        py.push(pos.y);
+      }
+      return { lx: lx, ly: ly, px: px, py: py };
+    }
+
+    var d0 = buildData(0);
+
+    var allX = opts.allX;
+    var allY = opts.allY;
+    var xMin = Math.min.apply(null, allX) - 0.5;
+    var xMax = Math.max.apply(null, allX) + 0.5;
+    var yMin = Math.min.apply(null, allY) - 0.5;
+    var yMax = Math.max.apply(null, allY) + 0.5;
+
+    var traces = [
+      {
+        type: "scatter",
+        x: d0.lx,
+        y: d0.ly,
+        mode: "lines",
+        line: { color: refLineColor, width: 1, dash: "dot" },
+        hoverinfo: "skip",
+        showlegend: false,
+      },
+      {
+        type: "scatter",
+        x: d0.px,
+        y: d0.py,
+        mode: "markers",
+        marker: { size: 4, color: refPtColor },
+        hoverinfo: "skip",
+        showlegend: false,
+      },
+      {
+        type: "scatter",
+        x: d0.lx.slice(),
+        y: d0.ly.slice(),
+        mode: "lines",
+        line: { color: animLineColor, width: 2 },
+        hoverinfo: "skip",
+        showlegend: false,
+      },
+      {
+        type: "scatter",
+        x: d0.px.slice(),
+        y: d0.py.slice(),
+        mode: "markers",
+        marker: {
+          size: 7,
+          color: animPtColor,
+          opacity: 1,
+          line: { width: 0.5, color: markerBorder },
+        },
+        hoverinfo: "skip",
+        showlegend: false,
+      },
+    ];
+
+    var layout = plotlyBaseLayout(cfg, p);
+    layout.xaxis = plotlyAxis2d(p);
+    layout.yaxis = plotlyAxis2d(p);
+    layout.xaxis.range = [xMin, xMax];
+    layout.yaxis.range = [yMin, yMax];
+    layout.xaxis.scaleanchor = "y";
+    layout.xaxis.scaleratio = 1;
+    layout.dragmode = "pan";
+
+    var graphWrap = document.createElement("div");
+    graphWrap.className = "graph-plot-wrap";
+    el.appendChild(graphWrap);
+
+    var wrap = document.createElement("div");
+    graphWrap.appendChild(wrap);
+    Plotly.newPlot(wrap, traces, layout, PLOTLY_CFG_2D);
+
+    // Animation state — auto-looping ping-pong
+    var holdMs = 800;
+    var revDuration = duration * 0.125; // reverse at 8x speed
+    var cycleLen = duration + holdMs + revDuration + holdMs;
+    var animId = null;
+    var animStart = null;
+    var playing = false;
+    var userPaused = false; // true when user explicitly paused
+
+    function cycleT(elapsed) {
+      var pos = elapsed % cycleLen;
+      if (pos < duration) return pos / duration; // forward
+      if (pos < duration + holdMs) return 1; // hold end
+      if (pos < duration + holdMs + revDuration)
+        return 1 - (pos - duration - holdMs) / revDuration; // fast reverse
+      return 0; // hold start
+    }
+
+    function tick(ts) {
+      if (!wrap.parentNode) return;
+      if (animStart === null) animStart = ts;
+      var t = cycleT(ts - animStart);
+      var data = buildData(t);
+      Plotly.restyle(
+        wrap,
+        { x: [data.lx, data.px], y: [data.ly, data.py] },
+        [2, 3],
+      );
+      animId = requestAnimationFrame(tick);
+    }
+
+    function play() {
+      if (playing) return;
+      playing = true;
+      animStart = null;
+      animId = requestAnimationFrame(tick);
+      updatePlayBtn();
+    }
+
+    function pause() {
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
+      playing = false;
+      updatePlayBtn();
+    }
+
+    // Controls — pause/play toggle
+    var controls = document.createElement("div");
+    controls.className = "graph-controls";
+
+    var btnPlay = document.createElement("button");
+    btnPlay.className = "graph-ctrl-btn";
+    btnPlay.title = "Pause";
+    btnPlay.setAttribute("aria-label", "Pause animation");
+    var playIcon = mkSvgIcon([
+      [
+        "polygon",
+        { points: "6,4 20,12 6,20", fill: "currentColor", stroke: "none" },
+      ],
+    ]);
+    var pauseIcon = mkSvgIcon([
+      [
+        "rect",
+        {
+          x: "6",
+          y: "4",
+          width: "4",
+          height: "16",
+          rx: "1",
+          fill: "currentColor",
+          stroke: "none",
+        },
+      ],
+      [
+        "rect",
+        {
+          x: "14",
+          y: "4",
+          width: "4",
+          height: "16",
+          rx: "1",
+          fill: "currentColor",
+          stroke: "none",
+        },
+      ],
+    ]);
+    playIcon.style.display = "none";
+    btnPlay.appendChild(playIcon);
+    btnPlay.appendChild(pauseIcon);
+
+    controls.appendChild(btnPlay);
+    graphWrap.appendChild(controls);
+
+    function updatePlayBtn() {
+      playIcon.style.display = playing ? "none" : "";
+      pauseIcon.style.display = playing ? "" : "none";
+      btnPlay.title = playing ? "Pause" : "Play";
+    }
+
+    btnPlay.addEventListener("click", function () {
+      if (playing) {
+        userPaused = true;
+        pause();
+      } else {
+        userPaused = false;
+        play();
+      }
+    });
+
+    // Auto-play when visible, pause when off-screen
+    if (typeof IntersectionObserver !== "undefined") {
+      var obs = new IntersectionObserver(
+        function (entries) {
+          var visible = entries[0].isIntersecting;
+          if (visible && !playing && !userPaused) play();
+          else if (!visible && playing) pause();
+        },
+        { threshold: 0.15 },
+      );
+      obs.observe(el);
+    } else {
+      play(); // fallback: just play immediately
+    }
+
+    if (opts.legendItems && opts.legendItems.length) {
+      el.appendChild(mkLegend(opts.legendItems));
+    }
+  }
+
   function renderPlot3dTransform2d(el, cfg, p) {
-    // Parse 2x2 matrix: "a, b, c, d" → [[a, b], [c, d]]
     var m = (cfg.matrix || "1,0,0,1").split(",").map(function (v) {
       return parseFloat(v.trim());
     });
@@ -1130,146 +1382,177 @@
       c = m[2] || 0,
       d = m[3] || 0;
 
-    // Parse grid range and step
     var gr = cfg.grid ? parseRange(cfg.grid) : [-2, 2];
     var step = cfg.step ? parseFloat(cfg.step) : 1;
 
-    // Generate grid points: before (z=0) → after (z=1)
+    var nx = Math.round((gr[1] - gr[0]) / step) + 1;
+    var ny = nx;
+    var grid = [];
     var pts = [];
-    for (var gx = gr[0]; gx <= gr[1]; gx += step) {
-      for (var gy = gr[0]; gy <= gr[1]; gy += step) {
+    for (var ix = 0; ix < nx; ix++) {
+      grid[ix] = [];
+      for (var iy = 0; iy < ny; iy++) {
+        var gx = gr[0] + ix * step;
+        var gy = gr[0] + iy * step;
         var tx = a * gx + b * gy;
         var ty = c * gx + d * gy;
-        pts.push({ x0: gx, y0: gy, x1: tx, y1: ty });
+        var pt = { x0: gx, y0: gy, x1: tx, y1: ty };
+        grid[ix][iy] = pt;
+        pts.push(pt);
       }
     }
 
-    var dark = isDark();
-    var beforeColor = p.series[2];
-    var afterColor = p.series[0];
-    var lineColor = toRgba(p.series[1], dark ? 0.6 : 0.7);
-
-    var traces = [];
-
-    // Connection lines (before z=0 → after z=1)
-    pts.forEach(function (pt) {
-      traces.push({
-        type: "scatter3d",
-        x: [pt.x0, pt.x1],
-        y: [pt.y0, pt.y1],
-        z: [0, 1],
-        mode: "lines",
-        line: { color: lineColor, width: 3 },
-        showlegend: false,
-      });
-    });
-
-    // Before points (z=0)
-    traces.push({
-      type: "scatter3d",
-      x: pts.map(function (pt) {
-        return pt.x0;
-      }),
-      y: pts.map(function (pt) {
-        return pt.y0;
-      }),
-      z: pts.map(function () {
-        return 0;
-      }),
-      mode: "markers",
-      marker: {
-        size: 6,
-        color: beforeColor,
-        opacity: 1,
-        line: {
-          width: 0.5,
-          color: dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
-        },
+    renderAnimatedGrid(el, cfg, p, {
+      grid: grid,
+      nx: nx,
+      ny: ny,
+      pts: pts,
+      interp: function (pt, t) {
+        var s = easeInOutQuad(t);
+        return {
+          x: (1 - s) * pt.x0 + s * pt.x1,
+          y: (1 - s) * pt.y0 + s * pt.y1,
+        };
       },
-      showlegend: false,
-    });
-
-    // After points (z=1)
-    traces.push({
-      type: "scatter3d",
-      x: pts.map(function (pt) {
-        return pt.x1;
-      }),
-      y: pts.map(function (pt) {
-        return pt.y1;
-      }),
-      z: pts.map(function () {
-        return 1;
-      }),
-      mode: "markers",
-      marker: {
-        size: 6,
-        color: afterColor,
-        opacity: 1,
-        line: {
-          width: 0.5,
-          color: dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
-        },
-      },
-      showlegend: false,
-    });
-
-    var layout = plotlyBaseLayout(cfg, p);
-    layout.scene = {
-      xaxis: plotlyAxis3d(p),
-      yaxis: plotlyAxis3d(p),
-      zaxis: Object.assign({}, plotlyAxis3d(p), {
-        tickvals: [0, 1],
-        ticktext: [
-          _i18n.graph_before || "Before",
-          _i18n.graph_after || "After",
-        ],
-      }),
-      camera: { eye: { x: 1.6, y: -1.6, z: 1.0 } },
-    };
-
-    var graphWrap = document.createElement("div");
-    graphWrap.className = "graph-plot-wrap";
-    el.appendChild(graphWrap);
-
-    var wrap = document.createElement("div");
-    graphWrap.appendChild(wrap);
-    Plotly.newPlot(wrap, traces, layout, PLOTLY_CFG_3D);
-    blockPlotlyWheelZoom(wrap);
-
-    addPlotlyControls(graphWrap, {
-      zoomIn: function () {
-        var cam = wrap._fullLayout.scene._scene.getCamera();
-        cam.eye.x *= 0.75;
-        cam.eye.y *= 0.75;
-        cam.eye.z *= 0.75;
-        Plotly.relayout(wrap, { "scene.camera": cam });
-      },
-      zoomOut: function () {
-        var cam = wrap._fullLayout.scene._scene.getCamera();
-        cam.eye.x *= 1.35;
-        cam.eye.y *= 1.35;
-        cam.eye.z *= 1.35;
-        Plotly.relayout(wrap, { "scene.camera": cam });
-      },
-      reset: function () {
-        Plotly.relayout(wrap, {
-          "scene.camera": { eye: { x: 1.6, y: -1.6, z: 1.0 } },
-        });
-      },
-    });
-
-    // Legend
-    el.appendChild(
-      mkLegend([
+      duration: 1500,
+      allX: pts
+        .map(function (pt) {
+          return pt.x0;
+        })
+        .concat(
+          pts.map(function (pt) {
+            return pt.x1;
+          }),
+        ),
+      allY: pts
+        .map(function (pt) {
+          return pt.y0;
+        })
+        .concat(
+          pts.map(function (pt) {
+            return pt.y1;
+          }),
+        ),
+      legendItems: [
         {
           label: _i18n.graph_before || "Before",
-          color: beforeColor,
+          color: toRgba(p.series[2], isDark() ? 0.4 : 0.4),
           katex: null,
         },
-        { label: _i18n.graph_after || "After", color: afterColor, katex: null },
-      ]),
-    );
+        {
+          label: _i18n.graph_after || "After",
+          color: p.series[0],
+          katex: null,
+        },
+      ],
+    });
+  }
+
+  function renderPlot3dCompose2d(el, cfg, p) {
+    var m1 = (cfg.matrix1 || "1,0,0,1").split(",").map(function (v) {
+      return parseFloat(v.trim());
+    });
+    var m2 = (cfg.matrix2 || "1,0,0,1").split(",").map(function (v) {
+      return parseFloat(v.trim());
+    });
+    var a1 = m1[0] || 0,
+      b1 = m1[1] || 0,
+      c1 = m1[2] || 0,
+      d1 = m1[3] || 0;
+    var a2 = m2[0] || 0,
+      b2 = m2[1] || 0,
+      c2 = m2[2] || 0,
+      d2 = m2[3] || 0;
+
+    var gr = cfg.grid ? parseRange(cfg.grid) : [-2, 2];
+    var step = cfg.step ? parseFloat(cfg.step) : 1;
+
+    var nx = Math.round((gr[1] - gr[0]) / step) + 1;
+    var ny = nx;
+    var grid = [];
+    var pts = [];
+    for (var ix = 0; ix < nx; ix++) {
+      grid[ix] = [];
+      for (var iy = 0; iy < ny; iy++) {
+        var gx = gr[0] + ix * step;
+        var gy = gr[0] + iy * step;
+        var tx1 = a1 * gx + b1 * gy;
+        var ty1 = c1 * gx + d1 * gy;
+        var tx2 = a2 * tx1 + b2 * ty1;
+        var ty2 = c2 * tx1 + d2 * ty1;
+        var pt = { x0: gx, y0: gy, x1: tx1, y1: ty1, x2: tx2, y2: ty2 };
+        grid[ix][iy] = pt;
+        pts.push(pt);
+      }
+    }
+
+    renderAnimatedGrid(el, cfg, p, {
+      grid: grid,
+      nx: nx,
+      ny: ny,
+      pts: pts,
+      interp: function (pt, t) {
+        // Phase 1: original → step1 (0 → 0.45)
+        // Pause at step1 (0.45 → 0.55)
+        // Phase 2: step1 → composed (0.55 → 1)
+        if (t <= 0.45) {
+          var s = easeInOutQuad(t / 0.45);
+          return {
+            x: (1 - s) * pt.x0 + s * pt.x1,
+            y: (1 - s) * pt.y0 + s * pt.y1,
+          };
+        } else if (t <= 0.55) {
+          return { x: pt.x1, y: pt.y1 };
+        } else {
+          var s = easeInOutQuad((t - 0.55) / 0.45);
+          return {
+            x: (1 - s) * pt.x1 + s * pt.x2,
+            y: (1 - s) * pt.y1 + s * pt.y2,
+          };
+        }
+      },
+      duration: 3000,
+      allX: pts
+        .map(function (pt) {
+          return pt.x0;
+        })
+        .concat(
+          pts.map(function (pt) {
+            return pt.x1;
+          }),
+        )
+        .concat(
+          pts.map(function (pt) {
+            return pt.x2;
+          }),
+        ),
+      allY: pts
+        .map(function (pt) {
+          return pt.y0;
+        })
+        .concat(
+          pts.map(function (pt) {
+            return pt.y1;
+          }),
+        )
+        .concat(
+          pts.map(function (pt) {
+            return pt.y2;
+          }),
+        ),
+      legendItems: [
+        {
+          label: _i18n.graph_original || "Original",
+          color: toRgba(p.series[2], isDark() ? 0.4 : 0.4),
+          katex: null,
+        },
+        {
+          label: _i18n.graph_composed || "Composed",
+          color: p.series[0],
+          katex: null,
+        },
+      ],
+    });
   }
 
   function renderPlot3dVector3d(el, cfg, p) {
@@ -1478,6 +1761,8 @@
       renderPlot3dPoint2d(el, cfg, p);
     } else if (type === "transform2d") {
       renderPlot3dTransform2d(el, cfg, p);
+    } else if (type === "compose2d") {
+      renderPlot3dCompose2d(el, cfg, p);
     } else if (type === "vector3d") {
       renderPlot3dVector3d(el, cfg, p);
     } else if (type === "scatter3d") {

@@ -13,9 +13,9 @@ Supports Korean, Japanese, and English with a markdown (MDX) based post system, 
 - **Dark Mode** — DaisyUI pastel/pastel-dark themes. Persisted in localStorage. Flash-free on route change via blocking inline script
 - **LaTeX Math** — Inline (`$...$`) and block (`$$...$$`) math rendering via KaTeX
 - **Code Blocks** — Syntax highlighting via Highlight.js with copy-to-clipboard button
-- **Graph Rendering** — `graph` fenced code block for mathematical function plotting via function-plot. Supports `point2d` and `transform2d` plot types with interactive zoom/pan
+- **Graph Rendering** — `graph` fenced code block for mathematical function plotting via function-plot with interactive zoom/pan
 - **Chart Rendering** — `chart` fenced code block for bar, line, pie, doughnut, and radar charts via Chart.js
-- **3D Plot Rendering** — `plot3d` fenced code block for 3D surfaces, vector fields, and scatter plots via Plotly.js
+- **Plot Rendering** — `plot3d` fenced code block with multiple visualization types via Plotly.js (see [Visualization DSL](#visualization-dsl) below)
 - **Sort Toggle** — Ascending/descending sort on all list pages (blog, review, diary, series, guestbook) with htmx partial updates
 - **Series** — Group related posts into a series with prev/next navigation, status tracking (Ongoing/Completed), and per-language navigation chains
 - **Resume** — Dynamic resume page with hierarchical TOC, collapsible sections, and print-to-PDF optimization
@@ -81,7 +81,7 @@ assets/
 ├── js/
 │   ├── search.js          # Search modal (Ctrl+K, language filter)
 │   ├── code-highlight.js  # Syntax highlighting + copy button
-│   ├── graph-render.js    # Graph, chart, plot3d rendering
+│   ├── graph-render.js    # Graph, chart, plot3d rendering (animated transforms)
 │   ├── post-toc.js        # Post TOC (scroll tracking)
 │   ├── resume-toc.js      # Resume TOC (collapsible h2 sections)
 │   └── resume-print.js    # Print-to-PDF optimization
@@ -150,6 +150,152 @@ series_status: "ongoing"
 | GET | `/api/set-lang` | Set language cookie |
 | GET/POST/PUT/DELETE | `/api/comments/*` | Comments CRUD |
 | GET/POST/PUT/DELETE | `/api/guestbook/*` | Guestbook CRUD |
+
+## Visualization DSL
+
+Visualizations are embedded in MDX posts using fenced code blocks. Three renderers are available:
+
+| Block | Renderer | Use case |
+|-------|----------|----------|
+| `` ```graph `` | function-plot | 2D math functions (`y = f(x)`) |
+| `` ```chart `` | Chart.js | Bar, line, pie, doughnut, radar charts |
+| `` ```plot3d `` | Plotly.js | Vectors, points, transforms, 3D surfaces/scatter |
+
+### `graph` — Function Plot
+
+```
+title: Quadratic
+x: -5, 5
+y: -2, 30
+fn: x^2 | | x^2
+fn: 2*x + 1 | steelblue | 2x + 1
+```
+
+- `fn`: expression `| color (optional) | KaTeX label (optional)`
+- `x`, `y`: axis range
+- `xlabel`, `ylabel`: axis labels
+
+### `chart` — Chart.js
+
+```
+type: bar
+title: Monthly Sales
+labels: Jan, Feb, Mar, Apr
+dataset: Revenue | 10, 25, 15, 30
+dataset: Cost | 5, 10, 8, 12 | tomato
+```
+
+- `type`: `line`, `bar`, `pie`, `doughnut`, `radar`
+- `dataset`: `label | values | color (optional)`
+
+### `plot3d` — Plotly Types
+
+All `plot3d` blocks require a `type` field. Available types:
+
+#### `vector2d` — 2D Vector Arrows
+
+```
+type: vector2d
+title: Basis vectors
+x: -1, 4
+y: -1, 4
+vec: 1, 0 | | \hat{i}
+vec: 0, 1 | | \hat{j}
+vec: 2, 3 | | \vec{v} = 2\hat{i} + 3\hat{j}
+```
+
+- `vec`: `vx, vy | color (optional) | KaTeX label (optional)`
+- Renders arrows from origin with arrowheads
+
+#### `point2d` — 2D Scatter Points
+
+```
+type: point2d
+title: Lattice points
+x: -4, 6
+y: -6, 6
+point: 0, 0 | | \vec{0}
+point: 2, 3 | | \vec{v}
+point: 1, 2 | | \vec{w}
+```
+
+- `point`: `px, py | color (optional) | KaTeX label (optional)`
+
+#### `transform2d` — Animated 2D Linear Transform
+
+```
+type: transform2d
+title: 90° rotation
+matrix: 0, -1, 1, 0
+grid: -2, 2
+step: 1
+```
+
+- `matrix`: `a, b, c, d` — the 2x2 matrix `[[a,b],[c,d]]`
+- `grid`: range for grid points
+- `step`: grid spacing
+- Renders an animated 2D grid that deforms from the original to the transformed state
+- Auto-plays on scroll into view (IntersectionObserver), ping-pong loop with 8x fast reverse
+- Pause/play button; pauses when scrolled off-screen
+
+#### `compose2d` — Animated Two-Step Composition
+
+```
+type: compose2d
+title: SR composition — rotate then shear
+matrix1: 0, -1, 1, 0
+matrix2: 1, 1, 0, 1
+grid: -2, 2
+step: 1
+```
+
+- `matrix1`: first transform (applied first)
+- `matrix2`: second transform (applied to result of matrix1)
+- Two-phase animation: original → after M₁ (pause) → after M₂·M₁
+- Same auto-play/loop behavior as `transform2d`
+
+#### `vector3d` — 3D Vector Arrows
+
+```
+type: vector3d
+vec: 2, 1, 0 | | \vec{v}
+vec: 0, 2, 1 | | \vec{w}
+```
+
+- `vec`: `vx, vy, vz | color (optional) | KaTeX label (optional)`
+- Renders 3D lines with cone arrowheads
+
+#### `scatter3d` — 3D Scatter Plot
+
+```
+type: scatter3d
+dataset: Group A | 1,2,3; 4,5,6; 7,8,9
+dataset: Group B | 2,3,1; 5,6,4 | tomato
+```
+
+- `dataset`: `label | x,y,z points separated by ; | color (optional)`
+
+#### `surface` — 3D Surface Plot
+
+```
+type: surface
+title: Paraboloid
+x: -3, 3
+y: -3, 3
+fn: x^2 + y^2
+```
+
+- `fn`: expression in `x` and `y`
+- Supports: `sin`, `cos`, `tan`, `sqrt`, `exp`, `log`, `abs`, `pow`, `PI`
+
+### Shared DSL Features
+
+- Colors: CSS named colors (`steelblue`, `tomato`) or hex (`#c9899e`)
+- Labels with `|` delimiters: `data | color | KaTeX label`
+- Empty color field inherits from the pastel palette: `data | | label`
+- All plots support `title` field
+- Light/dark theme auto-switch on `data-theme` change
+- Responsive: mobile-optimized dimensions and font sizes
 
 ## Getting Started
 

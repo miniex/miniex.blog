@@ -58,6 +58,24 @@ vec: -2, -3 | | -\vec{v}
 - $c = -1$ — 방향 반전, 크기 보존
 - $c = 0.5$ — 동일 방향, 크기 $\frac{1}{2}$배
 
+## 벡터 덧셈
+
+벡터 덧셈(vector addition)은 대응하는 성분끼리 더하는 연산이다.
+
+$$\vec{v} + \vec{w} = \begin{bmatrix} v_1 \\ v_2 \end{bmatrix} + \begin{bmatrix} w_1 \\ w_2 \end{bmatrix} = \begin{bmatrix} v_1 + w_1 \\ v_2 + w_2 \end{bmatrix}$$
+
+```plot3d
+type: vector2d
+title: 벡터 덧셈
+x: -1, 5
+y: -1, 7
+vec: 2, 3 | | \vec{v} = (2, 3)
+vec: 1, 2 | | \vec{w} = (1, 2)
+vec: 3, 5 | | \vec{v} + \vec{w} = (3, 5)
+```
+
+기하학적으로, 벡터 덧셈은 $\vec{v}$의 끝점에서 $\vec{w}$를 이어 붙이는 것과 같다(평행사변형 법칙).
+
 선형대수학 전반의 논의는 이 두 기본 연산 — **벡터 덧셈**과 **스칼라 곱셈** — 을 중심으로 전개된다.
 
 ## 기저 벡터(Basis Vectors)
@@ -106,6 +124,24 @@ $$\text{span}(\vec{v}, \vec{w}) = \{ a\vec{v} + b\vec{w} \mid a, b \in \mathbb{R
 | $\vec{v}$와 $\vec{w}$가 선형 독립 | $\mathbb{R}^2$ 전체 |
 | $\vec{v} \parallel \vec{w}$ (평행) | 원점을 지나는 직선 |
 | $\vec{v} = \vec{w} = \vec{0}$ | $\{\vec{0}\}$ |
+
+다음은 $\vec{v} = (2, 3)$과 $\vec{w} = (1, 2)$의 정수 계수 선형 결합 ($a, b \in \{-1, 0, 1\}$)이 이루는 9개의 점이다. 선형 독립인 두 벡터의 선형 결합이 평면 위 격자를 형성하는 모습을 볼 수 있다.
+
+```plot3d
+type: point2d
+title: span(\vec{v}, \vec{w}) — 정수 계수의 선형 결합
+x: -4, 6
+y: -6, 6
+point: -3, -5 | | -\vec{v} - \vec{w}
+point: -2, -3 | | -\vec{v}
+point: -1, -1 | | -\vec{v} + \vec{w}
+point: -1, -2 | | -\vec{w}
+point: 0, 0 | | \vec{0}
+point: 1, 2 | | \vec{w}
+point: 1, 1 | | \vec{v} - \vec{w}
+point: 2, 3 | | \vec{v}
+point: 3, 5 | | \vec{v} + \vec{w}
+```
 
 ### 화살표와 점 — 벡터를 바라보는 두 가지 시선
 

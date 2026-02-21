@@ -268,6 +268,9 @@ pub struct Translations {
     // Graph
     pub graph_before: &'static str,
     pub graph_after: &'static str,
+    pub graph_original: &'static str,
+    pub graph_step1: &'static str,
+    pub graph_composed: &'static str,
 
     // Sort
     pub sort_newest_first: &'static str,
@@ -429,6 +432,9 @@ impl Translations {
             // Graph
             graph_before: "Before",
             graph_after: "After",
+            graph_original: "Original",
+            graph_step1: "After 1st",
+            graph_composed: "Composed",
 
             // Sort
             sort_newest_first: "Newest first",
@@ -577,6 +583,9 @@ impl Translations {
             // Graph
             graph_before: "변환 전",
             graph_after: "변환 후",
+            graph_original: "원본",
+            graph_step1: "1단계 후",
+            graph_composed: "합성 결과",
 
             // Sort
             sort_newest_first: "최신순",
@@ -722,6 +731,9 @@ impl Translations {
             // Graph
             graph_before: "変換前",
             graph_after: "変換後",
+            graph_original: "元の状態",
+            graph_step1: "第1段階後",
+            graph_composed: "合成結果",
 
             // Sort
             sort_newest_first: "新しい順",
